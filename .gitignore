@@ -2,6 +2,7 @@
 !/business
 !/implementation
 !/presentation
+!/media
 !build.gradle
 !dependencies.gradle
 !settings.gradle

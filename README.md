@@ -2,3 +2,5 @@
 
 # MyM1yClean
 Android clean architecture experiment
+
+<img src="media/icon.png" width="128" height="128" />

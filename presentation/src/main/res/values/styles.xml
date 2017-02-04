@@ -1,0 +1,10 @@
+<resources>
+
+    <style name="AppTheme" parent="android:Theme.Holo.NoActionBar">
+    </style>
+
+    <style name="Dialog" parent="android:Theme.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+</resources>
