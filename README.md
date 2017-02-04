@@ -4,3 +4,8 @@
 Android clean architecture experiment
 
 <img src="media/icon.png" width="128" height="128" />
+
+## Architecture
+- [MVP](https://github.com/kepocnhh/MyM1yClean/tree/master/business/src/main/java/stan/mym1y/clean/contracts) - MVP architecture
+- [DAO](https://github.com/kepocnhh/MyM1yClean/tree/master/business/src/main/java/stan/mym1y/clean/dao) - DAO layer
+- [TDD](https://github.com/kepocnhh/MyM1yClean/tree/master/implementation/src/test/java/stan/mym1y/clean) - Testing implementation module
