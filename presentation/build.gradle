@@ -1,0 +1,29 @@
+apply plugin: 'com.android.application'
+
+android {
+    def global = rootProject.extensions.getByName("ext")
+
+    compileSdkVersion global.getAt("androidCompileSdkVersion")
+    buildToolsVersion global.getAt("androidBuildToolsVersion")
+    defaultConfig {
+        minSdkVersion global.getAt("androidMinSdkVersion")
+        targetSdkVersion global.getAt("androidTargetSdkVersion")
+        applicationId global.getAt("androidApplicationId")
+        versionCode global.getAt("androidVersionCode")
+        versionName global.getAt("androidVersionName")
+        archivesBaseName = "$applicationId-$versionCode"
+    }
+    buildTypes {
+        release {
+        }
+        debug {
+        }
+    }
+}
+
+dependencies {
+    compile project(':business')
+    compile project(':implementation')
+
+    compile 'com.android.support:recyclerview-v7:25.1.1'
+}

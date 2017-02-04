@@ -1,0 +1,21 @@
+apply plugin: 'com.android.library'
+
+android {
+    def global = rootProject.extensions.getByName("ext")
+
+    compileSdkVersion global.getAt("androidCompileSdkVersion")
+    buildToolsVersion global.getAt("androidBuildToolsVersion")
+    defaultConfig {
+        minSdkVersion global.getAt("androidMinSdkVersion")
+        targetSdkVersion global.getAt("androidTargetSdkVersion")
+        versionCode global.getAt("androidVersionCode")
+        versionName global.getAt("androidVersionName")
+    }
+}
+
+dependencies {
+    compile project(':business')
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.robolectric:robolectric:3.1.4'
+}
