@@ -14,7 +14,7 @@ public class TransactionTest
     public void checkModel()
     {
         int count = nextInt();
-        long date = Long.MAX_VALUE;
+        long date = Integer.MAX_VALUE;
         date += nextInt();
         int id = nextInt();
         TransactionModel transaction = new Transaction(

@@ -34,7 +34,7 @@ public class TransactionsTest
     public void checkInsertTransaction()
     {
         int count = nextInt();
-        long date = Long.MAX_VALUE;
+        long date = Integer.MAX_VALUE;
         date += nextInt();
         int id = nextInt();
         TransactionModel transaction = new Transaction(
@@ -56,7 +56,9 @@ public class TransactionsTest
         int count = nextInt(100) + 100;
         for(int i=0; i<count; i++)
         {
-            transactions.add(new Transaction(nextInt(), nextInt(), nextInt()));
+            long date = Integer.MAX_VALUE;
+            date += nextInt();
+            transactions.add(new Transaction(nextInt(), nextInt(), date));
         }
         assertEquals("listModel size != "+count+" after add", transactions.getAll().size(), count);
     }
@@ -75,7 +77,7 @@ public class TransactionsTest
     public void checkGetTransaction()
     {
         int count = nextInt();
-        long date = Long.MAX_VALUE;
+        long date = Integer.MAX_VALUE;
         date += nextInt();
         int id = nextInt();
         transactions.add(new Transaction(
