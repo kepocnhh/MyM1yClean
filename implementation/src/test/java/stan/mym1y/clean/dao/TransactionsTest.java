@@ -4,8 +4,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import stan.mym1y.clean.boxes.Boxes;
 import stan.mym1y.clean.cores.transactions.TransactionModel;
-import stan.mym1y.clean.db.SQLite;
 import stan.mym1y.clean.modules.transactions.Transaction;
 import stan.mym1y.clean.utils.RobolectricTest;
 
@@ -20,7 +20,7 @@ public class TransactionsTest
     @Before
     public void before()
     {
-        transactions = new SQLite(RuntimeEnvironment.application.getApplicationContext()).getTransactions();
+        transactions = new Boxes(RuntimeEnvironment.application.getApplicationContext().getFilesDir().getAbsolutePath()).getTransactions();
     }
 
     @Test
@@ -68,7 +68,9 @@ public class TransactionsTest
         int count = nextInt(100) + 100;
         for(int i=0; i<count; i++)
         {
-            transactions.add(new Transaction(nextInt(), nextInt(), nextInt()));
+            long date = Integer.MAX_VALUE;
+            date += nextInt();
+            transactions.add(new Transaction(nextInt(), nextInt(), date));
         }
         transactions.clear();
         assertEquals("listModel size != "+0+" after clear", transactions.getAll().size(), 0);

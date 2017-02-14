@@ -15,6 +15,7 @@ android {
 
 dependencies {
     compile project(':business')
+    compile project(':boxes')
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.1.4'

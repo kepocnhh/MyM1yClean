@@ -91,10 +91,7 @@ public class MainActivity
     }
     private void init()
     {
-        presenter = new MainPresenter(view
-                ,new MainModel(
-                    App.getDataAcess().getTransactions()
-        ));
+        presenter = new MainPresenter(view, new MainModel(App.getAppComponent().getDataAccess().getTransactions()));
         transactions.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TransactionsAdapter(this);
         transactions.setAdapter(adapter);
