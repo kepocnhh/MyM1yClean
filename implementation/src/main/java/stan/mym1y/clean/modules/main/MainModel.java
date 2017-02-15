@@ -16,9 +16,9 @@ class MainModel
     }
 
     @Override
-    public ListModel<TransactionModel> getAll()
+    public ListModel<TransactionModel> getAll(int sortingType)
     {
-        return transactions.getAll();
+        return transactions.getAllWithSort(sortingType);
     }
 
     @Override
@@ -37,5 +37,11 @@ class MainModel
     public void add(TransactionModel transaction)
     {
         transactions.add(transaction);
+    }
+
+    @Override
+    public void delete(int id)
+    {
+        transactions.remove(id);
     }
 }

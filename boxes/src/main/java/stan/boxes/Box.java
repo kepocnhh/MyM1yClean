@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import stan.boxes.json.JSONParser;
 import stan.boxes.json.JSONWriter;
@@ -125,6 +124,12 @@ public class Box<DATA>
         {
         }
         return new ArrayList<DATA>();
+    }
+    public List<DATA> get(Comparator<DATA> comparator)
+    {
+        List<DATA> list = getAll();
+        Collections.sort(list, comparator);
+        return list;
     }
     public List<DATA> get(Query<DATA> query, Comparator<DATA> comparator)
     {

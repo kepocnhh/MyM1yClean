@@ -3,6 +3,7 @@ package stan.mym1y.clean.modules.main;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -28,6 +29,10 @@ class TransactionsHolder
         negativeColor = context.getResources().getColor(R.color.red);
     }
 
+    void setLongClick(View.OnLongClickListener listener)
+    {
+        itemView.setOnLongClickListener(listener);
+    }
     void setCount(int c)
     {
         if(c < 0)
@@ -44,6 +49,10 @@ class TransactionsHolder
     void setDate(long d)
     {
         Date dt = new Date(d);
-        date.setText(dt.getDate() + "." + (dt.getMonth()+1) + "." + (dt.getYear()-100));
+        date.setText(proxy((dt.getYear()-100)) + "." + proxy((dt.getMonth()+1)) + "." + proxy(dt.getDate()) + " " + proxy(dt.getHours()) + ":" + proxy(dt.getMinutes()) + ":" + proxy(dt.getSeconds()));
+    }
+    private String proxy(int num)
+    {
+        return num < 10 ? "0"+num : ""+num;
     }
 }

@@ -6,4 +6,5 @@ public interface AppComponent
 {
     DAO getDataAccess();
     FoldersAccess getFoldersAccess();
+    Settings getSettings();
 }

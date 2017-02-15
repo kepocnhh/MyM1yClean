@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:background="@color/white"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="256dp"
+        android:layout_height="match_parent">
+        <TextView
+            android:text="You sure?"
+            android:textSize="14dp"
+            android:textColor="@color/black"
+            android:gravity="center_vertical"
+            android:paddingLeft="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"/>
+        <TextView
+            android:text="Transaction will be deleted!"
+            android:textSize="14dp"
+            android:textColor="@color/black"
+            android:gravity="center_vertical"
+            android:paddingLeft="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="48dp">
+            <TextView
+                android:id="@+id/cancel"
+                android:text="Cancel"
+                android:textAllCaps="true"
+                android:textSize="14dp"
+                android:textColor="@color/black"
+                android:gravity="center_vertical"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:id="@+id/confirm"
+                android:text="Confirm"
+                android:textAllCaps="true"
+                android:textSize="14dp"
+                android:textColor="@color/red"
+                android:gravity="center_vertical"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

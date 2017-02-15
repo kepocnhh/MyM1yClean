@@ -13,7 +13,8 @@ import stan.mym1y.clean.contracts.MainContract;
 import stan.mym1y.clean.cores.transactions.TransactionModel;
 import stan.mym1y.clean.dao.ListModel;
 import stan.mym1y.clean.modules.transaction.AddNewTransactionDialog;
-import stan.mym1y.clean.modules.transactions.Transaction;
+import stan.mym1y.clean.modules.transaction.DeleteTransactionConfirmDialog;
+import stan.mym1y.clean.modules.transactions.TransactionView;
 
 public class MainActivity
         extends Activity
@@ -32,6 +33,9 @@ public class MainActivity
             {
                 case R.id.new_transaction:
                     newTransaction();
+                    break;
+                case R.id.sort:
+                    presenter.changeSorting();
                     break;
             }
         }
@@ -71,7 +75,15 @@ public class MainActivity
         @Override
         public void newTransaction(int count)
         {
-            presenter.newTransaction(new Transaction(-1, count, System.currentTimeMillis()));
+            presenter.newTransaction(new TransactionView(count, System.currentTimeMillis()));
+        }
+    };
+    private final TransactionsAdapterListener transactionsAdapterListener = new TransactionsAdapterListener()
+    {
+        @Override
+        public void delete(int id)
+        {
+            deleteTransaction(id);
         }
     };
 
@@ -87,13 +99,13 @@ public class MainActivity
     {
         balance = findView(R.id.balance);
         transactions = findView(R.id.transactions);
-        setClickListener(findView(R.id.new_transaction));
+        setClickListener(findView(R.id.new_transaction), findView(R.id.sort));
     }
     private void init()
     {
-        presenter = new MainPresenter(view, new MainModel(App.getAppComponent().getDataAccess().getTransactions()));
+        presenter = new MainPresenter(view, new MainModel(App.getAppComponent().getDataAccess().getTransactions()), App.getAppComponent().getSettings());
         transactions.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new TransactionsAdapter(this);
+        adapter = new TransactionsAdapter(this, transactionsAdapterListener);
         transactions.setAdapter(adapter);
         presenter.update();
     }
@@ -102,6 +114,17 @@ public class MainActivity
     {
         AddNewTransactionDialog.newInstanse(addNewTransactionListener)
                                .show(getFragmentManager(), AddNewTransactionDialog.class.getName());
+    }
+    private void deleteTransaction(final int id)
+    {
+        DeleteTransactionConfirmDialog.newInstanse(new DeleteTransactionConfirmDialog.DeleteTransactionConfirmListener()
+        {
+            @Override
+            public void confirm()
+            {
+                presenter.deleteTransaction(id);
+            }
+        }).show(getFragmentManager(), DeleteTransactionConfirmDialog.class.getName());
     }
 
     private <VIEW extends View> VIEW findView(int id)
