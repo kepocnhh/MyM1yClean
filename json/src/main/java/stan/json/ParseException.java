@@ -1,4 +1,4 @@
-package stan.boxes.json;
+package stan.json;
 
 public class ParseException
 	extends Exception

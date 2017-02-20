@@ -3,8 +3,10 @@ package stan.mym1y.clean;
 import android.app.Application;
 
 import stan.mym1y.clean.boxes.Boxes;
+import stan.mym1y.clean.connection.OkHttp;
 import stan.mym1y.clean.dao.DAO;
 import stan.mym1y.clean.di.AppComponent;
+import stan.mym1y.clean.di.Connection;
 import stan.mym1y.clean.di.FoldersAccess;
 import stan.mym1y.clean.di.PlatformUtil;
 import stan.mym1y.clean.di.Settings;
@@ -30,6 +32,7 @@ public class App
                 ,foldersAccess
                 ,new PreferenceManager(getApplicationContext())
                 ,new AndroidUtil()
+                ,new OkHttp()
         );
     }
 
@@ -40,13 +43,15 @@ public class App
         private FoldersAccess foldersAccess;
         private Settings settings;
         private PlatformUtil platformUtil;
+        private Connection connection;
 
-        Component(DAO dao, FoldersAccess fAccess, Settings ss, PlatformUtil pu)
+        Component(DAO dao, FoldersAccess fAccess, Settings ss, PlatformUtil pu, Connection cn)
         {
             dataAccess = dao;
             foldersAccess = fAccess;
             settings = ss;
             platformUtil = pu;
+            connection = cn;
         }
 
         @Override
@@ -68,6 +73,11 @@ public class App
         public PlatformUtil getPlatformUtil()
         {
             return platformUtil;
+        }
+        @Override
+        public Connection getConnection()
+        {
+            return connection;
         }
     }
 }

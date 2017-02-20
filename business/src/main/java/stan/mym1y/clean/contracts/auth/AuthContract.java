@@ -22,23 +22,23 @@ public interface AuthContract
     }
 
     class NetworkErrorException
-            extends Exception
+            extends RuntimeException
     {
     }
     class UnauthorizedException
-            extends Exception
+            extends RuntimeException
     {
     }
     class InvalidDataException
-            extends Exception
+            extends RuntimeException
     {
     }
     class ServerErrorException
-            extends Exception
+            extends RuntimeException
     {
     }
     class UnknownErrorException
-            extends Exception
+            extends RuntimeException
     {
     }
 }

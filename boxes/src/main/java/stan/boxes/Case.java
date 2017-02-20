@@ -7,18 +7,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
-import stan.boxes.json.JSONParser;
-import stan.boxes.json.JSONWriter;
-import stan.boxes.json.ParseException;
+import stan.json.JSONParser;
+import stan.json.JSONWriter;
+import stan.json.ParseException;
 
 public class Case<DATA>
 {
     private final DATA def;
     private final ORM<DATA> orm;
     private final String fullPath;
-    private final JSONParser parser = new JSONParser();
 
     public Case(DATA d, ORM<DATA> o, String fp)
     {
@@ -49,7 +47,7 @@ public class Case<DATA>
         try
         {
             String json = read(fullPath);
-            Map map = (Map)parser.parse(json);
+            Map map = (Map)JSONParser.read(json);
             Map convert = (Map)map.get("data");
             data = orm.read(convert);
         }

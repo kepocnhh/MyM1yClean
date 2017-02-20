@@ -1,6 +1,5 @@
 package stan.mym1y.clean.modules.auth;
 
-import android.app.Fragment;
 import android.view.View;
 
 import stan.mym1y.clean.R;
@@ -28,20 +27,19 @@ public class AuthFragment
         @Override
         public void toLogin()
         {
-            fragment = LoginFragment.newInstanse(loginBehaviour);
-            getFragmentManager().beginTransaction().replace(R.id.subscreen, fragment).commit();
+            getFragmentManager().beginTransaction().replace(R.id.subscreen, LoginFragment.newInstanse(loginBehaviour)).commit();
         }
         @Override
         public void toRegistration()
         {
         }
     };
-    private Fragment fragment;
     private final LoginContract.Behaviour loginBehaviour = new LoginContract.Behaviour()
     {
         @Override
         public void login(String token)
         {
+            log("login " + token);
             behaviour.login(token);
         }
     };

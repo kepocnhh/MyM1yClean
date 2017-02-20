@@ -12,15 +12,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import stan.boxes.json.JSONParser;
-import stan.boxes.json.JSONWriter;
-import stan.boxes.json.ParseException;
+import stan.json.JSONParser;
+import stan.json.JSONWriter;
+import stan.json.ParseException;
 
 public class Box<DATA>
 {
     private final ORM<DATA> orm;
     private final String fullPath;
-    private final JSONParser parser = new JSONParser();
 
     public Box(ORM<DATA> o, String fp)
     {
@@ -55,7 +54,7 @@ public class Box<DATA>
         try
         {
             String data = read(fullPath);
-            Map map = (Map)parser.parse(data);
+            Map map = (Map)JSONParser.read(data);
             List convert = (List)map.get("list");
             List<DATA> list = new ArrayList<DATA>(convert.size());
             for(int i=0; i<convert.size(); i++)
@@ -91,7 +90,7 @@ public class Box<DATA>
         try
         {
             String data = read(fullPath);
-            Map map = (Map)parser.parse(data);
+            Map map = (Map)JSONParser.read(data);
             List convert = (List)map.get("list");
             List<DATA> list = new ArrayList<DATA>(convert.size());
             for(int i=0; i<convert.size(); i++)

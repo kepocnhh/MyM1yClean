@@ -22,7 +22,6 @@ android {
 }
 
 dependencies {
-    compile project(':business')
     compile project(':implementation')
 
     compile 'com.android.support:recyclerview-v7:25.1.1'

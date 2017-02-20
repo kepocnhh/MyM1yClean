@@ -1,10 +1,13 @@
 package stan.mym1y.clean.contracts.auth;
 
+import stan.reactive.Observable;
+
 public interface LoginContract
 {
     interface Model
     {
         void checkData(String login, String password) throws ValidateDataException;
+        Observable<String> login(String login, String password);
     }
     interface View
     {
@@ -14,7 +17,7 @@ public interface LoginContract
         void error(AuthContract.ServerErrorException exception);
         void error(AuthContract.UnknownErrorException exception);
         void error(ValidateDataException exception);
-        void sucess(String token);
+        void success(String token);
     }
     interface Presenter
     {

@@ -1,4 +1,4 @@
-package stan.boxes.json;
+package stan.json;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -11,6 +11,12 @@ import java.util.Map;
 
 public class JSONParser
 {
+    static public Object read(String json)
+            throws IOException, ParseException
+    {
+        return new JSONParser().parse(json);
+    }
+
     public static final int S_INIT = 0;
     public static final int S_IN_FINISHED_VALUE = 1;
     public static final int S_IN_OBJECT = 2;
@@ -24,6 +30,10 @@ public class JSONParser
     private Yylex lexer = new Yylex((Reader)null);
     private Yytoken token = null;
     private int status = S_INIT;
+
+    private JSONParser()
+    {
+    }
 
     private int peekStatus(LinkedList statusStack)
     {

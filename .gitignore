@@ -4,6 +4,8 @@
 !/implementation
 !/presentation
 !/media
+!/reactive
+!/json
 !build.gradle
 !dependencies.gradle
 !settings.gradle

@@ -3,6 +3,7 @@ package stan.mym1y.clean.modules.auth.login;
 import android.view.View;
 import android.widget.EditText;
 
+import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.auth.AuthContract;
 import stan.mym1y.clean.contracts.auth.LoginContract;
@@ -51,7 +52,7 @@ public class LoginFragment
             showToast("ValidateDataException");
         }
         @Override
-        public void sucess(String token)
+        public void success(String token)
         {
             behaviour.login(token);
         }
@@ -90,6 +91,6 @@ public class LoginFragment
     @Override
     protected void init()
     {
-        setPresenter(new LoginPresenter(view, new LoginModel()));
+        setPresenter(new LoginPresenter(view, new LoginModel(App.getAppComponent().getConnection())));
     }
 }

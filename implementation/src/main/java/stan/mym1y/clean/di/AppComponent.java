@@ -8,4 +8,5 @@ public interface AppComponent
     FoldersAccess getFoldersAccess();
     Settings getSettings();
     PlatformUtil getPlatformUtil();
+    Connection getConnection();
 }
