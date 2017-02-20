@@ -5,6 +5,7 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="white">#ffffff</color>
+    <color name="graydark">#424242</color>
     <color name="black">#000000</color>
 
     <color name="red">#F44336</color>

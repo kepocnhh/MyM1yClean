@@ -32,19 +32,6 @@ public abstract class Presenter<VIEW>
             new Thread(runnable).start();
         }
     }
-    final protected void chain(final Runnable... runnables)
-    {
-        new Thread(new Runnable()
-        {
-            public void run()
-            {
-                for(Runnable runnable : runnables)
-                {
-                    runnable.run();
-                }
-            }
-        }).start();
-    }
 
     final protected int nextInt()
     {

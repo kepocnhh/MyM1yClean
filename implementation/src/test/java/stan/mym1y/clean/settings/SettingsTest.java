@@ -29,4 +29,13 @@ public class SettingsTest
         settings.setSortyngType(sortingType);
         assertEquals(settings.getSortingType(), sortingType);
     }
+
+    @Test
+    public void checkUserToken()
+    {
+        assertEquals(settings.getUserToken(), null);
+        String userToken = nextString();
+        settings.login(userToken);
+        assertEquals(settings.getUserToken(), userToken);
+    }
 }
