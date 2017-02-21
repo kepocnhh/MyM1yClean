@@ -12,9 +12,15 @@ import java.util.Map;
 public class JSONParser
 {
     static public Object read(String json)
-            throws IOException, ParseException
     {
-        return new JSONParser().parse(json);
+        try
+        {
+            return new JSONParser().parse(json);
+        }
+        catch(IOException e)
+        {
+            throw new ParseException(-1, -1, json);
+        }
     }
 
     public static final int S_INIT = 0;

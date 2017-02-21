@@ -6,6 +6,7 @@ import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.auth.AuthContract;
 import stan.mym1y.clean.contracts.auth.LoginContract;
 import stan.mym1y.clean.contracts.auth.RegistrationContract;
+import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.modules.auth.login.LoginFragment;
 import stan.mym1y.clean.units.fragments.MVPFragment;
 
@@ -37,10 +38,10 @@ public class AuthFragment
     private final LoginContract.Behaviour loginBehaviour = new LoginContract.Behaviour()
     {
         @Override
-        public void login(String token)
+        public void login(UserPrivateData data)
         {
-            log("login " + token);
-            behaviour.login(token);
+            log("userId " + data.getUserId() + " token " + data.getUserToken());
+            behaviour.enter(data);
         }
     };
     private final RegistrationContract.Behaviour registrationBehaviour = new RegistrationContract.Behaviour()
@@ -48,7 +49,8 @@ public class AuthFragment
         @Override
         public void registration(String token)
         {
-            behaviour.login(token);
+            log("registration " + token);
+//            behaviour.enter(token);
         }
     };
 

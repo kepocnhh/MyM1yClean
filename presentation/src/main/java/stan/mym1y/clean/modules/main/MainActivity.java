@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
+import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
 import stan.mym1y.clean.cores.transactions.TransactionModel;
 import stan.mym1y.clean.dao.ListModel;
@@ -35,7 +36,6 @@ public class MainActivity
                     newTransaction();
                     break;
                 case R.id.sort:
-                    presenter.changeSorting();
                     break;
             }
         }
@@ -44,6 +44,26 @@ public class MainActivity
     private MainContract.Presenter presenter;
     private final MainContract.View view = new MainContract.View()
     {
+        @Override
+        public void error(ErrorsContract.NetworkErrorException exception)
+        {
+        }
+        @Override
+        public void error(ErrorsContract.UnauthorizedException exception)
+        {
+        }
+        @Override
+        public void error(ErrorsContract.InvalidDataException exception)
+        {
+        }
+        @Override
+        public void error(ErrorsContract.ServerErrorException exception)
+        {
+        }
+        @Override
+        public void error(ErrorsContract.UnknownErrorException exception)
+        {
+        }
         @Override
         public void update(final ListModel<TransactionModel> transactions)
         {
@@ -103,7 +123,6 @@ public class MainActivity
     }
     private void init()
     {
-        presenter = new MainPresenter(view, new MainModel(App.getAppComponent().getDataAccess().getTransactions()), App.getAppComponent().getSettings());
         transactions.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TransactionsAdapter(this, transactionsAdapterListener);
         transactions.setAdapter(adapter);

@@ -4,11 +4,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.di.Settings;
 import stan.mym1y.clean.managers.PreferenceManager;
+import stan.mym1y.clean.modules.users.UserData;
 import stan.mym1y.clean.utils.RobolectricTest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 
 public class SettingsTest
         extends RobolectricTest
@@ -33,9 +37,21 @@ public class SettingsTest
     @Test
     public void checkUserToken()
     {
-        assertEquals(settings.getUserToken(), null);
-        String userToken = nextString();
-        settings.login(userToken);
-        assertEquals(settings.getUserToken(), userToken);
+        UserPrivateData data1 = settings.getUserPrivateData();
+        assertNotNull(data1);
+        assertNull(data1.getUserId());
+        assertNull(data1.getUserToken());
+        String userId = nextString();
+        String token = nextString();
+        settings.login(new UserData(userId, token));
+        UserPrivateData data2 = settings.getUserPrivateData();
+        assertNotNull(data2);
+        assertEquals(data2.getUserId(), userId);
+        assertEquals(data2.getUserToken(), token);
+        settings.logout();
+        UserPrivateData data3 = settings.getUserPrivateData();
+        assertNotNull(data3);
+        assertNull(data3.getUserId());
+        assertNull(data3.getUserToken());
     }
 }

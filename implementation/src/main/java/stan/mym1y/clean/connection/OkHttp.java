@@ -2,6 +2,7 @@ package stan.mym1y.clean.connection;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -18,26 +19,31 @@ public class OkHttp
 {
     static private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private final OkHttpClient client = new OkHttpClient();
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build();
 
     @Override
-    public Observable<String> get(final String url)
+    public Observable<Answer> get(final String url)
     {
-        return new SimpleObservable<String>()
+        return new SimpleObservable<Answer>()
         {
-            public String work()
+            public Answer work()
                     throws IOException
             {
-                return client.newCall(new Request.Builder().url(url).build()).execute().body().string();
+                Response response = client.newCall(new Request.Builder().url(url).build()).execute();
+                return new Answer(response.body().string(), response.code());
             }
         };
     }
     @Override
-    public Observable<String> get(final String url, final Map<String, String> params)
+    public Observable<Answer> get(final String url, final Map<String, String> params)
     {
-        return new SimpleObservable<String>()
+        return new SimpleObservable<Answer>()
         {
-            public String work()
+            public Answer work()
                     throws IOException
             {
                 HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
@@ -45,21 +51,23 @@ public class OkHttp
                 {
                     urlBuilder.addQueryParameter(key, params.get(key));
                 }
-                return client.newCall(new Request.Builder().url(urlBuilder.build()).build()).execute().body().string();
+                Response response = client.newCall(new Request.Builder().url(urlBuilder.build()).build()).execute();
+                return new Answer(response.body().string(), response.code());
             }
         };
     }
 
     @Override
-    public Observable<String> post(final String url, final String body)
+    public Observable<Answer> post(final String url, final String body)
     {
-        return new SimpleObservable<String>()
+        return new SimpleObservable<Answer>()
         {
             @Override
-            protected String work()
+            protected Answer work()
                     throws IOException
             {
-                return client.newCall(new Request.Builder().url(url).post(RequestBody.create(JSON, body)).build()).execute().body().string();
+                Response response = client.newCall(new Request.Builder().url(url).post(RequestBody.create(JSON, body)).build()).execute();
+                return new Answer(response.body().string(), response.code());
             }
         };
     }

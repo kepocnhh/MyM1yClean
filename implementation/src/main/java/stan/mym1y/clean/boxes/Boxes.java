@@ -1,5 +1,6 @@
 package stan.mym1y.clean.boxes;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,12 @@ public class Boxes
             transactionsBox.add(transaction);
         }
         @Override
+        public void add(Collection<TransactionModel> transactions)
+        {
+            transactionsBox.add(transactions);
+        }
+
+        @Override
         public void clear()
         {
             transactionsBox.clear();
@@ -98,8 +105,8 @@ public class Boxes
             public TransactionModel read(Map map)
             {
                 return new Transaction(
-                        Long.valueOf((Long)map.get("id")).intValue()
-                        ,Long.valueOf((Long)map.get("count")).intValue()
+                        ((Long)map.get("id")).intValue()
+                        ,((Long)map.get("count")).intValue()
                         ,(Long)map.get("date")
                 );
             }

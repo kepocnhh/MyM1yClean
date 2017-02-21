@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -43,9 +44,6 @@ public class Box<DATA>
             catch(IOException e)
             {
             }
-            catch(Exception e)
-            {
-            }
         } 
     }
 
@@ -75,9 +73,6 @@ public class Box<DATA>
             catch(IOException ex)
             {
             }
-        }
-        catch(IOException e)
-        {
         }
         catch(Exception e)
         {
@@ -116,9 +111,6 @@ public class Box<DATA>
             {
             }
         }
-        catch(IOException e)
-        {
-        }
         catch(Exception e)
         {
         }
@@ -153,10 +145,17 @@ public class Box<DATA>
             return;
         }
         List<DATA> list = getAll();
-        for(DATA d : datas)
+        Collections.addAll(list, datas);
+        save(list);
+    }
+    public void add(Collection<DATA> datas)
+    {
+        if(datas == null || datas.size() == 0)
         {
-            list.add(d);
+            return;
         }
+        List<DATA> list = getAll();
+        list.addAll(datas);
         save(list);
     }
     public void replace(Query<DATA> query, DATA data)

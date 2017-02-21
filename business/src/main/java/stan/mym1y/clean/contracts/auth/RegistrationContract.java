@@ -1,5 +1,7 @@
 package stan.mym1y.clean.contracts.auth;
 
+import stan.mym1y.clean.contracts.ErrorsContract;
+
 public interface RegistrationContract
 {
     interface Model
@@ -8,10 +10,10 @@ public interface RegistrationContract
     }
     interface View
     {
-        void error(AuthContract.NetworkErrorException exception);
-        void error(AuthContract.InvalidDataException exception);
-        void error(AuthContract.ServerErrorException exception);
-        void error(AuthContract.UnknownErrorException exception);
+        void error(ErrorsContract.NetworkErrorException exception);
+        void error(ErrorsContract.InvalidDataException exception);
+        void error(ErrorsContract.ServerErrorException exception);
+        void error(ErrorsContract.UnknownErrorException exception);
     }
     interface Presenter
     {

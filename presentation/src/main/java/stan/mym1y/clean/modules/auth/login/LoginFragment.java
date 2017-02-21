@@ -5,8 +5,9 @@ import android.widget.EditText;
 
 import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
-import stan.mym1y.clean.contracts.auth.AuthContract;
+import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.auth.LoginContract;
+import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.units.fragments.MVPFragment;
 
 public class LoginFragment
@@ -22,39 +23,43 @@ public class LoginFragment
     private final LoginContract.View view = new LoginContract.View()
     {
         @Override
-        public void error(AuthContract.NetworkErrorException exception)
+        public void error(ErrorsContract.NetworkErrorException exception)
         {
+            hideWaiter();
             showToast("NetworkErrorException");
         }
         @Override
-        public void error(AuthContract.UnauthorizedException exception)
+        public void error(ErrorsContract.UnauthorizedException exception)
         {
+            hideWaiter();
             showToast("UnauthorizedException");
         }
         @Override
-        public void error(AuthContract.InvalidDataException exception)
+        public void error(ErrorsContract.InvalidDataException exception)
         {
             showToast("InvalidDataException");
         }
         @Override
-        public void error(AuthContract.ServerErrorException exception)
+        public void error(ErrorsContract.ServerErrorException exception)
         {
             showToast("ServerErrorException");
         }
         @Override
-        public void error(AuthContract.UnknownErrorException exception)
+        public void error(ErrorsContract.UnknownErrorException exception)
         {
             showToast("UnknownErrorException");
         }
         @Override
         public void error(LoginContract.ValidateDataException exception)
         {
+            hideWaiter();
             showToast("ValidateDataException");
         }
         @Override
-        public void success(String token)
+        public void success(UserPrivateData data)
         {
-            behaviour.login(token);
+            behaviour.login(data);
+//            hideWaiter();
         }
     };
 
@@ -62,14 +67,24 @@ public class LoginFragment
 
     private EditText login;
     private EditText password;
+    private View waiter;
 
     @Override
     protected void onClickView(int id)
     {
         switch(id)
         {
-            case R.id.confirm:
-                getPresenter().login(login.getText().toString(), password.getText().toString());
+            case R.id.signin:
+                showWaiter();
+                hideKeyBoard();
+                runOnNewThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        getPresenter().login(login.getText().toString(), password.getText().toString());
+                    }
+                }, 300);
                 break;
         }
     }
@@ -85,12 +100,37 @@ public class LoginFragment
     {
         login = findView(R.id.login);
         password = findView(R.id.password);
-        setClickListener(findView(R.id.confirm));
+        waiter = findView(R.id.waiter);
+        setClickListener(findView(R.id.signin));
     }
 
     @Override
     protected void init()
     {
         setPresenter(new LoginPresenter(view, new LoginModel(App.getAppComponent().getConnection())));
+        hideWaiter();
+    }
+
+    private void showWaiter()
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                waiter.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+    private void hideWaiter()
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                waiter.setVisibility(View.GONE);
+            }
+        });
     }
 }

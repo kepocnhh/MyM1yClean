@@ -1,16 +1,15 @@
 package stan.mym1y.clean.modules.auth.login;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import stan.json.JSONParser;
 import stan.json.JSONWriter;
-import stan.json.ParseException;
 import stan.mym1y.clean.connection.API;
-import stan.mym1y.clean.contracts.auth.AuthContract;
+import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.auth.LoginContract;
+import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.di.Connection;
+import stan.mym1y.clean.modules.users.UserData;
 import stan.reactive.Observable;
 import stan.reactive.Observer;
 
@@ -36,32 +35,21 @@ class LoginModel
     }
 
     @Override
-    public Observable<String> login(String login, String password)
+    public Observable<UserPrivateData> login(String login, String password)
     {
-        final Map<String, String> params = new HashMap<>();
-        params.put("key", API.SERVER_KEY);
-        final Map<String, String> body = new HashMap<>();
-        body.put("email", login);
-        body.put("password", password);
-        return new Observable<String>()
+        final String jsonBody = JSONWriter.write(API.Auth.Params.getAuthBody(login, password));
+        return new Observable<UserPrivateData>()
         {
             @Override
-            public void subscribe(final Observer<String> o)
+            public void subscribe(Observer<UserPrivateData> o)
             {
-                try
-                {
-                    login(o, params, JSONWriter.write(body));
-                }
-                catch(IOException e)
-                {
-                    o.error(new AuthContract.UnknownErrorException());
-                }
+                login(o, jsonBody);
             }
         };
     }
-    private void login(final Observer<String> o, Map<String, String> params, String body)
+    private void login(final Observer<UserPrivateData> o, String body)
     {
-        connection.post(API.Auth.LOGIN, params, body).subscribe(new Observer<Connection.Answer>()
+        connection.post(API.Auth.LOGIN, API.Auth.Params.getAuthParams(), body).subscribe(new Observer<Connection.Answer>()
         {
             @Override
             public void next(Connection.Answer response)
@@ -71,7 +59,7 @@ class LoginModel
             @Override
             public void error(Throwable t)
             {
-                o.error(new AuthContract.NetworkErrorException());
+                o.error(new ErrorsContract.NetworkErrorException(API.Auth.LOGIN));
             }
             @Override
             public void complete()
@@ -79,29 +67,21 @@ class LoginModel
             }
         });
     }
-    private void login(Observer<String> o, Connection.Answer response)
+    private void login(Observer<UserPrivateData> o, Connection.Answer response)
     {
-        Map responseBody;
-        try
-        {
-            responseBody = (Map)JSONParser.read(response.getData());
-        }
-        catch(ParseException | IOException e)
-        {
-            o.error(new AuthContract.UnknownErrorException());
-            return;
-        }
         if(response.getCode() == 200)
         {
-            o.next((String)responseBody.get("localId"));
+            Map responseBody = (Map)JSONParser.read(response.getData());
+            o.next(new UserData((String)responseBody.get("localId"), (String)responseBody.get("idToken")));
+            o.complete();
         }
         else if(response.getCode() == 400)
         {
-            o.error(new AuthContract.UnauthorizedException());
+            o.error(new ErrorsContract.UnauthorizedException("login\n" + response.getData() + "\n" + response.getCode()));
         }
         else
         {
-            o.error(new AuthContract.UnknownErrorException());
+            o.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nlogin\n" + response.getData()));
         }
     }
 }

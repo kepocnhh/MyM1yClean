@@ -9,7 +9,7 @@ class AuthPresenter
 {
     private int screen;
 
-    public AuthPresenter(AuthContract.View v, AuthContract.Router r)
+    AuthPresenter(AuthContract.View v, AuthContract.Router r)
     {
         super(v, r);
         screen = -1;

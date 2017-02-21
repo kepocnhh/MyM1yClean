@@ -1,10 +1,15 @@
 package stan.mym1y.clean.contracts;
 
+import stan.mym1y.clean.cores.users.UserPrivateData;
+
 public interface GeneralContract
 {
     interface Model
     {
-        String getToken() throws UserNotAuthorizedException;
+        UserPrivateData getUserPrivateData() throws UserNotAuthorizedException;
+        void login(UserPrivateData data);
+        void logout();
+        void clearTransactions();
     }
     interface View
     {
@@ -12,12 +17,13 @@ public interface GeneralContract
     interface Router
     {
         void toAuth();
-        void toMain(String token);
+        void toMain(UserPrivateData data);
     }
     interface Presenter
     {
         void checkAuth();
-        void enter(String token);
+        void enter(UserPrivateData data);
+        void logout();
     }
 
     class UserNotAuthorizedException

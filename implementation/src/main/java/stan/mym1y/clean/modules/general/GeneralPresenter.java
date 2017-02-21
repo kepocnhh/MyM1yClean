@@ -1,13 +1,14 @@
 package stan.mym1y.clean.modules.general;
 
 import stan.mym1y.clean.contracts.GeneralContract;
+import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.units.mvp.ModelRouterPresenter;
 
 class GeneralPresenter
     extends ModelRouterPresenter<GeneralContract.View, GeneralContract.Model, GeneralContract.Router>
     implements GeneralContract.Presenter
 {
-    public GeneralPresenter(GeneralContract.View v, GeneralContract.Model m, GeneralContract.Router r)
+    GeneralPresenter(GeneralContract.View v, GeneralContract.Model m, GeneralContract.Router r)
     {
         super(v, m, r);
     }
@@ -22,7 +23,7 @@ class GeneralPresenter
             {
                 try
                 {
-                    getRouter().toMain(getModel().getToken());
+                    getRouter().toMain(getModel().getUserPrivateData());
                 }
                 catch(GeneralContract.UserNotAuthorizedException e)
                 {
@@ -33,8 +34,31 @@ class GeneralPresenter
     }
 
     @Override
-    public void enter(String token)
+    public void enter(final UserPrivateData data)
     {
-        getRouter().toMain(token);
+        onNewThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                getModel().login(data);
+                getRouter().toMain(data);
+            }
+        });
+    }
+
+    @Override
+    public void logout()
+    {
+        onNewThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                getModel().logout();
+                getModel().clearTransactions();
+                getRouter().toAuth();
+            }
+        });
     }
 }

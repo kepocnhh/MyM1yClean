@@ -3,4 +3,6 @@
     <string name="login_lbl">Login</string>
     <string name="password_lbl">Password</string>
     <string name="login_confirm_text">Enter</string>
+    <string name="signin_confirm_text">Signin</string>
+    <string name="to_signup_text">To Sign Up</string>
 </resources>

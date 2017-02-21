@@ -6,9 +6,9 @@ import stan.reactive.Observable;
 
 public interface Connection
 {
-    Observable<String> get(String url);
-    Observable<String> get(String url, Map<String, String> params);
-    Observable<String> post(String url, String body);
+    Observable<Answer> get(String url);
+    Observable<Answer> get(String url, Map<String, String> params);
+    Observable<Answer> post(String url, String body);
     Observable<Answer> post(String url, Map<String, String> params, String body);
 
     class Answer

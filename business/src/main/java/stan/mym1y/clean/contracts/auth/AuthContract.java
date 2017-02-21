@@ -1,5 +1,7 @@
 package stan.mym1y.clean.contracts.auth;
 
+import stan.mym1y.clean.cores.users.UserPrivateData;
+
 public interface AuthContract
 {
     interface View
@@ -18,27 +20,6 @@ public interface AuthContract
 
     interface Behaviour
     {
-        void login(String token);
-    }
-
-    class NetworkErrorException
-            extends RuntimeException
-    {
-    }
-    class UnauthorizedException
-            extends RuntimeException
-    {
-    }
-    class InvalidDataException
-            extends RuntimeException
-    {
-    }
-    class ServerErrorException
-            extends RuntimeException
-    {
-    }
-    class UnknownErrorException
-            extends RuntimeException
-    {
+        void enter(UserPrivateData data);
     }
 }

@@ -1,6 +1,7 @@
 package stan.mym1y.clean.units.fragments;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 public abstract class MVPFragment<PRESENTER>
@@ -18,6 +20,7 @@ public abstract class MVPFragment<PRESENTER>
     private View mainView;
     private String tag;
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
+    private InputMethodManager inputMethodManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -34,6 +37,7 @@ public abstract class MVPFragment<PRESENTER>
                     onClickView(view.getId());
                 }
             };
+            inputMethodManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             initViews(mainView);
             init();
         }
@@ -61,8 +65,35 @@ public abstract class MVPFragment<PRESENTER>
     {
         Log.e(tag, message);
     }
+    final protected void runOnNewThread(Runnable r)
+    {
+        new Thread(r).start();
+    }
+    final protected void runOnNewThread(Runnable r, final long ms)
+    {
+        new Thread(r)
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    sleep(ms);
+                }
+                catch(InterruptedException e)
+                {
+                }
+                super.run();
+            }
+        }.start();
+    }
+    final protected void runOnUiThread(Runnable r)
+    {
+        uiHandler.post(r);
+    }
     final protected void showToast(final String message)
     {
+        log(message);
         uiHandler.post(new Runnable()
         {
             @Override
@@ -71,6 +102,10 @@ public abstract class MVPFragment<PRESENTER>
                 Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    final protected void hideKeyBoard()
+    {
+        inputMethodManager.hideSoftInputFromWindow(mainView.getWindowToken(), 0);
     }
     protected void setPresenter(PRESENTER p)
     {

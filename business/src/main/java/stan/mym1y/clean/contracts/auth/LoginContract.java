@@ -1,5 +1,7 @@
 package stan.mym1y.clean.contracts.auth;
 
+import stan.mym1y.clean.contracts.ErrorsContract;
+import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.reactive.Observable;
 
 public interface LoginContract
@@ -7,17 +9,17 @@ public interface LoginContract
     interface Model
     {
         void checkData(String login, String password) throws ValidateDataException;
-        Observable<String> login(String login, String password);
+        Observable<UserPrivateData> login(String login, String password);
     }
     interface View
     {
-        void error(AuthContract.NetworkErrorException exception);
-        void error(AuthContract.UnauthorizedException exception);
-        void error(AuthContract.InvalidDataException exception);
-        void error(AuthContract.ServerErrorException exception);
-        void error(AuthContract.UnknownErrorException exception);
+        void error(ErrorsContract.NetworkErrorException exception);
+        void error(ErrorsContract.UnauthorizedException exception);
+        void error(ErrorsContract.InvalidDataException exception);
+        void error(ErrorsContract.ServerErrorException exception);
+        void error(ErrorsContract.UnknownErrorException exception);
         void error(ValidateDataException exception);
-        void success(String token);
+        void success(UserPrivateData data);
     }
     interface Presenter
     {
@@ -26,7 +28,7 @@ public interface LoginContract
 
     interface Behaviour
     {
-        void login(String token);
+        void login(UserPrivateData data);
     }
 
     class ValidateDataException
