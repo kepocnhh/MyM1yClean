@@ -21,12 +21,26 @@ public class GeneralActivity
         @Override
         public void toAuth()
         {
-            getFragmentManager().beginTransaction().replace(R.id.subscreen, AuthFragment.newInstanse(authBehaviour)).commit();
+            runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    getFragmentManager().beginTransaction().replace(R.id.subscreen, AuthFragment.newInstanse(authBehaviour)).commit();
+                }
+            });
         }
         @Override
         public void toMain(UserPrivateData data)
         {
-            getFragmentManager().beginTransaction().replace(R.id.subscreen, MainFragment.newInstanse(mainBehaviour)).commit();
+            runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    getFragmentManager().beginTransaction().replace(R.id.subscreen, MainFragment.newInstanse(mainBehaviour)).commit();
+                }
+            });
         }
     };
     private final AuthContract.Behaviour authBehaviour = new AuthContract.Behaviour()

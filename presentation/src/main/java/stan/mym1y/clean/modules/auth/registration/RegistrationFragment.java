@@ -1,4 +1,4 @@
-package stan.mym1y.clean.modules.auth.login;
+package stan.mym1y.clean.modules.auth.registration;
 
 import android.view.View;
 import android.widget.EditText;
@@ -6,21 +6,21 @@ import android.widget.EditText;
 import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.ErrorsContract;
-import stan.mym1y.clean.contracts.auth.LoginContract;
+import stan.mym1y.clean.contracts.auth.RegistrationContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.units.fragments.MVPFragment;
 
-public class LoginFragment
-        extends MVPFragment<LoginContract.Presenter>
+public class RegistrationFragment
+        extends MVPFragment<RegistrationContract.Presenter>
 {
-    static public MVPFragment newInstanse(LoginContract.Behaviour b)
+    static public MVPFragment newInstanse(RegistrationContract.Behaviour b)
     {
-        LoginFragment fragment = new LoginFragment();
+        RegistrationFragment fragment = new RegistrationFragment();
         fragment.behaviour = b;
         return fragment;
     }
 
-    private final LoginContract.View view = new LoginContract.View()
+    private final RegistrationContract.View view = new RegistrationContract.View()
     {
         @Override
         public void error(ErrorsContract.NetworkErrorException exception)
@@ -50,7 +50,7 @@ public class LoginFragment
             showToast("UnknownErrorException");
         }
         @Override
-        public void error(LoginContract.ValidateDataException exception)
+        public void error(RegistrationContract.ValidateDataException exception)
         {
             hideWaiter();
             showToast("ValidateDataException");
@@ -58,12 +58,12 @@ public class LoginFragment
         @Override
         public void success(UserPrivateData data)
         {
-            behaviour.login(data);
+            behaviour.registration(data);
 //            hideWaiter();
         }
     };
 
-    private LoginContract.Behaviour behaviour;
+    private RegistrationContract.Behaviour behaviour;
 
     private EditText login;
     private EditText password;
@@ -74,7 +74,7 @@ public class LoginFragment
     {
         switch(id)
         {
-            case R.id.signin:
+            case R.id.signup:
                 showWaiter();
                 hideKeyBoard();
                 runOnNewThread(new Runnable()
@@ -82,12 +82,12 @@ public class LoginFragment
                     @Override
                     public void run()
                     {
-                        getPresenter().login(login.getText().toString(), password.getText().toString());
+                        getPresenter().registration(login.getText().toString(), password.getText().toString());
                     }
                 }, 300);
                 break;
-            case R.id.to_signup:
-                behaviour.toSignup();
+            case R.id.to_signin:
+                behaviour.toSignin();
                 break;
         }
     }
@@ -95,22 +95,20 @@ public class LoginFragment
     @Override
     protected int getContentView()
     {
-        return R.layout.login_screen;
+        return R.layout.registration_screen;
     }
-
     @Override
     protected void initViews(View v)
     {
         login = findView(R.id.login);
         password = findView(R.id.password);
         waiter = findView(R.id.waiter);
-        setClickListener(findView(R.id.signin), findView(R.id.to_signup));
+        setClickListener(findView(R.id.signup), findView(R.id.to_signin));
     }
-
     @Override
     protected void init()
     {
-        setPresenter(new LoginPresenter(view, new LoginModel(App.getAppComponent().getConnection())));
+        setPresenter(new RegistrationPresenter(view, new RegistrationModel(App.getAppComponent().getConnection())));
         hideWaiter();
     }
 

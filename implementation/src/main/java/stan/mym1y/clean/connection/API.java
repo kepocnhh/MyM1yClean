@@ -13,6 +13,7 @@ public interface API
     {
         String BASE_URL = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/";
         String LOGIN = BASE_URL + "verifyPassword";
+        String REGISTRATION = BASE_URL + "signupNewUser";
         String REFRESH_TOKEN = "https://securetoken.googleapis.com/v1/token";
         class Params
         {

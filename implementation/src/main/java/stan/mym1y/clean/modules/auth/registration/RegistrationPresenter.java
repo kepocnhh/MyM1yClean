@@ -1,14 +1,14 @@
-package stan.mym1y.clean.modules.auth.login;
+package stan.mym1y.clean.modules.auth.registration;
 
 import stan.mym1y.clean.contracts.ErrorsContract;
-import stan.mym1y.clean.contracts.auth.LoginContract;
+import stan.mym1y.clean.contracts.auth.RegistrationContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.units.mvp.ModelPresenter;
 import stan.reactive.Observer;
 
-class LoginPresenter
-    extends ModelPresenter<LoginContract.View, LoginContract.Model>
-    implements LoginContract.Presenter
+class RegistrationPresenter
+        extends ModelPresenter<RegistrationContract.View, RegistrationContract.Model>
+        implements RegistrationContract.Presenter
 {
     private final Observer<UserPrivateData> tokenObserver = new Observer<UserPrivateData>()
     {
@@ -54,13 +54,13 @@ class LoginPresenter
         }
     };
 
-    LoginPresenter(LoginContract.View v, LoginContract.Model m)
+    RegistrationPresenter(RegistrationContract.View v, RegistrationContract.Model m)
     {
         super(v, m);
     }
 
     @Override
-    public void login(final String login, final String password)
+    public void registration(final String login, final String password)
     {
         onNewThread(new Runnable()
         {
@@ -72,7 +72,7 @@ class LoginPresenter
                     getModel().checkData(login, password);
                     getModel().login(login, password).subscribe(tokenObserver);
                 }
-                catch(LoginContract.ValidateDataException e)
+                catch(RegistrationContract.ValidateDataException e)
                 {
                     getView().error(e);
                 }

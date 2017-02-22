@@ -29,6 +29,7 @@ public interface LoginContract
     interface Behaviour
     {
         void login(UserPrivateData data);
+        void toSignup();
     }
 
     class ValidateDataException

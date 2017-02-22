@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:background="@color/white"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+             android:background="@color/white"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
     <LinearLayout
         android:orientation="vertical"
         android:layout_gravity="center"
@@ -48,8 +48,8 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/container_size_less"/>
         <TextView
-            android:id="@+id/signin"
-            android:text="@string/signin_confirm_text"
+            android:id="@+id/signup"
+            android:text="@string/signup_confirm_text"
             android:textSize="@dimen/text_size_large"
             android:textAllCaps="true"
             android:textColor="@color/colorPrimary"
@@ -59,23 +59,22 @@
             android:layout_height="@dimen/container_size_less"/>
     </LinearLayout>
     <LinearLayout
-        android:id="@+id/to_signup"
-        android:layout_gravity="bottom|right"
+        android:id="@+id/to_signin"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/container_size">
+        <ImageView
+            android:id="@+id/new_transaction"
+            android:src="@mipmap/ic_arrow_back_white_24dp"
+            android:scaleType="centerInside"
+            android:tint="@color/black"
+            android:layout_width="@dimen/container_size"
+            android:layout_height="match_parent"/>
         <TextView
-            android:text="@string/to_signup_text"
+            android:text="@string/to_signin_text"
             android:textSize="@dimen/text_size_medium"
             android:textColor="@color/black"
             android:gravity="center"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
-        <ImageView
-            android:id="@+id/new_transaction"
-            android:src="@mipmap/ic_arrow_forward_white_24dp"
-            android:scaleType="centerInside"
-            android:tint="@color/black"
-            android:layout_width="@dimen/container_size"
             android:layout_height="match_parent"/>
     </LinearLayout>
     <FrameLayout

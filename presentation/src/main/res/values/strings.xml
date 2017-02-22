@@ -6,4 +6,6 @@
     <string name="signin_confirm_text">Signin</string>
     <string name="to_signup_text">To Sign Up</string>
     <string name="balance_label">Balance</string>
+    <string name="to_signin_text">To Sign In</string>
+    <string name="signup_confirm_text">Signup</string>
 </resources>

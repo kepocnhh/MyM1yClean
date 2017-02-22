@@ -8,6 +8,7 @@ import stan.mym1y.clean.contracts.auth.LoginContract;
 import stan.mym1y.clean.contracts.auth.RegistrationContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.modules.auth.login.LoginFragment;
+import stan.mym1y.clean.modules.auth.registration.RegistrationFragment;
 import stan.mym1y.clean.units.fragments.MVPFragment;
 
 public class AuthFragment
@@ -28,11 +29,12 @@ public class AuthFragment
         @Override
         public void toLogin()
         {
-            getFragmentManager().beginTransaction().replace(R.id.subscreen, LoginFragment.newInstanse(loginBehaviour)).commit();
+            getFragmentManager().beginTransaction().replace(R.id.auth_subscreen, LoginFragment.newInstanse(loginBehaviour)).commit();
         }
         @Override
         public void toRegistration()
         {
+            getFragmentManager().beginTransaction().replace(R.id.auth_subscreen, RegistrationFragment.newInstanse(registrationBehaviour)).commit();
         }
     };
     private final LoginContract.Behaviour loginBehaviour = new LoginContract.Behaviour()
@@ -40,17 +42,27 @@ public class AuthFragment
         @Override
         public void login(UserPrivateData data)
         {
-            log("userId " + data.getUserId() + " token " + data.getUserToken());
+            log("login: userId " + data.getUserId() + " token " + data.getUserToken());
             behaviour.enter(data);
+        }
+        @Override
+        public void toSignup()
+        {
+            getPresenter().toRegistration();
         }
     };
     private final RegistrationContract.Behaviour registrationBehaviour = new RegistrationContract.Behaviour()
     {
         @Override
-        public void registration(String token)
+        public void registration(UserPrivateData data)
         {
-            log("registration " + token);
-//            behaviour.enter(token);
+            log("registration: userId " + data.getUserId() + " token " + data.getUserToken());
+            behaviour.enter(data);
+        }
+        @Override
+        public void toSignin()
+        {
+            getPresenter().toLogin();
         }
     };
 
