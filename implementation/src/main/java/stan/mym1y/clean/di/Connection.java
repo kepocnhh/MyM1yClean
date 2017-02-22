@@ -10,6 +10,8 @@ public interface Connection
     Observable<Answer> get(String url, Map<String, String> params);
     Observable<Answer> post(String url, String body);
     Observable<Answer> post(String url, Map<String, String> params, String body);
+    Observable<Answer> put(String url, Map<String, String> params, String body);
+    Observable<Answer> patch(String url, Map<String, String> params, String body);
 
     class Answer
     {

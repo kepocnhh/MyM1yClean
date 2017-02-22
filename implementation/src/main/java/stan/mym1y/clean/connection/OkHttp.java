@@ -91,4 +91,46 @@ public class OkHttp
             }
         };
     }
+
+    @Override
+    public Observable<Answer> put(final String url, final Map<String, String> params, final String body)
+    {
+        return new SimpleObservable<Answer>()
+        {
+            @Override
+            protected Answer work()
+                    throws IOException
+            {
+                HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
+                for(String key : params.keySet())
+                {
+                    urlBuilder.addQueryParameter(key, params.get(key));
+                }
+                Request.Builder builder = new Request.Builder().url(urlBuilder.build()).put(RequestBody.create(JSON, body));
+                Response response = client.newCall(builder.build()).execute();
+                return new Answer(response.body().string(), response.code());
+            }
+        };
+    }
+
+    @Override
+    public Observable<Answer> patch(final String url, final Map<String, String> params, final String body)
+    {
+        return new SimpleObservable<Answer>()
+        {
+            @Override
+            protected Answer work()
+                    throws IOException
+            {
+                HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
+                for(String key : params.keySet())
+                {
+                    urlBuilder.addQueryParameter(key, params.get(key));
+                }
+                Request.Builder builder = new Request.Builder().url(urlBuilder.build()).patch(RequestBody.create(JSON, body));
+                Response response = client.newCall(builder.build()).execute();
+                return new Answer(response.body().string(), response.code());
+            }
+        };
+    }
 }

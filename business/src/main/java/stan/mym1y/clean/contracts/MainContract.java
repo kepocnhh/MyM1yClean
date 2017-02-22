@@ -11,6 +11,7 @@ public interface MainContract
     {
         Observable<ListModel<TransactionModel>> getAll();
         Observable<ListModel<TransactionModel>> updateAll();
+        Observable<ListModel<TransactionModel>> sendUpdatings();
         Observable<Integer> getBalance();
         void add(TransactionModel transaction);
         void delete(int id);

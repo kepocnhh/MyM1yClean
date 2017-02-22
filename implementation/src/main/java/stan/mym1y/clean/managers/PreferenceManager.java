@@ -3,8 +3,10 @@ package stan.mym1y.clean.managers;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.di.Settings;
+import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.users.UserData;
 
 public class PreferenceManager
@@ -15,6 +17,8 @@ public class PreferenceManager
     static private final String USER_ID = PREFERENCE + "_" + "user_id";
     static private final String USER_TOKEN = PREFERENCE + "_" + "user_token";
     static private final String REFRESH_TOKEN = PREFERENCE + "_" + "refresh_token";
+    static private final String LAST_SYNC_TIME = PREFERENCE + "_" + "last_sync_time";
+    static private final String HASH = PREFERENCE + "_" + "hash";
 
     private SharedPreferences preferences;
 
@@ -61,6 +65,26 @@ public class PreferenceManager
         editor.putString(USER_TOKEN, null);
         editor.putString(USER_ID, null);
         editor.putString(REFRESH_TOKEN, null);
+        editor.putLong(LAST_SYNC_TIME, -1);
+        editor.putString(HASH, null);
+        editor.apply();
+    }
+
+    @Override
+    public SyncData getSyncData()
+    {
+        return new SynchronizationData(
+                preferences.getLong(LAST_SYNC_TIME, -1)
+                ,preferences.getString(HASH, null)
+        );
+    }
+
+    @Override
+    public void setSyncData(SyncData data)
+    {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putLong(LAST_SYNC_TIME, data.getLastSyncTime());
+        editor.putString(HASH, data.getHash());
         editor.apply();
     }
 }

@@ -11,6 +11,9 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
 import stan.mym1y.clean.cores.transactions.TransactionModel;
 import stan.mym1y.clean.dao.ListModel;
+import stan.mym1y.clean.modules.transaction.AddNewTransactionDialog;
+import stan.mym1y.clean.modules.transaction.DeleteTransactionConfirmDialog;
+import stan.mym1y.clean.modules.transactions.TransactionView;
 import stan.mym1y.clean.units.fragments.MVPFragment;
 
 public class MainFragment
@@ -88,11 +91,20 @@ public class MainFragment
         @Override
         public void delete(int id)
         {
-//            deleteTransaction(id);
+            deleteTransaction(id);
         }
     };
 
     private String balance_label;
+
+    private final AddNewTransactionDialog.AddNewTransactionListener addNewTransactionListener = new AddNewTransactionDialog.AddNewTransactionListener()
+    {
+        @Override
+        public void newTransaction(int count)
+        {
+            getPresenter().newTransaction(new TransactionView(count, System.currentTimeMillis()));
+        }
+    };
 
     @Override
     protected void onClickView(int id)
@@ -101,6 +113,9 @@ public class MainFragment
         {
             case R.id.logout:
                 behaviour.logout();
+                break;
+            case R.id.new_transaction:
+                newTransaction();
                 break;
         }
     }
@@ -115,7 +130,7 @@ public class MainFragment
     {
         balance = findView(R.id.balance);
         transactions = findView(R.id.transactions);
-        setClickListener(findView(R.id.logout));
+        setClickListener(findView(R.id.logout), findView(R.id.new_transaction));
     }
     @Override
     protected void init()
@@ -130,5 +145,21 @@ public class MainFragment
         transactions.setAdapter(adapter);
         balance_label = getActivity().getResources().getString(R.string.balance_label);
         getPresenter().update();
+    }
+
+    private void newTransaction()
+    {
+        AddNewTransactionDialog.newInstanse(addNewTransactionListener).show(getFragmentManager(), AddNewTransactionDialog.class.getName());
+    }
+    private void deleteTransaction(final int id)
+    {
+        DeleteTransactionConfirmDialog.newInstanse(new DeleteTransactionConfirmDialog.DeleteTransactionConfirmListener()
+        {
+            @Override
+            public void confirm()
+            {
+                getPresenter().deleteTransaction(id);
+            }
+        }).show(getFragmentManager(), DeleteTransactionConfirmDialog.class.getName());
     }
 }

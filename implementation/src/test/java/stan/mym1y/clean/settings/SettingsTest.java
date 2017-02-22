@@ -4,9 +4,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.di.Settings;
 import stan.mym1y.clean.managers.PreferenceManager;
+import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.users.UserData;
 import stan.mym1y.clean.utils.RobolectricTest;
 
@@ -56,5 +58,21 @@ public class SettingsTest
         assertNull(data3.getUserId());
         assertNull(data3.getUserToken());
         assertNull(data3.getRefreshToken());
+    }
+
+    @Test
+    public void checkSyncData()
+    {
+        SyncData data1 = settings.getSyncData();
+        assertNotNull(data1);
+        assertNull(data1.getHash());
+        assertEquals(data1.getLastSyncTime(), -1);
+        long lastSyncTime = nextInt();
+        String hash = nextString();
+        settings.setSyncData(new SynchronizationData(lastSyncTime, hash));
+        SyncData data2 = settings.getSyncData();
+        assertNotNull(data2);
+        assertEquals(data2.getLastSyncTime(), lastSyncTime);
+        assertEquals(data2.getHash(), hash);
     }
 }

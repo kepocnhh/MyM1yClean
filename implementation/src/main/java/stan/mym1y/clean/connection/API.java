@@ -3,6 +3,8 @@ package stan.mym1y.clean.connection;
 import java.util.HashMap;
 import java.util.Map;
 
+import stan.mym1y.clean.cores.sync.SyncData;
+
 public interface API
 {
     String SERVER_KEY = "AIzaSyBaxJYzOa-DtvZ9QRVQn6WkHEc2-tTKsEQ";
@@ -40,17 +42,29 @@ public interface API
 
     String BASE_URL = "https://mym1yclean.firebaseio.com/";
     String TRANSACTIONS = BASE_URL + "transactions";
+    String SYNC = BASE_URL + "sync";
     class Transactions
     {
         static public String getTransactionsLink(String userId)
         {
             return TRANSACTIONS + "/" +userId+ ".json";
         }
+        static public String getSyncLink(String userId)
+        {
+            return SYNC + "/" +userId+ ".json";
+        }
         static public Map<String, String> getTransactionsParams(String userToken)
         {
             Map<String, String> params = new HashMap<>();
             params.put("auth", userToken);
             return params;
+        }
+        static public Map getSyncBody(SyncData syncData)
+        {
+            Map<String, Object> body = new HashMap<>();
+            body.put("lastSyncTime", syncData.getLastSyncTime());
+            body.put("hash", syncData.getHash());
+            return body;
         }
     }
 }

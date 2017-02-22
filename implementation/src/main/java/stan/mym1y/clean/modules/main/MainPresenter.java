@@ -75,6 +75,23 @@ class MainPresenter
         {
         }
     };
+    private final Observer<ListModel<TransactionModel>> sendUpdatingsObserver = new Observer<ListModel<TransactionModel>>()
+    {
+        @Override
+        public void next(ListModel<TransactionModel> transactions)
+        {
+            log("send updatings success: " + transactions.size());
+        }
+        @Override
+        public void error(Throwable t)
+        {
+            log("send updatings error: " + t.getMessage());
+        }
+        @Override
+        public void complete()
+        {
+        }
+    };
 
     MainPresenter(MainContract.View v, MainContract.Model m)
     {
@@ -110,9 +127,23 @@ class MainPresenter
             @Override
             public void run()
             {
-//                getModel().add(new Transaction(nextInt(), transaction.getCount(), transaction.getDate()));
-//                getView().update(getModel().getAll(sortingType));
-//                getView().update(getModel().getBalance());
+                getModel().add(new Transaction(nextInt(), transaction.getCount(), transaction.getDate()));
+                together(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        getModel().getAll().subscribe(transactionsCacheObserver);
+                        getModel().getBalance().subscribe(balanceObserver);
+                    }
+                }, new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        getModel().sendUpdatings().subscribe(sendUpdatingsObserver);
+                    }
+                });
             }
         });
     }
@@ -125,9 +156,23 @@ class MainPresenter
             @Override
             public void run()
             {
-//                getModel().delete(id);
-//                getView().update(getModel().getAll(sortingType));
-//                getView().update(getModel().getBalance());
+                getModel().delete(id);
+                together(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        getModel().getAll().subscribe(transactionsCacheObserver);
+                        getModel().getBalance().subscribe(balanceObserver);
+                    }
+                }, new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        getModel().sendUpdatings().subscribe(sendUpdatingsObserver);
+                    }
+                });
             }
         });
     }

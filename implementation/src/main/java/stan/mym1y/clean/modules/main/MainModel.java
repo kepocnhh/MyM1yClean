@@ -1,6 +1,7 @@
 package stan.mym1y.clean.modules.main;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,15 +10,18 @@ import stan.json.JSONWriter;
 import stan.mym1y.clean.connection.API;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
+import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.transactions.TransactionModel;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.dao.ListModel;
 import stan.mym1y.clean.dao.Models;
 import stan.mym1y.clean.di.Connection;
 import stan.mym1y.clean.di.Settings;
+import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.transactions.Transaction;
 import stan.mym1y.clean.modules.users.UserData;
 import stan.reactive.Func;
+import stan.reactive.JustObserver;
 import stan.reactive.Observable;
 import stan.reactive.Observer;
 
@@ -40,7 +44,7 @@ class MainModel
             }
             catch(Exception e)
             {
-                o.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\ncache "));
+                o.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\ncache"));
             }
         }
     };
@@ -57,13 +61,16 @@ class MainModel
         }
     };
     private final Observable<Integer> balanceObservable = transactionsCacheObservable.map(balanceMap);
-    private final Observable<ListModel<TransactionModel>> transactionsUpdateObservable = new Observable<ListModel<TransactionModel>>()
+    private abstract class NetworkObservable<DATA>
+        extends Observable<DATA>
     {
+        Observer<DATA> observer;
+
         @Override
-        public void subscribe(final Observer<ListModel<TransactionModel>> o)
+        public void subscribe(Observer<DATA> o)
         {
-            connection.get(API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId()), API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken())
-            ).subscribe(new Observer<Connection.Answer>()
+            observer = o;
+            createNetworkObservable().subscribe(new NetworkObserver<DATA>(o, getLink())
             {
                 @Override
                 public void next(Connection.Answer response)
@@ -71,102 +78,190 @@ class MainModel
                     try
                     {
                         checkResponseCode(response.getCode());
-                        List<TransactionModel> listTransactions = getTransactions(response.getData());
-                        transactions.clear();
-                        transactions.add(listTransactions);
-                        o.next(transactions.getAll());
-                        o.complete();
+                        observer.next(work(response.getData()));
+                        observer.complete();
                     }
                     catch(ErrorsContract.UnauthorizedException e)
                     {
-                        refreshTokenObservable.subscribe(new Observer<UserPrivateData>()
-                        {
-                            @Override
-                            public void next(UserPrivateData data)
-                            {
-                                settings.login(data);
-                                connection.get(API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId())
-                                        ,API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken())
-                                ).subscribe(new Observer<Connection.Answer>()
-                                {
-                                    @Override
-                                    public void next(Connection.Answer answer)
-                                    {
-                                        try
-                                        {
-                                            checkResponseCode(answer.getCode());
-                                            List<TransactionModel> listTransactions = getTransactions(answer.getData());
-                                            transactions.clear();
-                                            transactions.add(listTransactions);
-                                            o.next(transactions.getAll());
-                                            o.complete();
-                                        }
-                                        catch(ErrorsContract.UnauthorizedException | ErrorsContract.UnknownErrorException e)
-                                        {
-                                            o.error(e);
-                                        }
-                                        catch(Exception e)
-                                        {
-                                            o.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nnext " + answer));
-                                        }
-                                    }
-                                    @Override
-                                    public void error(Throwable t)
-                                    {
-                                        o.error(new ErrorsContract.NetworkErrorException(API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId())));
-                                    }
-                                    @Override
-                                    public void complete()
-                                    {
-                                    }
-                                });
-                            }
-                            @Override
-                            public void error(Throwable t)
-                            {
-                                o.error(t);
-                            }
-                            @Override
-                            public void complete()
-                            {
-                            }
-                        });
+                        onError(e);
                     }
                     catch(ErrorsContract.UnknownErrorException e)
                     {
-                        o.error(e);
+                        observer.error(e);
                     }
                     catch(Exception e)
                     {
-                        o.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nnext " + response));
+                        observer.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nnext " + response));
                     }
-                }
-                @Override
-                public void error(Throwable t)
-                {
-                    o.error(new ErrorsContract.NetworkErrorException(API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId())));
-                }
-                @Override
-                public void complete()
-                {
                 }
             });
         }
-        private void checkResponseCode(int code)
-                throws ErrorsContract.UnauthorizedException, ErrorsContract.UnknownErrorException
+
+        void checkResponseCode(int code)
+                throws ErrorsContract.UnauthorizedException, ErrorsContract.UnknownErrorException, ErrorsContract.InvalidDataException
         {
             if(code == 401)
             {
                 throw new ErrorsContract.UnauthorizedException("code: " + code);
+            }
+            else if(code == 400)
+            {
+                throw new ErrorsContract.InvalidDataException("answer: " + code);
             }
             else if(code != 200)
             {
                 throw new ErrorsContract.UnknownErrorException(getClass().getName() + "\ncheckResponseCode \n" + code);
             }
         }
-        private List<TransactionModel> getTransactions(String data)
+
+        abstract Observable<Connection.Answer> createNetworkObservable();
+        abstract DATA work(String data);
+        abstract void onError(ErrorsContract.UnauthorizedException e);
+        abstract String getLink();
+    }
+    private abstract class NetworkObserver<DATA>
+        implements Observer<Connection.Answer>
+    {
+        private Observer<DATA> observer;
+        private String link;
+
+        NetworkObserver(Observer<DATA> o, String l)
         {
-            List list = (List)JSONParser.read(data);
+            observer = o;
+            link = l;
+        }
+
+        @Override
+        public void error(Throwable t)
+        {
+            observer.error(new ErrorsContract.NetworkErrorException(link));
+        }
+        @Override
+        public void complete()
+        {
+        }
+    }
+    private final Observable<SyncData> syncDataProxyObservable = new NetworkObservable<SyncData>()
+    {
+        @Override
+        Observable<Connection.Answer> createNetworkObservable()
+        {
+            return connection.get(API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId()), API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken()));
+        }
+        @Override
+        SyncData work(String data)
+        {
+            Map responseMap = (Map)JSONParser.read(data);
+            return new SynchronizationData((Long)responseMap.get("lastSyncTime"), (String)responseMap.get("hash"));
+        }
+        @Override
+        void onError(ErrorsContract.UnauthorizedException e)
+        {
+            refreshTokenObservable.flatMap(syncDataMap);
+        }
+        @Override
+        String getLink()
+        {
+            return API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId());
+        }
+    };
+    private final Func<UserPrivateData, Observable<SyncData>> syncDataMap = new Func<UserPrivateData, Observable<SyncData>>()
+    {
+        @Override
+        public Observable<SyncData> call(UserPrivateData data)
+        {
+            settings.login(data);
+            return syncDataObservable;
+        }
+    };
+    private final Observable<SyncData> syncDataObservable = new NetworkObservable<SyncData>()
+    {
+        @Override
+        Observable<Connection.Answer> createNetworkObservable()
+        {
+            return connection.get(API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId()), API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken()));
+        }
+        @Override
+        SyncData work(String data)
+        {
+            Map responseMap = (Map)JSONParser.read(data);
+            return new SynchronizationData((Long)responseMap.get("lastSyncTime"), (String)responseMap.get("hash"));
+        }
+        @Override
+        void onError(ErrorsContract.UnauthorizedException e)
+        {
+            observer.error(e);
+        }
+        @Override
+        String getLink()
+        {
+            return API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId());
+        }
+    };
+    private final Observable<SyncData> syncAllObservable = new NetworkObservable<SyncData>()
+    {
+        @Override
+        Observable<Connection.Answer> createNetworkObservable()
+        {
+            return connection.put(API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId())
+                    ,API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken())
+                    ,JSONWriter.write(API.Transactions.getSyncBody(new SynchronizationData(System.currentTimeMillis(), settings.getSyncData().getHash())))
+            );
+        }
+        @Override
+        SyncData work(String data)
+        {
+            Map responseMap = (Map)JSONParser.read(data);
+            return new SynchronizationData((Long)responseMap.get("lastSyncTime"), (String)responseMap.get("hash"));
+        }
+        @Override
+        void onError(ErrorsContract.UnauthorizedException e)
+        {
+            observer.error(e);
+        }
+        @Override
+        String getLink()
+        {
+            return API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId());
+        }
+    };
+
+    private final Observable<ListModel<TransactionModel>> transactionsGetObservable = new NetworkObservable<ListModel<TransactionModel>>()
+    {
+        @Override
+        Observable<Connection.Answer> createNetworkObservable()
+        {
+            return connection.get(API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId()), API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken()));
+        }
+        @Override
+        ListModel<TransactionModel> work(String data)
+        {
+            List<TransactionModel> listTransactions = getTransactions((List)JSONParser.read(data));
+            transactions.clear();
+            transactions.add(listTransactions);
+            settings.setSyncData(new SynchronizationData(settings.getSyncData().getLastSyncTime(), getHash(data)));
+            syncAllObservable.subscribe(new JustObserver<SyncData>()
+            {
+                @Override
+                public void next(SyncData syncData)
+                {
+                    settings.setSyncData(syncData);
+                }
+            });
+            return transactions.getAll();
+        }
+        @Override
+        void onError(ErrorsContract.UnauthorizedException e)
+        {
+            observer.error(e);
+        }
+        @Override
+        String getLink()
+        {
+            return API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId());
+        }
+        private List<TransactionModel> getTransactions(List list)
+        {
             List<TransactionModel> listTransactions = new ArrayList<>(list.size());
             for(Object object : list)
             {
@@ -180,55 +275,97 @@ class MainModel
             return listTransactions;
         }
     };
-    private final Observable<UserPrivateData> refreshTokenObservable = new Observable<UserPrivateData>()
+    private final Observable<ListModel<TransactionModel>> transactionsPutObservable = new NetworkObservable<ListModel<TransactionModel>>()
     {
         @Override
-        public void subscribe(final Observer<UserPrivateData> o)
+        Observable<Connection.Answer> createNetworkObservable()
         {
-            connection.post(API.Auth.REFRESH_TOKEN, API.Auth.Params.getAuthParams()
-                    ,JSONWriter.write(API.Auth.Params.getRefreshTokenBody(settings.getUserPrivateData().getRefreshToken()))
-            ).subscribe(new Observer<Connection.Answer>()
+            return connection.put(
+                    API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId())
+                    ,API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken())
+                    ,convertTransactions(transactions.getAll())
+            );
+        }
+        @Override
+        ListModel<TransactionModel> work(String data)
+        {
+            settings.setSyncData(new SynchronizationData(settings.getSyncData().getLastSyncTime(), getHash(data)));
+            syncAllObservable.subscribe(new JustObserver<SyncData>()
             {
                 @Override
-                public void next(Connection.Answer response)
+                public void next(SyncData syncData)
                 {
-                    try
-                    {
-                        checkResponseCode(response.getCode());
-                        o.next(getUserPrivateData(response.getData()));
-                        o.complete();
-                    }
-                    catch(ErrorsContract.InvalidDataException | ErrorsContract.UnknownErrorException e)
-                    {
-                        o.error(e);
-                    }
-                    catch(Exception e)
-                    {
-                        o.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nnext " + response));
-                    }
-                }
-                @Override
-                public void error(Throwable t)
-                {
-                    o.error(new ErrorsContract.NetworkErrorException(API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId())));
-                }
-                @Override
-                public void complete()
-                {
+                    settings.setSyncData(syncData);
                 }
             });
+            return transactions.getAll();
         }
-        private void checkResponseCode(int code)
-                throws ErrorsContract.InvalidDataException, ErrorsContract.UnknownErrorException
+        @Override
+        void onError(ErrorsContract.UnauthorizedException e)
         {
-            if(code == 400)
+            observer.error(e);
+        }
+        @Override
+        String getLink()
+        {
+            return API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId());
+        }
+        private String convertTransactions(ListModel<TransactionModel> listModel)
+        {
+            List list = new ArrayList(listModel.size());
+            for(int i=0; i<listModel.size(); i++)
             {
-                throw new ErrorsContract.InvalidDataException("answer: " + code);
+                Map map = new HashMap();
+                map.put("count", listModel.get(i).getCount());
+                map.put("id", listModel.get(i).getId());
+                map.put("date", listModel.get(i).getDate());
+                list.add(map);
             }
-            else if(code != 200)
+            return JSONWriter.write(list);
+        }
+    };
+    private final Func<SyncData, Observable<ListModel<TransactionModel>>> updateAllMap = new Func<SyncData, Observable<ListModel<TransactionModel>>>()
+    {
+        @Override
+        public Observable<ListModel<TransactionModel>> call(SyncData data)
+        {
+            if(data.getLastSyncTime() > settings.getSyncData().getLastSyncTime())
             {
-                throw new ErrorsContract.UnknownErrorException("answer: " + code);
+                return transactionsGetObservable;
             }
+            else if(data.getLastSyncTime() == settings.getSyncData().getLastSyncTime() && data.getHash().equals(settings.getSyncData().getHash()))
+            {
+                return transactionsCacheObservable;
+            }
+            else
+            {
+                return transactionsPutObservable;
+            }
+        }
+    };
+    private final Observable<ListModel<TransactionModel>> updateAllObservable = syncDataProxyObservable.flatMap(updateAllMap);
+
+    private final Observable<UserPrivateData> refreshTokenObservable = new NetworkObservable<UserPrivateData>()
+    {
+        @Override
+        Observable<Connection.Answer> createNetworkObservable()
+        {
+            return connection.post(API.Auth.REFRESH_TOKEN, API.Auth.Params.getAuthParams(), JSONWriter.write(API.Auth.Params.getRefreshTokenBody(settings.getUserPrivateData().getRefreshToken())));
+        }
+        @Override
+        UserPrivateData work(String data)
+        {
+            return getUserPrivateData(data);
+        }
+        @Override
+        void onError(ErrorsContract.UnauthorizedException e)
+        {
+            observer.error(e);
+        }
+        @Override
+        String getLink()
+        {
+            return API.Auth.REFRESH_TOKEN;
         }
         private UserPrivateData getUserPrivateData(String data)
         {
@@ -252,7 +389,12 @@ class MainModel
     @Override
     public Observable<ListModel<TransactionModel>> updateAll()
     {
-        return transactionsUpdateObservable;
+        return updateAllObservable;
+    }
+    @Override
+    public Observable<ListModel<TransactionModel>> sendUpdatings()
+    {
+        return transactionsPutObservable;
     }
 
     @Override
@@ -264,10 +406,33 @@ class MainModel
     @Override
     public void add(TransactionModel transaction)
     {
+        transactions.add(transaction);
+        settings.setSyncData(new SynchronizationData(settings.getSyncData().getLastSyncTime(), ""));
     }
 
     @Override
     public void delete(int id)
     {
+        transactions.remove(id);
+        settings.setSyncData(new SynchronizationData(settings.getSyncData().getLastSyncTime(), ""));
+    }
+
+    private String getHash(String data)
+    {
+        try
+        {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] array = md.digest(data.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for(byte anArray : array)
+            {
+                sb.append(Integer.toHexString((anArray & 0xFF) | 0x100).substring(1, 3));
+            }
+            return sb.toString();
+        }
+        catch(java.security.NoSuchAlgorithmException e)
+        {
+        }
+        return null;
     }
 }
