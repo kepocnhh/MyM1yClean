@@ -41,47 +41,56 @@ class LoginModel
         return new Observable<UserPrivateData>()
         {
             @Override
-            public void subscribe(Observer<UserPrivateData> o)
+            public void subscribe(final Observer<UserPrivateData> o)
             {
-                login(o, jsonBody);
+                connection.post(API.Auth.LOGIN, API.Auth.Params.getAuthParams(), jsonBody).subscribe(new Observer<Connection.Answer>()
+                {
+                    @Override
+                    public void next(Connection.Answer response)
+                    {
+                        try
+                        {
+                            checkResponseCode(response.getCode());
+                            o.next(getUserPrivateData(response.getData()));
+                            o.complete();
+                        }
+                        catch(ErrorsContract.UnauthorizedException | ErrorsContract.UnknownErrorException e)
+                        {
+                            o.error(e);
+                        }
+                        catch(Exception e)
+                        {
+                            o.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nnext " + response));
+                        }
+                    }
+                    @Override
+                    public void error(Throwable t)
+                    {
+                        o.error(new ErrorsContract.NetworkErrorException(API.Auth.LOGIN));
+                    }
+                    @Override
+                    public void complete()
+                    {
+                    }
+                });
+            }
+            private void checkResponseCode(int code)
+                    throws ErrorsContract.UnauthorizedException, ErrorsContract.UnknownErrorException
+            {
+                if(code == 400)
+                {
+                    throw new ErrorsContract.UnauthorizedException("code: " + code);
+                }
+                else if(code != 200)
+                {
+                    throw new ErrorsContract.UnknownErrorException(getClass().getName() + "\ncheckResponseCode \n" + code);
+                }
+            }
+            private UserPrivateData getUserPrivateData(String data)
+            {
+                Map responseBody = (Map)JSONParser.read(data);
+                return new UserData((String)responseBody.get("localId"), (String)responseBody.get("idToken"), (String)responseBody.get("refreshToken"));
             }
         };
-    }
-    private void login(final Observer<UserPrivateData> o, String body)
-    {
-        connection.post(API.Auth.LOGIN, API.Auth.Params.getAuthParams(), body).subscribe(new Observer<Connection.Answer>()
-        {
-            @Override
-            public void next(Connection.Answer response)
-            {
-                login(o, response);
-            }
-            @Override
-            public void error(Throwable t)
-            {
-                o.error(new ErrorsContract.NetworkErrorException(API.Auth.LOGIN));
-            }
-            @Override
-            public void complete()
-            {
-            }
-        });
-    }
-    private void login(Observer<UserPrivateData> o, Connection.Answer response)
-    {
-        if(response.getCode() == 200)
-        {
-            Map responseBody = (Map)JSONParser.read(response.getData());
-            o.next(new UserData((String)responseBody.get("localId"), (String)responseBody.get("idToken")));
-            o.complete();
-        }
-        else if(response.getCode() == 400)
-        {
-            o.error(new ErrorsContract.UnauthorizedException("login\n" + response.getData() + "\n" + response.getCode()));
-        }
-        else
-        {
-            o.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nlogin\n" + response.getData()));
-        }
     }
 }

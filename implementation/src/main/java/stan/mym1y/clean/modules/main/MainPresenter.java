@@ -14,40 +14,11 @@ class MainPresenter
     extends ModelPresenter<MainContract.View, MainContract.Model>
     implements MainContract.Presenter
 {
-    private final Observer<ListModel<TransactionModel>> transactionsObserver = new Observer<ListModel<TransactionModel>>()
+    private final Observer<ListModel<TransactionModel>> transactionsCacheObserver = new JustObserver<ListModel<TransactionModel>>()
     {
-        @Override
-        public void next(ListModel<TransactionModel> transactions)
+        public void next(ListModel<TransactionModel> t)
         {
-            getView().update(transactions);
-        }
-        @Override
-        public void error(Throwable t)
-        {
-            if(t instanceof ErrorsContract.NetworkErrorException)
-            {
-                getView().error((ErrorsContract.NetworkErrorException)t);
-            }
-            else if(t instanceof ErrorsContract.UnauthorizedException)
-            {
-                getView().error((ErrorsContract.UnauthorizedException)t);
-            }
-            else if(t instanceof ErrorsContract.InvalidDataException)
-            {
-                getView().error((ErrorsContract.InvalidDataException)t);
-            }
-            else if(t instanceof ErrorsContract.ServerErrorException)
-            {
-                getView().error((ErrorsContract.ServerErrorException)t);
-            }
-            else
-            {
-                getView().error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nerror " + t.getMessage()));
-            }
-        }
-        @Override
-        public void complete()
-        {
+            getView().update(t);
         }
     };
     private final Observer<Integer> balanceObserver = new JustObserver<Integer>()
@@ -55,6 +26,53 @@ class MainPresenter
         public void next(Integer balance)
         {
             getView().update(balance);
+        }
+    };
+    private final Observer<ListModel<TransactionModel>> transactionsUpdateObserver = new Observer<ListModel<TransactionModel>>()
+    {
+        @Override
+        public void next(ListModel<TransactionModel> transactions)
+        {
+            log("update transactions success: " + transactions.size());
+            getModel().getBalance().subscribe(balanceObserver);
+            getView().update(transactions);
+        }
+        @Override
+        public void error(Throwable t)
+        {
+            log("update transactions error: " + t.getMessage());
+            try
+            {
+                throw t;
+            }
+            catch(ErrorsContract.NetworkErrorException exception)
+            {
+                getView().error(exception);
+            }
+            catch(ErrorsContract.UnauthorizedException exception)
+            {
+                getView().error(exception);
+            }
+            catch(ErrorsContract.InvalidDataException exception)
+            {
+                getView().error(exception);
+            }
+            catch(ErrorsContract.ServerErrorException exception)
+            {
+                getView().error(exception);
+            }
+            catch(ErrorsContract.UnknownErrorException exception)
+            {
+                getView().error(exception);
+            }
+            catch(Throwable throwable)
+            {
+                getView().error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nerror " + t.getMessage()));
+            }
+        }
+        @Override
+        public void complete()
+        {
         }
     };
 
@@ -66,24 +84,22 @@ class MainPresenter
     @Override
     public void update()
     {
-        onNewThread(new Runnable()
+        together(new Runnable()
         {
             @Override
             public void run()
             {
-                getModel().getAll().subscribe(transactionsObserver);
+                getModel().getAll().subscribe(transactionsCacheObserver);
+                getModel().getBalance().subscribe(balanceObserver);
+            }
+        }, new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                getModel().updateAll().subscribe(transactionsUpdateObserver);
             }
         });
-//        updateAll();
-//        onNewThread(new Runnable()
-//        {
-//            @Override
-//            public void run()
-//            {
-//                getView().update(getModel().getAll(sortingType));
-//                getView().update(getModel().getBalance());
-//            }
-//        });
     }
 
     @Override
@@ -112,25 +128,6 @@ class MainPresenter
 //                getModel().delete(id);
 //                getView().update(getModel().getAll(sortingType));
 //                getView().update(getModel().getBalance());
-            }
-        });
-    }
-
-    private void updateAll()
-    {
-        together(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                getModel().getAll().subscribe(transactionsObserver);
-            }
-        }, new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                getModel().getBalance().subscribe(balanceObserver);
             }
         });
     }

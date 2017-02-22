@@ -93,7 +93,7 @@ public abstract class MVPFragment<PRESENTER>
     }
     final protected void showToast(final String message)
     {
-        log(message);
+//        log(message);
         uiHandler.post(new Runnable()
         {
             @Override

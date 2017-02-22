@@ -7,11 +7,13 @@ public class UserData
 {
     private String userId;
     private String userToken;
+    private String refreshToken;
 
-    public UserData(String id, String token)
+    public UserData(String id, String token, String rt)
     {
         userId = id;
         userToken = token;
+        refreshToken = rt;
     }
 
     @Override
@@ -23,5 +25,10 @@ public class UserData
     public String getUserToken()
     {
         return userToken;
+    }
+    @Override
+    public String getRefreshToken()
+    {
+        return refreshToken;
     }
 }

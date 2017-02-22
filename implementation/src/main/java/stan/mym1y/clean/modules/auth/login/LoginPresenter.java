@@ -19,23 +19,31 @@ class LoginPresenter
         @Override
         public void error(Throwable t)
         {
-            if(t instanceof ErrorsContract.NetworkErrorException)
+            try
             {
-                getView().error((ErrorsContract.NetworkErrorException)t);
+                throw t;
             }
-            else if(t instanceof ErrorsContract.UnauthorizedException)
+            catch(ErrorsContract.NetworkErrorException exception)
             {
-                getView().error((ErrorsContract.UnauthorizedException)t);
+                getView().error(exception);
             }
-            else if(t instanceof ErrorsContract.InvalidDataException)
+            catch(ErrorsContract.UnauthorizedException exception)
             {
-                getView().error((ErrorsContract.InvalidDataException)t);
+                getView().error(exception);
             }
-            else if(t instanceof ErrorsContract.ServerErrorException)
+            catch(ErrorsContract.InvalidDataException exception)
             {
-                getView().error((ErrorsContract.ServerErrorException)t);
+                getView().error(exception);
             }
-            else
+            catch(ErrorsContract.ServerErrorException exception)
+            {
+                getView().error(exception);
+            }
+            catch(ErrorsContract.UnknownErrorException exception)
+            {
+                getView().error(exception);
+            }
+            catch(Throwable throwable)
             {
                 getView().error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nerror " + t.getMessage()));
             }

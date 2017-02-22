@@ -10,6 +10,7 @@ public interface MainContract
     interface Model
     {
         Observable<ListModel<TransactionModel>> getAll();
+        Observable<ListModel<TransactionModel>> updateAll();
         Observable<Integer> getBalance();
         void add(TransactionModel transaction);
         void delete(int id);

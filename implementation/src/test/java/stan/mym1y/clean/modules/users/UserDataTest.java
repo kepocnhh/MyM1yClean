@@ -15,11 +15,14 @@ public class UserDataTest
     {
         String id = nextString();
         String token = nextString();
+        String refreshToken = nextString();
         UserPrivateData userData = new UserData(
                 id
                 ,token
+                ,refreshToken
         );
         assertEquals(userData.getUserId(), id);
         assertEquals(userData.getUserToken(), token);
+        assertEquals(userData.getRefreshToken(), refreshToken);
     }
 }

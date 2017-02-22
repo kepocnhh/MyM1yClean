@@ -5,4 +5,5 @@
     <string name="login_confirm_text">Enter</string>
     <string name="signin_confirm_text">Signin</string>
     <string name="to_signup_text">To Sign Up</string>
+    <string name="balance_label">Balance</string>
 </resources>

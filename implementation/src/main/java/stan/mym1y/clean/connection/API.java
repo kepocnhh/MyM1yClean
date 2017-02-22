@@ -11,6 +11,7 @@ public interface API
     {
         String BASE_URL = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/";
         String LOGIN = BASE_URL + "verifyPassword";
+        String REFRESH_TOKEN = "https://securetoken.googleapis.com/v1/token";
         class Params
         {
             static public Map<String, String> getAuthParams()
@@ -25,6 +26,13 @@ public interface API
                 body.put("email", login);
                 body.put("password", password);
                 body.put("returnSecureToken", true);
+                return body;
+            }
+            static public Map getRefreshTokenBody(String refreshToken)
+            {
+                Map<String, Object> body = new HashMap<>();
+                body.put("grant_type", "refresh_token");
+                body.put("refresh_token", refreshToken);
                 return body;
             }
         }

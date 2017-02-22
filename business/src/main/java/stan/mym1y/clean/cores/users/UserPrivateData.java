@@ -4,4 +4,5 @@ public interface UserPrivateData
 {
     String getUserId();
     String getUserToken();
+    String getRefreshToken();
 }

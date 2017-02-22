@@ -26,7 +26,7 @@ public class GeneralActivity
         @Override
         public void toMain(UserPrivateData data)
         {
-            getFragmentManager().beginTransaction().replace(R.id.subscreen, MainFragment.newInstanse(mainBehaviour, data)).commit();
+            getFragmentManager().beginTransaction().replace(R.id.subscreen, MainFragment.newInstanse(mainBehaviour)).commit();
         }
     };
     private final AuthContract.Behaviour authBehaviour = new AuthContract.Behaviour()

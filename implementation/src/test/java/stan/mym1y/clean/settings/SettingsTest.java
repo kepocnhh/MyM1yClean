@@ -35,7 +35,7 @@ public class SettingsTest
     }
 
     @Test
-    public void checkUserToken()
+    public void checkUserData()
     {
         UserPrivateData data1 = settings.getUserPrivateData();
         assertNotNull(data1);
@@ -43,15 +43,18 @@ public class SettingsTest
         assertNull(data1.getUserToken());
         String userId = nextString();
         String token = nextString();
-        settings.login(new UserData(userId, token));
+        String refreshToken = nextString();
+        settings.login(new UserData(userId, token, refreshToken));
         UserPrivateData data2 = settings.getUserPrivateData();
         assertNotNull(data2);
         assertEquals(data2.getUserId(), userId);
         assertEquals(data2.getUserToken(), token);
+        assertEquals(data2.getRefreshToken(), refreshToken);
         settings.logout();
         UserPrivateData data3 = settings.getUserPrivateData();
         assertNotNull(data3);
         assertNull(data3.getUserId());
         assertNull(data3.getUserToken());
+        assertNull(data3.getRefreshToken());
     }
 }

@@ -1,6 +1,5 @@
 package stan.mym1y.clean.modules.main;
 
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -11,24 +10,15 @@ import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
 import stan.mym1y.clean.cores.transactions.TransactionModel;
-import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.dao.ListModel;
-import stan.mym1y.clean.modules.users.UserData;
 import stan.mym1y.clean.units.fragments.MVPFragment;
 
 public class MainFragment
         extends MVPFragment<MainContract.Presenter>
 {
-    static private final String USER_ID = "user_id";
-    static private final String USER_TOKEN = "user_token";
-
-    static public MVPFragment newInstanse(MainContract.Behaviour b, UserPrivateData userPrivateData)
+    static public MVPFragment newInstanse(MainContract.Behaviour b)
     {
         MainFragment fragment = new MainFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString(USER_ID, userPrivateData.getUserId());
-        bundle.putString(USER_TOKEN, userPrivateData.getUserToken());
-        fragment.setArguments(bundle);
         fragment.behaviour = b;
         return fragment;
     }
@@ -53,7 +43,8 @@ public class MainFragment
         @Override
         public void error(ErrorsContract.InvalidDataException exception)
         {
-            showToast("InvalidDataException");
+//            showToast("InvalidDataException");
+            behaviour.logout();
         }
         @Override
         public void error(ErrorsContract.ServerErrorException exception)
@@ -79,8 +70,16 @@ public class MainFragment
             });
         }
         @Override
-        public void update(int balance)
+        public void update(final int blnc)
         {
+            runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    balance.setText(balance_label + ": " + blnc);
+                }
+            });
         }
     };
     private MainContract.Behaviour behaviour;
@@ -92,6 +91,8 @@ public class MainFragment
 //            deleteTransaction(id);
         }
     };
+
+    private String balance_label;
 
     @Override
     protected void onClickView(int id)
@@ -122,11 +123,12 @@ public class MainFragment
         setPresenter(new MainPresenter(view, new MainModel(
                 App.getAppComponent().getDataAccess().getTransactions()
                 ,App.getAppComponent().getConnection()
-                ,new UserData(getArguments().getString(USER_ID), getArguments().getString(USER_TOKEN))
+                ,App.getAppComponent().getSettings()
         )));
         transactions.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new TransactionsAdapter(getActivity(), transactionsAdapterListener);
         transactions.setAdapter(adapter);
+        balance_label = getActivity().getResources().getString(R.string.balance_label);
         getPresenter().update();
     }
 }
