@@ -10,3 +10,4 @@ Android clean architecture experiment
 - [DAO](https://github.com/kepocnhh/MyM1yClean/tree/master/business/src/main/java/stan/mym1y/clean/dao) - DAO layer
 - [TDD](https://github.com/kepocnhh/MyM1yClean/tree/master/implementation/src/test/java/stan/mym1y/clean) - Testing implementation module
 - [NOSQL ORM](https://github.com/kepocnhh/MyM1yClean/tree/master/implementation/src/main/java/stan/mym1y/clean/boxes) - painless jump from SQLite to NoSQL Object-Relational Mapping [Boxes](https://github.com/StanleyProjects/Boxes)
+- Use [Google Identity Toolkit](https://developers.google.com/identity/toolkit) and [Firebase Realtime Database](https://firebase.google.com/docs/database)
