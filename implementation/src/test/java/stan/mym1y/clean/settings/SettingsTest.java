@@ -4,10 +4,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.robolectric.RuntimeEnvironment;
 
+import stan.mym1y.clean.boxes.Cases;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.di.Settings;
-import stan.mym1y.clean.managers.PreferenceManager;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.users.UserData;
 import stan.mym1y.clean.utils.RobolectricTest;
@@ -24,16 +24,7 @@ public class SettingsTest
     @Before
     public void before()
     {
-        settings = new PreferenceManager(RuntimeEnvironment.application.getApplicationContext());
-    }
-
-    @Test
-    public void checkSortingType()
-    {
-        assertEquals(settings.getSortingType(), -1);
-        int sortingType = nextInt();
-        settings.setSortyngType(sortingType);
-        assertEquals(settings.getSortingType(), sortingType);
+        settings = new Cases(RuntimeEnvironment.application.getApplicationContext().getFilesDir().getAbsolutePath());
     }
 
     @Test
@@ -43,6 +34,7 @@ public class SettingsTest
         assertNotNull(data1);
         assertNull(data1.getUserId());
         assertNull(data1.getUserToken());
+        assertNull(data1.getRefreshToken());
         String userId = nextString();
         String token = nextString();
         String refreshToken = nextString();
