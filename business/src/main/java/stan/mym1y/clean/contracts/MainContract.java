@@ -3,16 +3,17 @@ package stan.mym1y.clean.contracts;
 import stan.mym1y.clean.cores.transactions.TransactionModel;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.dao.ListModel;
-import stan.reactive.Observable;
+import stan.reactive.notify.NotifyObservable;
+import stan.reactive.single.SingleObservable;
 
 public interface MainContract
 {
     interface Model
     {
-        Observable<ListModel<TransactionModel>> getAll();
-        Observable<ListModel<TransactionModel>> updateAll();
-        Observable<ListModel<TransactionModel>> sendUpdatings();
-        Observable<Integer> getBalance();
+        SingleObservable<ListModel<TransactionModel>> getAll();
+        SingleObservable<ListModel<TransactionModel>> updateAll();
+        NotifyObservable sendUpdatings();
+        SingleObservable<Integer> getBalance();
         void add(TransactionModel transaction);
         void delete(int id);
     }

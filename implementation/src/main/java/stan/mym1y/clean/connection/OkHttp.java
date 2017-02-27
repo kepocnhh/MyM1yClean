@@ -11,8 +11,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import stan.mym1y.clean.di.Connection;
-import stan.reactive.Observable;
-import stan.reactive.SimpleObservable;
+import stan.reactive.single.SingleObservable;
 
 public class OkHttp
     implements Connection
@@ -26,22 +25,9 @@ public class OkHttp
             .build();
 
     @Override
-    public Observable<Answer> get(final String url)
+    public SingleObservable<Answer> get(final String url, final Map<String, String> params)
     {
-        return new SimpleObservable<Answer>()
-        {
-            public Answer work()
-                    throws IOException
-            {
-                Response response = client.newCall(new Request.Builder().url(url).build()).execute();
-                return new Answer(response.body().string(), response.code());
-            }
-        };
-    }
-    @Override
-    public Observable<Answer> get(final String url, final Map<String, String> params)
-    {
-        return new SimpleObservable<Answer>()
+        return new SingleObservable.Work<Answer>()
         {
             public Answer work()
                     throws IOException
@@ -58,23 +44,9 @@ public class OkHttp
     }
 
     @Override
-    public Observable<Answer> post(final String url, final String body)
+    public SingleObservable<Answer> post(final String url, final Map<String, String> params, final String body)
     {
-        return new SimpleObservable<Answer>()
-        {
-            @Override
-            protected Answer work()
-                    throws IOException
-            {
-                Response response = client.newCall(new Request.Builder().url(url).post(RequestBody.create(JSON, body)).build()).execute();
-                return new Answer(response.body().string(), response.code());
-            }
-        };
-    }
-    @Override
-    public Observable<Answer> post(final String url, final Map<String, String> params, final String body)
-    {
-        return new SimpleObservable<Answer>()
+        return new SingleObservable.Work<Answer>()
         {
             @Override
             protected Answer work()
@@ -93,9 +65,9 @@ public class OkHttp
     }
 
     @Override
-    public Observable<Answer> put(final String url, final Map<String, String> params, final String body)
+    public SingleObservable<Answer> put(final String url, final Map<String, String> params, final String body)
     {
-        return new SimpleObservable<Answer>()
+        return new SingleObservable.Work<Answer>()
         {
             @Override
             protected Answer work()
@@ -107,27 +79,6 @@ public class OkHttp
                     urlBuilder.addQueryParameter(key, params.get(key));
                 }
                 Request.Builder builder = new Request.Builder().url(urlBuilder.build()).put(RequestBody.create(JSON, body));
-                Response response = client.newCall(builder.build()).execute();
-                return new Answer(response.body().string(), response.code());
-            }
-        };
-    }
-
-    @Override
-    public Observable<Answer> patch(final String url, final Map<String, String> params, final String body)
-    {
-        return new SimpleObservable<Answer>()
-        {
-            @Override
-            protected Answer work()
-                    throws IOException
-            {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
-                for(String key : params.keySet())
-                {
-                    urlBuilder.addQueryParameter(key, params.get(key));
-                }
-                Request.Builder builder = new Request.Builder().url(urlBuilder.build()).patch(RequestBody.create(JSON, body));
                 Response response = client.newCall(builder.build()).execute();
                 return new Answer(response.body().string(), response.code());
             }

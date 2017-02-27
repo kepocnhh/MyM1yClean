@@ -8,11 +8,13 @@ import stan.mym1y.clean.dao.DAO;
 import stan.mym1y.clean.di.AppComponent;
 import stan.mym1y.clean.di.Connection;
 import stan.mym1y.clean.di.FoldersAccess;
+import stan.mym1y.clean.di.JsonConverter;
 import stan.mym1y.clean.di.PlatformUtil;
 import stan.mym1y.clean.di.Settings;
 import stan.mym1y.clean.managers.FoldersManager;
 import stan.mym1y.clean.managers.PreferenceManager;
 import stan.mym1y.clean.utils.AndroidUtil;
+import stan.mym1y.clean.utils.Converter;
 
 public class App
         extends Application
@@ -33,6 +35,7 @@ public class App
                 ,new PreferenceManager(getApplicationContext())
                 ,new AndroidUtil()
                 ,new OkHttp()
+                ,new Converter()
         );
     }
 
@@ -44,14 +47,16 @@ public class App
         private Settings settings;
         private PlatformUtil platformUtil;
         private Connection connection;
+        private JsonConverter jsonConverter;
 
-        Component(DAO dao, FoldersAccess fAccess, Settings ss, PlatformUtil pu, Connection cn)
+        Component(DAO dao, FoldersAccess fAccess, Settings ss, PlatformUtil pu, Connection cn, JsonConverter jc)
         {
             dataAccess = dao;
             foldersAccess = fAccess;
             settings = ss;
             platformUtil = pu;
             connection = cn;
+            jsonConverter = jc;
         }
 
         @Override
@@ -78,6 +83,11 @@ public class App
         public Connection getConnection()
         {
             return connection;
+        }
+        @Override
+        public JsonConverter getJsonConverter()
+        {
+            return jsonConverter;
         }
     }
 }

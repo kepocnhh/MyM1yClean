@@ -1,26 +1,24 @@
 package stan.mym1y.clean.modules.auth.registration;
 
-import java.util.Map;
-
-import stan.json.JSONParser;
-import stan.json.JSONWriter;
 import stan.mym1y.clean.connection.API;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.auth.RegistrationContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.di.Connection;
-import stan.mym1y.clean.modules.users.UserData;
-import stan.reactive.Observable;
-import stan.reactive.Observer;
+import stan.mym1y.clean.di.JsonConverter;
+import stan.reactive.single.SingleObservable;
+import stan.reactive.single.SingleObserver;
 
 class RegistrationModel
         implements RegistrationContract.Model
 {
-    private Connection connection;
+    private final Connection connection;
+    private final JsonConverter jsonConverter;
 
-    RegistrationModel(Connection cn)
+    RegistrationModel(Connection cn, JsonConverter jc)
     {
         connection = cn;
+        jsonConverter = jc;
     }
 
     @Override
@@ -35,24 +33,23 @@ class RegistrationModel
     }
 
     @Override
-    public Observable<UserPrivateData> login(String login, String password)
+    public SingleObservable<UserPrivateData> login(String login, String password)
     {
-        final String jsonBody = JSONWriter.write(API.Auth.Params.getAuthBody(login, password));
-        return new Observable<UserPrivateData>()
+        final String jsonBody = jsonConverter.convertAuthBody(login, password);
+        return new SingleObservable<UserPrivateData>()
         {
             @Override
-            public void subscribe(final Observer<UserPrivateData> o)
+            public void subscribe(final SingleObserver<UserPrivateData> o)
             {
-                connection.post(API.Auth.REGISTRATION, API.Auth.Params.getAuthParams(), jsonBody).subscribe(new Observer<Connection.Answer>()
+                connection.post(API.Auth.REGISTRATION, API.Auth.Params.getAuthParams(), jsonBody).subscribe(new SingleObserver<Connection.Answer>()
                 {
                     @Override
-                    public void next(Connection.Answer response)
+                    public void success(Connection.Answer response)
                     {
                         try
                         {
                             checkResponseCode(response.getCode());
-                            o.next(getUserPrivateData(response.getData()));
-                            o.complete();
+                            o.success(jsonConverter.parseUserPrivateData(response.getData()));
                         }
                         catch(ErrorsContract.UnauthorizedException | ErrorsContract.UnknownErrorException e)
                         {
@@ -68,10 +65,6 @@ class RegistrationModel
                     {
                         o.error(new ErrorsContract.NetworkErrorException(API.Auth.LOGIN));
                     }
-                    @Override
-                    public void complete()
-                    {
-                    }
                 });
             }
             private void checkResponseCode(int code)
@@ -85,11 +78,6 @@ class RegistrationModel
                 {
                     throw new ErrorsContract.UnknownErrorException(getClass().getName() + "\ncheckResponseCode \n" + code);
                 }
-            }
-            private UserPrivateData getUserPrivateData(String data)
-            {
-                Map responseBody = (Map)JSONParser.read(data);
-                return new UserData((String)responseBody.get("localId"), (String)responseBody.get("idToken"), (String)responseBody.get("refreshToken"));
             }
         };
     }

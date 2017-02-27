@@ -139,6 +139,7 @@ public class MainFragment
                 App.getAppComponent().getDataAccess().getTransactions()
                 ,App.getAppComponent().getConnection()
                 ,App.getAppComponent().getSettings()
+                ,App.getAppComponent().getJsonConverter()
         )));
         transactions.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new TransactionsAdapter(getActivity(), transactionsAdapterListener);

@@ -9,4 +9,5 @@ public interface AppComponent
     Settings getSettings();
     PlatformUtil getPlatformUtil();
     Connection getConnection();
+    JsonConverter getJsonConverter();
 }

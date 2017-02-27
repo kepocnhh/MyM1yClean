@@ -108,7 +108,7 @@ public class RegistrationFragment
     @Override
     protected void init()
     {
-        setPresenter(new RegistrationPresenter(view, new RegistrationModel(App.getAppComponent().getConnection())));
+        setPresenter(new RegistrationPresenter(view, new RegistrationModel(App.getAppComponent().getConnection(), App.getAppComponent().getJsonConverter())));
         hideWaiter();
     }
 

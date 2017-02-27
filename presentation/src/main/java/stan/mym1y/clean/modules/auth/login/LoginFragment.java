@@ -110,7 +110,7 @@ public class LoginFragment
     @Override
     protected void init()
     {
-        setPresenter(new LoginPresenter(view, new LoginModel(App.getAppComponent().getConnection())));
+        setPresenter(new LoginPresenter(view, new LoginModel(App.getAppComponent().getConnection(), App.getAppComponent().getJsonConverter())));
         hideWaiter();
     }
 

@@ -4,53 +4,52 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.auth.LoginContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.units.mvp.ModelPresenter;
-import stan.reactive.Observer;
+import stan.reactive.single.SingleObserver;
 
 class LoginPresenter
     extends ModelPresenter<LoginContract.View, LoginContract.Model>
     implements LoginContract.Presenter
 {
-    private final Observer<UserPrivateData> tokenObserver = new Observer<UserPrivateData>()
+    private final SingleObserver<UserPrivateData> userPrivateDataObserver = new SingleObserver<UserPrivateData>()
     {
-        public void next(UserPrivateData token)
+        @Override
+        public void success(UserPrivateData data)
         {
-            getView().success(token);
+            log("login success");
+            getView().success(data);
         }
         @Override
         public void error(Throwable t)
         {
+            log("login error: " + t.getMessage());
             try
             {
                 throw t;
             }
-            catch(ErrorsContract.NetworkErrorException exception)
+            catch(ErrorsContract.NetworkErrorException e)
             {
-                getView().error(exception);
+                getView().error(e);
             }
-            catch(ErrorsContract.UnauthorizedException exception)
+            catch(ErrorsContract.UnauthorizedException e)
             {
-                getView().error(exception);
+                getView().error(e);
             }
-            catch(ErrorsContract.InvalidDataException exception)
+            catch(ErrorsContract.InvalidDataException e)
             {
-                getView().error(exception);
+                getView().error(e);
             }
-            catch(ErrorsContract.ServerErrorException exception)
+            catch(ErrorsContract.ServerErrorException e)
             {
-                getView().error(exception);
+                getView().error(e);
             }
-            catch(ErrorsContract.UnknownErrorException exception)
+            catch(ErrorsContract.UnknownErrorException e)
             {
-                getView().error(exception);
+                getView().error(e);
             }
             catch(Throwable throwable)
             {
-                getView().error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nerror " + throwable.getMessage()));
+                getView().error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nerror " + t.getMessage()));
             }
-        }
-        @Override
-        public void complete()
-        {
         }
     };
 
@@ -70,7 +69,7 @@ class LoginPresenter
                 try
                 {
                     getModel().checkData(login, password);
-                    getModel().login(login, password).subscribe(tokenObserver);
+                    getModel().login(login, password).subscribe(userPrivateDataObserver);
                 }
                 catch(LoginContract.ValidateDataException e)
                 {

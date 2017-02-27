@@ -39,6 +39,11 @@ public interface API
                 return body;
             }
         }
+        interface Codes
+        {
+            int UNAUTHORIZED = 400;
+            int SUCCESS = 200;
+        }
     }
 
     String BASE_URL = "https://mym1yclean.firebaseio.com/";

@@ -2,22 +2,22 @@ package stan.mym1y.clean.contracts.auth;
 
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
-import stan.reactive.Observable;
+import stan.reactive.single.SingleObservable;
 
 public interface RegistrationContract
 {
     interface Model
     {
         void checkData(String login, String password) throws ValidateDataException;
-        Observable<UserPrivateData> login(String login, String password);
+        SingleObservable<UserPrivateData> login(String login, String password);
     }
     interface View
     {
-        void error(ErrorsContract.NetworkErrorException exception);
-        void error(ErrorsContract.UnauthorizedException exception);
-        void error(ErrorsContract.InvalidDataException exception);
-        void error(ErrorsContract.ServerErrorException exception);
-        void error(ErrorsContract.UnknownErrorException exception);
+        void error(ErrorsContract.NetworkErrorException e);
+        void error(ErrorsContract.UnauthorizedException e);
+        void error(ErrorsContract.InvalidDataException e);
+        void error(ErrorsContract.ServerErrorException e);
+        void error(ErrorsContract.UnknownErrorException e);
         void error(ValidateDataException exception);
         void success(UserPrivateData data);
     }

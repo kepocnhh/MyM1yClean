@@ -7,31 +7,33 @@ import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.dao.ListModel;
 import stan.mym1y.clean.modules.transactions.Transaction;
 import stan.mym1y.clean.units.mvp.ModelPresenter;
-import stan.reactive.JustObserver;
-import stan.reactive.Observer;
+import stan.reactive.notify.NotifyObserver;
+import stan.reactive.single.SingleObserver;
 
 class MainPresenter
     extends ModelPresenter<MainContract.View, MainContract.Model>
     implements MainContract.Presenter
 {
-    private final Observer<ListModel<TransactionModel>> transactionsCacheObserver = new JustObserver<ListModel<TransactionModel>>()
+    private final SingleObserver<ListModel<TransactionModel>> transactionsCacheObserver = new SingleObserver.Just<ListModel<TransactionModel>>()
     {
-        public void next(ListModel<TransactionModel> t)
+        @Override
+        public void success(ListModel<TransactionModel> transactions)
         {
-            getView().update(t);
+            getView().update(transactions);
         }
     };
-    private final Observer<Integer> balanceObserver = new JustObserver<Integer>()
+    private final SingleObserver<Integer> balanceObserver = new SingleObserver.Just<Integer>()
     {
-        public void next(Integer balance)
+        @Override
+        public void success(Integer balance)
         {
             getView().update(balance);
         }
     };
-    private final Observer<ListModel<TransactionModel>> transactionsUpdateObserver = new Observer<ListModel<TransactionModel>>()
+    private final SingleObserver<ListModel<TransactionModel>> transactionsUpdateObserver = new SingleObserver<ListModel<TransactionModel>>()
     {
         @Override
-        public void next(ListModel<TransactionModel> transactions)
+        public void success(ListModel<TransactionModel> transactions)
         {
             log("update transactions success: " + transactions.size());
             getModel().getBalance().subscribe(balanceObserver);
@@ -70,26 +72,18 @@ class MainPresenter
                 getView().error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nerror " + t.getMessage()));
             }
         }
-        @Override
-        public void complete()
-        {
-        }
     };
-    private final Observer<ListModel<TransactionModel>> sendUpdatingsObserver = new Observer<ListModel<TransactionModel>>()
+    private final NotifyObserver sendUpdatingsObserver = new NotifyObserver()
     {
         @Override
-        public void next(ListModel<TransactionModel> transactions)
+        public void notice()
         {
-            log("send updatings success: " + transactions.size());
+            log("send updatings success");
         }
         @Override
         public void error(Throwable t)
         {
             log("send updatings error: " + t.getMessage());
-        }
-        @Override
-        public void complete()
-        {
         }
     };
 

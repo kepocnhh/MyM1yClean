@@ -1,12 +1,7 @@
 package stan.mym1y.clean.modules.main;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import stan.json.JSONParser;
-import stan.json.JSONWriter;
 import stan.mym1y.clean.connection.API;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
@@ -16,14 +11,13 @@ import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.dao.ListModel;
 import stan.mym1y.clean.dao.Models;
 import stan.mym1y.clean.di.Connection;
+import stan.mym1y.clean.di.JsonConverter;
 import stan.mym1y.clean.di.Settings;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
-import stan.mym1y.clean.modules.transactions.Transaction;
-import stan.mym1y.clean.modules.users.UserData;
 import stan.reactive.Func;
-import stan.reactive.JustObserver;
-import stan.reactive.Observable;
-import stan.reactive.Observer;
+import stan.reactive.notify.NotifyObservable;
+import stan.reactive.single.SingleObservable;
+import stan.reactive.single.SingleObserver;
 
 class MainModel
     implements MainContract.Model
@@ -31,21 +25,15 @@ class MainModel
     private final Models.Transactions transactions;
     private final Connection connection;
     private final Settings settings;
+    private final JsonConverter jsonConverter;
 
-    private final Observable<ListModel<TransactionModel>> transactionsCacheObservable = new Observable<ListModel<TransactionModel>>()
+    private final SingleObservable<ListModel<TransactionModel>> transactionsCacheObservable = new SingleObservable.Work<ListModel<TransactionModel>>()
     {
         @Override
-        public void subscribe(Observer<ListModel<TransactionModel>> o)
+        protected ListModel<TransactionModel> work()
+                throws Throwable
         {
-            try
-            {
-                o.next(transactions.getAll());
-                o.complete();
-            }
-            catch(Exception e)
-            {
-                o.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\ncache"));
-            }
+            return transactions.getAll();
         }
     };
     private final Func<ListModel<TransactionModel>, Integer> balanceMap = new Func<ListModel<TransactionModel>, Integer>()
@@ -60,26 +48,25 @@ class MainModel
             return balance;
         }
     };
-    private final Observable<Integer> balanceObservable = transactionsCacheObservable.map(balanceMap);
+    private final SingleObservable<Integer> balanceObservable = transactionsCacheObservable.map(balanceMap);
     private abstract class NetworkObservable<DATA>
-        extends Observable<DATA>
+        extends SingleObservable<DATA>
     {
-        Observer<DATA> observer;
+        SingleObserver<DATA> observer;
 
         @Override
-        public void subscribe(Observer<DATA> o)
+        public void subscribe(SingleObserver<DATA> o)
         {
             observer = o;
-            createNetworkObservable().subscribe(new NetworkObserver<DATA>(o, getLink())
+            create().subscribe(new SingleObserver<Connection.Answer>()
             {
                 @Override
-                public void next(Connection.Answer response)
+                public void success(Connection.Answer response)
                 {
                     try
                     {
                         checkResponseCode(response.getCode());
-                        observer.next(work(response.getData()));
-                        observer.complete();
+                        observer.success(work(response.getData()));
                     }
                     catch(ErrorsContract.UnauthorizedException e)
                     {
@@ -91,12 +78,16 @@ class MainModel
                     }
                     catch(Exception e)
                     {
-                        observer.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nnext " + response));
+                        observer.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nsuccess " + response));
                     }
+                }
+                @Override
+                public void error(Throwable t)
+                {
+                    observer.error(new ErrorsContract.NetworkErrorException(t.getMessage()));
                 }
             });
         }
-
         void checkResponseCode(int code)
                 throws ErrorsContract.UnauthorizedException, ErrorsContract.UnknownErrorException, ErrorsContract.InvalidDataException
         {
@@ -114,136 +105,101 @@ class MainModel
             }
         }
 
-        abstract Observable<Connection.Answer> createNetworkObservable();
+        abstract SingleObservable<Connection.Answer> create();
         abstract DATA work(String data);
         abstract void onError(ErrorsContract.UnauthorizedException e);
-        abstract String getLink();
     }
-    private abstract class NetworkObserver<DATA>
-        implements Observer<Connection.Answer>
-    {
-        private Observer<DATA> observer;
-        private String link;
-
-        NetworkObserver(Observer<DATA> o, String l)
-        {
-            observer = o;
-            link = l;
-        }
-
-        @Override
-        public void error(Throwable t)
-        {
-            observer.error(new ErrorsContract.NetworkErrorException(link));
-        }
-        @Override
-        public void complete()
-        {
-        }
-    }
-    private final Observable<SyncData> syncDataProxyObservable = new NetworkObservable<SyncData>()
+    private final SingleObservable<SyncData> syncDataProxyObservable = new NetworkObservable<SyncData>()
     {
         @Override
-        Observable<Connection.Answer> createNetworkObservable()
+        SingleObservable<Connection.Answer> create()
         {
             return connection.get(API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId()), API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken()));
         }
         @Override
         SyncData work(String data)
         {
-            Map responseMap = (Map)JSONParser.read(data);
-            return new SynchronizationData((Long)responseMap.get("lastSyncTime"), (String)responseMap.get("hash"));
+            return jsonConverter.parseSyncData(data);
         }
         @Override
         void onError(ErrorsContract.UnauthorizedException e)
         {
-            refreshTokenObservable.flatMap(syncDataMap);
-        }
-        @Override
-        String getLink()
-        {
-            return API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId());
+            refreshTokenObservable.flat(syncDataMap).subscribe(new SingleObserver.Just<SyncData>()
+            {
+                @Override
+                public void success(SyncData syncData)
+                {
+                }
+            });
         }
     };
-    private final Func<UserPrivateData, Observable<SyncData>> syncDataMap = new Func<UserPrivateData, Observable<SyncData>>()
+    private final Func<UserPrivateData, SingleObservable<SyncData>> syncDataMap = new Func<UserPrivateData, SingleObservable<SyncData>>()
     {
         @Override
-        public Observable<SyncData> call(UserPrivateData data)
+        public SingleObservable<SyncData> call(UserPrivateData data)
         {
             settings.login(data);
             return syncDataObservable;
         }
     };
-    private final Observable<SyncData> syncDataObservable = new NetworkObservable<SyncData>()
+    private final SingleObservable<SyncData> syncDataObservable = new NetworkObservable<SyncData>()
     {
         @Override
-        Observable<Connection.Answer> createNetworkObservable()
+        SingleObservable<Connection.Answer> create()
         {
             return connection.get(API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId()), API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken()));
         }
         @Override
         SyncData work(String data)
         {
-            Map responseMap = (Map)JSONParser.read(data);
-            return new SynchronizationData((Long)responseMap.get("lastSyncTime"), (String)responseMap.get("hash"));
+            return jsonConverter.parseSyncData(data);
         }
         @Override
         void onError(ErrorsContract.UnauthorizedException e)
         {
             observer.error(e);
         }
-        @Override
-        String getLink()
-        {
-            return API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId());
-        }
     };
-    private final Observable<SyncData> syncAllObservable = new NetworkObservable<SyncData>()
+    private final SingleObservable<SyncData> syncAllObservable = new NetworkObservable<SyncData>()
     {
         @Override
-        Observable<Connection.Answer> createNetworkObservable()
+        SingleObservable<Connection.Answer> create()
         {
             return connection.put(API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId())
                     ,API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken())
-                    ,JSONWriter.write(API.Transactions.getSyncBody(new SynchronizationData(System.currentTimeMillis(), settings.getSyncData().getHash())))
+                    ,jsonConverter.convertSyncBody(new SynchronizationData(System.currentTimeMillis(), settings.getSyncData().getHash()))
             );
         }
         @Override
         SyncData work(String data)
         {
-            Map responseMap = (Map)JSONParser.read(data);
-            return new SynchronizationData((Long)responseMap.get("lastSyncTime"), (String)responseMap.get("hash"));
+            return jsonConverter.parseSyncData(data);
         }
         @Override
         void onError(ErrorsContract.UnauthorizedException e)
         {
             observer.error(e);
         }
-        @Override
-        String getLink()
-        {
-            return API.Transactions.getSyncLink(settings.getUserPrivateData().getUserId());
-        }
     };
 
-    private final Observable<ListModel<TransactionModel>> transactionsGetObservable = new NetworkObservable<ListModel<TransactionModel>>()
+    private final SingleObservable<ListModel<TransactionModel>> transactionsGetObservable = new NetworkObservable<ListModel<TransactionModel>>()
     {
         @Override
-        Observable<Connection.Answer> createNetworkObservable()
+        SingleObservable<Connection.Answer> create()
         {
             return connection.get(API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId()), API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken()));
         }
         @Override
         ListModel<TransactionModel> work(String data)
         {
-            List<TransactionModel> listTransactions = getTransactions((List)JSONParser.read(data));
+            List<TransactionModel> listTransactions = jsonConverter.parseTransactions(data);
             transactions.clear();
             transactions.add(listTransactions);
             settings.setSyncData(new SynchronizationData(settings.getSyncData().getLastSyncTime(), getHash(data)));
-            syncAllObservable.subscribe(new JustObserver<SyncData>()
+            syncAllObservable.subscribe(new SingleObserver.Just<SyncData>()
             {
                 @Override
-                public void next(SyncData syncData)
+                public void success(SyncData syncData)
                 {
                     settings.setSyncData(syncData);
                 }
@@ -255,45 +211,26 @@ class MainModel
         {
             observer.error(e);
         }
-        @Override
-        String getLink()
-        {
-            return API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId());
-        }
-        private List<TransactionModel> getTransactions(List list)
-        {
-            List<TransactionModel> listTransactions = new ArrayList<>(list.size());
-            for(Object object : list)
-            {
-                Map map = (Map)object;
-                listTransactions.add(new Transaction(
-                        ((Long)map.get("id")).intValue()
-                        ,((Long)map.get("count")).intValue()
-                        ,(Long)map.get("date")
-                ));
-            }
-            return listTransactions;
-        }
     };
-    private final Observable<ListModel<TransactionModel>> transactionsPutObservable = new NetworkObservable<ListModel<TransactionModel>>()
+    private final SingleObservable<ListModel<TransactionModel>> transactionsPutObservable = new NetworkObservable<ListModel<TransactionModel>>()
     {
         @Override
-        Observable<Connection.Answer> createNetworkObservable()
+        SingleObservable<Connection.Answer> create()
         {
             return connection.put(
                     API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId())
                     ,API.Transactions.getTransactionsParams(settings.getUserPrivateData().getUserToken())
-                    ,convertTransactions(transactions.getAll())
+                    ,jsonConverter.convertTransactions(transactions.getAll())
             );
         }
         @Override
         ListModel<TransactionModel> work(String data)
         {
             settings.setSyncData(new SynchronizationData(settings.getSyncData().getLastSyncTime(), getHash(data)));
-            syncAllObservable.subscribe(new JustObserver<SyncData>()
+            syncAllObservable.subscribe(new SingleObserver.Just<SyncData>()
             {
                 @Override
-                public void next(SyncData syncData)
+                public void success(SyncData syncData)
                 {
                     settings.setSyncData(syncData);
                 }
@@ -305,29 +242,11 @@ class MainModel
         {
             observer.error(e);
         }
-        @Override
-        String getLink()
-        {
-            return API.Transactions.getTransactionsLink(settings.getUserPrivateData().getUserId());
-        }
-        private String convertTransactions(ListModel<TransactionModel> listModel)
-        {
-            List list = new ArrayList(listModel.size());
-            for(int i=0; i<listModel.size(); i++)
-            {
-                Map map = new HashMap();
-                map.put("count", listModel.get(i).getCount());
-                map.put("id", listModel.get(i).getId());
-                map.put("date", listModel.get(i).getDate());
-                list.add(map);
-            }
-            return JSONWriter.write(list);
-        }
     };
-    private final Func<SyncData, Observable<ListModel<TransactionModel>>> updateAllMap = new Func<SyncData, Observable<ListModel<TransactionModel>>>()
+    private final Func<SyncData, SingleObservable<ListModel<TransactionModel>>> updateAllMap = new Func<SyncData, SingleObservable<ListModel<TransactionModel>>>()
     {
         @Override
-        public Observable<ListModel<TransactionModel>> call(SyncData data)
+        public SingleObservable<ListModel<TransactionModel>> call(SyncData data)
         {
             if(data.getLastSyncTime() > settings.getSyncData().getLastSyncTime())
             {
@@ -343,62 +262,55 @@ class MainModel
             }
         }
     };
-    private final Observable<ListModel<TransactionModel>> updateAllObservable = syncDataProxyObservable.flatMap(updateAllMap);
+    private final SingleObservable<ListModel<TransactionModel>> updateAllObservable = syncDataProxyObservable.flat(updateAllMap);
 
-    private final Observable<UserPrivateData> refreshTokenObservable = new NetworkObservable<UserPrivateData>()
+    private final SingleObservable<UserPrivateData> refreshTokenObservable = new NetworkObservable<UserPrivateData>()
     {
         @Override
-        Observable<Connection.Answer> createNetworkObservable()
+        SingleObservable<Connection.Answer> create()
         {
-            return connection.post(API.Auth.REFRESH_TOKEN, API.Auth.Params.getAuthParams(), JSONWriter.write(API.Auth.Params.getRefreshTokenBody(settings.getUserPrivateData().getRefreshToken())));
+            return connection.post(API.Auth.REFRESH_TOKEN, API.Auth.Params.getAuthParams(), jsonConverter.convertRefreshTokenBody(settings.getUserPrivateData().getRefreshToken()));
         }
         @Override
         UserPrivateData work(String data)
         {
-            return getUserPrivateData(data);
+            return jsonConverter.parseUserPrivateData(data);
         }
         @Override
         void onError(ErrorsContract.UnauthorizedException e)
         {
             observer.error(e);
         }
-        @Override
-        String getLink()
-        {
-            return API.Auth.REFRESH_TOKEN;
-        }
-        private UserPrivateData getUserPrivateData(String data)
-        {
-            Map responseBody = (Map)JSONParser.read(data);
-            return new UserData((String)responseBody.get("user_id"), (String)responseBody.get("access_token"), (String)responseBody.get("refresh_token"));
-        }
     };
 
-    MainModel(Models.Transactions trnsctns, Connection cnnctn, Settings ss)
+    private final NotifyObservable sendUpdatingsObservable = transactionsPutObservable.mapNotify();
+
+    MainModel(Models.Transactions trnsctns, Connection cnnctn, Settings ss, JsonConverter jc)
     {
         transactions = trnsctns;
         connection = cnnctn;
         settings = ss;
+        jsonConverter = jc;
     }
 
     @Override
-    public Observable<ListModel<TransactionModel>> getAll()
+    public SingleObservable<ListModel<TransactionModel>> getAll()
     {
         return transactionsCacheObservable;
     }
     @Override
-    public Observable<ListModel<TransactionModel>> updateAll()
+    public SingleObservable<ListModel<TransactionModel>> updateAll()
     {
         return updateAllObservable;
     }
     @Override
-    public Observable<ListModel<TransactionModel>> sendUpdatings()
+    public NotifyObservable sendUpdatings()
     {
-        return transactionsPutObservable;
+        return sendUpdatingsObservable;
     }
 
     @Override
-    public Observable<Integer> getBalance()
+    public SingleObservable<Integer> getBalance()
     {
         return balanceObservable;
     }
