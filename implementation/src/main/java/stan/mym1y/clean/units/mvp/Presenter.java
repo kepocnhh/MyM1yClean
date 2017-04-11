@@ -2,11 +2,8 @@ package stan.mym1y.clean.units.mvp;
 
 import android.util.Log;
 
-import java.util.Random;
-
 public abstract class Presenter<VIEW>
 {
-    private final Random random = new Random();
     private final String tag;
     private final VIEW view;
 
@@ -16,7 +13,7 @@ public abstract class Presenter<VIEW>
         tag = "["+getClass().getName().replace(getClass().getPackage().getName()+".", "")+"]";
     }
 
-    final protected VIEW getView()
+    final protected VIEW view()
     {
         return view;
     }
@@ -31,15 +28,6 @@ public abstract class Presenter<VIEW>
         {
             new Thread(runnable).start();
         }
-    }
-
-    final protected int nextInt()
-    {
-        return nextInt(Integer.MAX_VALUE-2)+1;
-    }
-    final protected int nextInt(int range)
-    {
-        return random.nextInt(range);
     }
 
     final protected void log(String message)

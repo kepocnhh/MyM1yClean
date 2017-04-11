@@ -1,84 +1,46 @@
 package stan.mym1y.clean.modules.auth.login;
 
-import stan.mym1y.clean.connection.API;
-import stan.mym1y.clean.contracts.ErrorsContract;
+import java.util.regex.Pattern;
+
 import stan.mym1y.clean.contracts.auth.LoginContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
-import stan.mym1y.clean.di.Connection;
-import stan.mym1y.clean.di.JsonConverter;
+import stan.mym1y.clean.cores.users.UserSecretData;
+import stan.mym1y.clean.data.remote.apis.AuthApi;
 import stan.reactive.single.SingleObservable;
-import stan.reactive.single.SingleObserver;
 
 class LoginModel
     implements LoginContract.Model
 {
-    private final Connection connection;
-    private final JsonConverter jsonConverter;
+    private final AuthApi authApi;
 
-    LoginModel(Connection cn, JsonConverter jc)
+    LoginModel(AuthApi a)
     {
-        connection = cn;
-        jsonConverter = jc;
+        authApi = a;
     }
 
-    @Override
     public void checkData(String login, String password)
             throws LoginContract.ValidateDataException
     {
-        if(login == null || login.length() == 0
-                || password == null || password.length() == 0)
+        if(login == null || login.length() == 0)
         {
-            throw new LoginContract.ValidateDataException();
+            throw  new LoginContract.ValidateDataException(LoginContract.ValidateDataException.Error.EMPTY_LOGIN);
+        }
+        if(password == null || password.length() == 0)
+        {
+            throw  new LoginContract.ValidateDataException(LoginContract.ValidateDataException.Error.EMPTY_PASSWORD);
+        }
+        if(password.length() < 6)
+        {
+            throw  new LoginContract.ValidateDataException(LoginContract.ValidateDataException.Error.PASSWORD_LENGTH);
+        }
+        String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
+        if(!Pattern.compile(ePattern).matcher(login).matches())
+        {
+            throw  new LoginContract.ValidateDataException(LoginContract.ValidateDataException.Error.LOGIN_VALID);
         }
     }
-
-    @Override
-    public SingleObservable<UserPrivateData> login(String login, String password)
+    public SingleObservable<UserPrivateData> login(UserSecretData data)
     {
-        final String jsonBody = jsonConverter.convertAuthBody(login, password);
-        return new SingleObservable<UserPrivateData>()
-        {
-            @Override
-            public void subscribe(final SingleObserver<UserPrivateData> o)
-            {
-                connection.post(API.Auth.LOGIN, API.Auth.Params.getAuthParams(), jsonBody).subscribe(new SingleObserver<Connection.Answer>()
-                {
-                    @Override
-                    public void success(Connection.Answer response)
-                    {
-                        try
-                        {
-                            checkResponseCode(response.getCode());
-                            o.success(jsonConverter.parseUserPrivateData(response.getData()));
-                        }
-                        catch(ErrorsContract.UnauthorizedException | ErrorsContract.UnknownErrorException e)
-                        {
-                            o.error(e);
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new ErrorsContract.UnknownErrorException(getClass().getName() + "\nnext " + response));
-                        }
-                    }
-                    @Override
-                    public void error(Throwable t)
-                    {
-                        o.error(new ErrorsContract.NetworkErrorException(API.Auth.LOGIN));
-                    }
-                });
-            }
-            private void checkResponseCode(int code)
-                    throws ErrorsContract.UnauthorizedException, ErrorsContract.UnknownErrorException
-            {
-                switch(code)
-                {
-                    case API.Auth.Codes.UNAUTHORIZED:
-                        throw new ErrorsContract.UnauthorizedException("code: " + code);
-                    case API.Auth.Codes.SUCCESS:
-                        return;
-                }
-                throw new ErrorsContract.UnknownErrorException(getClass().getName() + "\ncheck responseCode \n" + code);
-            }
-        };
+        return authApi.postLogin(data);
     }
 }

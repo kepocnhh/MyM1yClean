@@ -1,23 +1,22 @@
 package stan.mym1y.clean.modules.general;
 
+import stan.mym1y.clean.components.Settings;
 import stan.mym1y.clean.contracts.GeneralContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
-import stan.mym1y.clean.dao.Models;
-import stan.mym1y.clean.di.Settings;
+import stan.mym1y.clean.data.local.models.TransactionsModels;
 
 class GeneralModel
     implements GeneralContract.Model
 {
-    private Models.Transactions transactions;
+    private TransactionsModels.Transactions transactions;
     private Settings settings;
 
-    GeneralModel(Models.Transactions ts, Settings sttngs)
+    GeneralModel(TransactionsModels.Transactions t, Settings sttngs)
     {
-        transactions = ts;
+        transactions = t;
         settings = sttngs;
     }
 
-    @Override
     public UserPrivateData getUserPrivateData()
             throws GeneralContract.UserNotAuthorizedException
     {
@@ -31,19 +30,14 @@ class GeneralModel
         return data;
     }
 
-    @Override
     public void login(UserPrivateData data)
     {
         settings.login(data);
     }
-
-    @Override
     public void logout()
     {
         settings.logout();
     }
-
-    @Override
     public void clearTransactions()
     {
         transactions.clear();

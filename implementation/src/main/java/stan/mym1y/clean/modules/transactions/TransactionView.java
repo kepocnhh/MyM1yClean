@@ -14,12 +14,10 @@ public class TransactionView
         date = d;
     }
 
-    @Override
     public long getDate()
     {
         return date;
     }
-    @Override
     public int getCount()
     {
         return count;

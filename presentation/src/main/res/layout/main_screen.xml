@@ -19,6 +19,7 @@
             android:layout_height="wrap_content"/>
         <ImageView
             android:id="@+id/sort"
+            android:visibility="gone"
             android:src="@mipmap/ic_import_export_white_24dp"
             android:scaleType="centerInside"
             android:tint="@color/white"

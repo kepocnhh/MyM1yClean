@@ -17,7 +17,7 @@ public interface GeneralContract
     interface Router
     {
         void toAuth();
-        void toMain(UserPrivateData data);
+        void toMain();
     }
     interface Presenter
     {

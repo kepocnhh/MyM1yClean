@@ -1,8 +1,6 @@
 package stan.mym1y.clean.modules.main;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -10,9 +8,10 @@ import android.widget.TextView;
 import java.util.Date;
 
 import stan.mym1y.clean.R;
+import stan.mym1y.clean.units.adapters.Holder;
 
 class TransactionsHolder
-    extends RecyclerView.ViewHolder
+    extends Holder
 {
     private TextView count;
     private TextView date;
@@ -22,7 +21,7 @@ class TransactionsHolder
 
     TransactionsHolder(Context context, ViewGroup parent)
     {
-        super(LayoutInflater.from(context).inflate(R.layout.transaction_list_item, parent, false));
+        super(context, parent, R.layout.transaction_list_item);
         count = (TextView)itemView.findViewById(R.id.count);
         date = (TextView)itemView.findViewById(R.id.date);
         positiveColor = context.getResources().getColor(R.color.green);

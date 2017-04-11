@@ -3,91 +3,34 @@ package stan.mym1y.clean;
 import android.app.Application;
 
 import stan.mym1y.clean.boxes.Boxes;
-import stan.mym1y.clean.boxes.Cases;
-import stan.mym1y.clean.connection.OkHttp;
-import stan.mym1y.clean.dao.DAO;
-import stan.mym1y.clean.di.AppComponent;
-import stan.mym1y.clean.di.Connection;
-import stan.mym1y.clean.di.FoldersAccess;
-import stan.mym1y.clean.di.JsonConverter;
-import stan.mym1y.clean.di.PlatformUtil;
-import stan.mym1y.clean.di.Settings;
+import stan.mym1y.clean.cases.Cases;
+import stan.mym1y.clean.components.AppComponent;
+import stan.mym1y.clean.components.FoldersAccess;
+import stan.mym1y.clean.components.JsonConverter;
+import stan.mym1y.clean.components.MainComponent;
+import stan.mym1y.clean.jsonsimple.JSON;
 import stan.mym1y.clean.managers.FoldersManager;
-import stan.mym1y.clean.utils.AndroidUtil;
-import stan.mym1y.clean.utils.Converter;
+import stan.mym1y.clean.managers.SecurityManager;
+import stan.mym1y.clean.okhttp.OkHttp;
 
 public class App
         extends Application
 {
     static private AppComponent appComponent;
-    static public AppComponent getAppComponent()
+    static public AppComponent component()
     {
         return appComponent;
     }
 
-    @Override
     public void onCreate()
     {
         super.onCreate();
+        JsonConverter jsonConverter = new JSON();
         FoldersAccess foldersAccess = new FoldersManager(getApplicationContext().getFilesDir().getAbsolutePath());
-        appComponent = new Component(new Boxes(foldersAccess.getDataBasePath())
-                ,foldersAccess
-                ,new Cases(foldersAccess.getDataBasePath())
-                ,new AndroidUtil()
-                ,new OkHttp()
-                ,new Converter()
-        );
-    }
-
-    private final class Component
-        implements AppComponent
-    {
-        private DAO dataAccess;
-        private FoldersAccess foldersAccess;
-        private Settings settings;
-        private PlatformUtil platformUtil;
-        private Connection connection;
-        private JsonConverter jsonConverter;
-
-        Component(DAO dao, FoldersAccess fAccess, Settings ss, PlatformUtil pu, Connection cn, JsonConverter jc)
-        {
-            dataAccess = dao;
-            foldersAccess = fAccess;
-            settings = ss;
-            platformUtil = pu;
-            connection = cn;
-            jsonConverter = jc;
-        }
-
-        @Override
-        public DAO getDataAccess()
-        {
-            return dataAccess;
-        }
-        @Override
-        public FoldersAccess getFoldersAccess()
-        {
-            return foldersAccess;
-        }
-        @Override
-        public Settings getSettings()
-        {
-            return settings;
-        }
-        @Override
-        public PlatformUtil getPlatformUtil()
-        {
-            return platformUtil;
-        }
-        @Override
-        public Connection getConnection()
-        {
-            return connection;
-        }
-        @Override
-        public JsonConverter getJsonConverter()
-        {
-            return jsonConverter;
-        }
+        appComponent = new MainComponent(new Boxes(foldersAccess.getDataBasePath()),
+                new OkHttp(jsonConverter),
+                jsonConverter, foldersAccess,
+                new Cases(foldersAccess.getDataBasePath()),
+                new SecurityManager());
     }
 }

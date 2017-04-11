@@ -19,6 +19,7 @@
         <EditText
             android:id="@+id/login"
             android:lines="1"
+            android:inputType="text"
             android:maxLines="1"
             android:maxLength="25"
             android:textSize="@dimen/text_size_big"
@@ -38,6 +39,7 @@
         <EditText
             android:id="@+id/password"
             android:lines="1"
+            android:inputType="textPassword"
             android:maxLines="1"
             android:maxLength="25"
             android:textSize="@dimen/text_size_big"

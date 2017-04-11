@@ -5,14 +5,14 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:2.3.1'
     }
 }
 
 allprojects {
   ext {
     androidApplicationId = 'stan.mym1y.clean'
-    androidVersionCode = 1702271724
-    androidVersionName = "0.2.8"
+    androidVersionCode = 1704111431
+    androidVersionName = "0.3.1"
   }
 }

@@ -10,7 +10,6 @@ public interface NotifyObserver
     {
         public void error(Throwable t)
         {
-
         }
     }
 }

@@ -9,78 +9,76 @@ import stan.mym1y.clean.contracts.auth.RegistrationContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.modules.auth.login.LoginFragment;
 import stan.mym1y.clean.modules.auth.registration.RegistrationFragment;
-import stan.mym1y.clean.units.fragments.MVPFragment;
+import stan.mym1y.clean.units.fragments.UtilFragment;
 
 public class AuthFragment
-    extends MVPFragment<AuthContract.Presenter>
+    extends UtilFragment
 {
-    static public MVPFragment newInstanse(AuthContract.Behaviour b)
+    static public UtilFragment newInstanse(AuthContract.Behaviour b)
     {
         AuthFragment fragment = new AuthFragment();
         fragment.behaviour = b;
         return fragment;
     }
 
+    private AuthContract.Presenter presenter;
     private final AuthContract.View view = new AuthContract.View()
     {
     };
     private final AuthContract.Router router = new AuthContract.Router()
     {
-        @Override
         public void toLogin()
         {
-            getFragmentManager().beginTransaction().replace(R.id.auth_subscreen, LoginFragment.newInstanse(loginBehaviour)).commit();
+            log("to -> login");
+            replace(R.id.auth_subscreen, LoginFragment.newInstanse(loginBehaviour));
         }
-        @Override
         public void toRegistration()
         {
-            getFragmentManager().beginTransaction().replace(R.id.auth_subscreen, RegistrationFragment.newInstanse(registrationBehaviour)).commit();
+            log("to -> registration");
+            replace(R.id.auth_subscreen, RegistrationFragment.newInstanse(registrationBehaviour));
         }
     };
     private final LoginContract.Behaviour loginBehaviour = new LoginContract.Behaviour()
     {
-        @Override
         public void login(UserPrivateData data)
         {
-            log("login: userId " + data.getUserId() + " token " + data.getUserToken());
+            log("login:"
+                    + "\n\t" + "userId " + data.getUserId()
+                    + "\n\t" + "token " + data.getUserToken());
             behaviour.enter(data);
         }
-        @Override
         public void toSignup()
         {
-            getPresenter().toRegistration();
+            presenter.toRegistration();
         }
     };
     private final RegistrationContract.Behaviour registrationBehaviour = new RegistrationContract.Behaviour()
     {
-        @Override
         public void registration(UserPrivateData data)
         {
-            log("registration: userId " + data.getUserId() + " token " + data.getUserToken());
+            log("registration:"
+                    + "\n\t" + "userId " + data.getUserId()
+                    + "\n\t" + "token " + data.getUserToken());
             behaviour.enter(data);
         }
-        @Override
         public void toSignin()
         {
-            getPresenter().toLogin();
+            presenter.toLogin();
         }
     };
 
     private AuthContract.Behaviour behaviour;
 
-    @Override
     protected int getContentView()
     {
         return R.layout.auth_screen;
     }
-    @Override
     protected void initViews(View v)
     {
     }
-    @Override
     protected void init()
     {
-        setPresenter(new AuthPresenter(view, router));
-        getPresenter().toLogin();
+        presenter = new AuthPresenter(view, router);
+        presenter.toLogin();
     }
 }

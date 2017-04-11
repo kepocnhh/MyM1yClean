@@ -5,21 +5,22 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.List;
+
 import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
-import stan.mym1y.clean.cores.transactions.TransactionModel;
-import stan.mym1y.clean.dao.ListModel;
+import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.modules.transaction.AddNewTransactionDialog;
 import stan.mym1y.clean.modules.transaction.DeleteTransactionConfirmDialog;
 import stan.mym1y.clean.modules.transactions.TransactionView;
-import stan.mym1y.clean.units.fragments.MVPFragment;
+import stan.mym1y.clean.units.fragments.UtilFragment;
 
 public class MainFragment
-        extends MVPFragment<MainContract.Presenter>
+        extends UtilFragment
 {
-    static public MVPFragment newInstanse(MainContract.Behaviour b)
+    static public UtilFragment newInstanse(MainContract.Behaviour b)
     {
         MainFragment fragment = new MainFragment();
         fragment.behaviour = b;
@@ -31,40 +32,26 @@ public class MainFragment
 
     private TransactionsAdapter adapter;
 
+    private MainContract.Presenter presenter;
     private final MainContract.View view = new MainContract.View()
     {
-        @Override
-        public void error(ErrorsContract.NetworkErrorException exception)
+        public void error(ErrorsContract.NetworkException e)
         {
-            showToast("NetworkErrorException");
+//            showToast("NetworkException " + e.getMessage());
         }
-        @Override
-        public void error(ErrorsContract.UnauthorizedException exception)
+        public void error(ErrorsContract.UnauthorizedException e)
         {
-            showToast("UnauthorizedException");
-        }
-        @Override
-        public void error(ErrorsContract.InvalidDataException exception)
-        {
-//            showToast("InvalidDataException");
+//            showToast("UnauthorizedException");
             behaviour.logout();
         }
-        @Override
-        public void error(ErrorsContract.ServerErrorException exception)
+        public void error()
         {
-            showToast("ServerErrorException");
+            showToast("Unknown Error!");
         }
-        @Override
-        public void error(ErrorsContract.UnknownErrorException exception)
-        {
-            showToast("UnknownErrorException");
-        }
-        @Override
-        public void update(final ListModel<TransactionModel> transactions)
+        public void update(final List<Transaction> transactions)
         {
             runOnUiThread(new Runnable()
             {
-                @Override
                 public void run()
                 {
                     adapter.swapData(transactions);
@@ -72,15 +59,13 @@ public class MainFragment
                 }
             });
         }
-        @Override
-        public void update(final int blnc)
+        public void update(final int b)
         {
             runOnUiThread(new Runnable()
             {
-                @Override
                 public void run()
                 {
-                    balance.setText(balance_label + ": " + blnc);
+                    balance.setText(balance_label + ": " + b);
                 }
             });
         }
@@ -88,7 +73,6 @@ public class MainFragment
     private MainContract.Behaviour behaviour;
     private final TransactionsAdapterListener transactionsAdapterListener = new TransactionsAdapterListener()
     {
-        @Override
         public void delete(int id)
         {
             deleteTransaction(id);
@@ -99,14 +83,12 @@ public class MainFragment
 
     private final AddNewTransactionDialog.AddNewTransactionListener addNewTransactionListener = new AddNewTransactionDialog.AddNewTransactionListener()
     {
-        @Override
         public void newTransaction(int count)
         {
-            getPresenter().newTransaction(new TransactionView(count, System.currentTimeMillis()));
+            presenter.newTransaction(new TransactionView(count, System.currentTimeMillis()));
         }
     };
 
-    @Override
     protected void onClickView(int id)
     {
         switch(id)
@@ -119,33 +101,29 @@ public class MainFragment
                 break;
         }
     }
-
-    @Override
     protected int getContentView()
     {
         return R.layout.main_screen;
     }
-    @Override
     protected void initViews(View v)
     {
         balance = findView(R.id.balance);
         transactions = findView(R.id.transactions);
         setClickListener(findView(R.id.logout), findView(R.id.new_transaction));
     }
-    @Override
     protected void init()
     {
-        setPresenter(new MainPresenter(view, new MainModel(
-                App.getAppComponent().getDataAccess().getTransactions()
-                ,App.getAppComponent().getConnection()
-                ,App.getAppComponent().getSettings()
-                ,App.getAppComponent().getJsonConverter()
-        )));
+        presenter = new MainPresenter(view, new MainModel(App.component().dataLocal().transactionsAccess().transactions(),
+                App.component().security(),
+                App.component().settings(),
+                App.component().jsonConverter(),
+                App.component().dataRemote().authApi(),
+                App.component().dataRemote().dataApi()));
         transactions.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new TransactionsAdapter(getActivity(), transactionsAdapterListener);
         transactions.setAdapter(adapter);
         balance_label = getActivity().getResources().getString(R.string.balance_label);
-        getPresenter().update();
+        presenter.update();
     }
 
     private void newTransaction()
@@ -156,10 +134,9 @@ public class MainFragment
     {
         DeleteTransactionConfirmDialog.newInstanse(new DeleteTransactionConfirmDialog.DeleteTransactionConfirmListener()
         {
-            @Override
             public void confirm()
             {
-                getPresenter().deleteTransaction(id);
+                presenter.deleteTransaction(id);
             }
         }).show(getFragmentManager(), DeleteTransactionConfirmDialog.class.getName());
     }

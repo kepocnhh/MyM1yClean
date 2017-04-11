@@ -15,22 +15,20 @@ class AuthPresenter
         screen = -1;
     }
 
-    @Override
     public void toLogin()
     {
         if(screen != 1)
         {
             screen = 1;
-            getRouter().toLogin();
+            router().toLogin();
         }
     }
-    @Override
     public void toRegistration()
     {
         if(screen != 2)
         {
             screen = 2;
-            getRouter().toRegistration();
+            router().toRegistration();
         }
     }
 }

@@ -4,7 +4,7 @@ import android.util.Log;
 
 import java.io.File;
 
-import stan.mym1y.clean.di.FoldersAccess;
+import stan.mym1y.clean.components.FoldersAccess;
 
 public class FoldersManager
     implements FoldersAccess
@@ -31,12 +31,6 @@ public class FoldersManager
         }
     }
 
-    @Override
-    public String getFilesDirectory()
-    {
-        return filesDirectory;
-    }
-    @Override
     public String getDataBasePath()
     {
         return filesDirectory + "/database";

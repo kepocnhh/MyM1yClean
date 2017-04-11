@@ -8,54 +8,54 @@ import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.auth.LoginContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
-import stan.mym1y.clean.units.fragments.MVPFragment;
+import stan.mym1y.clean.units.fragments.UtilFragment;
 
 public class LoginFragment
-        extends MVPFragment<LoginContract.Presenter>
+        extends UtilFragment
 {
-    static public MVPFragment newInstanse(LoginContract.Behaviour b)
+    static public UtilFragment newInstanse(LoginContract.Behaviour b)
     {
         LoginFragment fragment = new LoginFragment();
         fragment.behaviour = b;
         return fragment;
     }
 
+    private LoginContract.Presenter presenter;
     private final LoginContract.View view = new LoginContract.View()
     {
-        @Override
-        public void error(ErrorsContract.NetworkErrorException exception)
+        public void error(ErrorsContract.NetworkException e)
         {
             hideWaiter();
-            showToast("NetworkErrorException");
+            showToast("NetworkException");
         }
-        @Override
-        public void error(ErrorsContract.UnauthorizedException exception)
+        public void error(ErrorsContract.UnauthorizedException e)
         {
             hideWaiter();
             showToast("UnauthorizedException");
         }
-        @Override
-        public void error(ErrorsContract.InvalidDataException exception)
-        {
-            showToast("InvalidDataException");
-        }
-        @Override
-        public void error(ErrorsContract.ServerErrorException exception)
-        {
-            showToast("ServerErrorException");
-        }
-        @Override
-        public void error(ErrorsContract.UnknownErrorException exception)
+        public void error()
         {
             showToast("UnknownErrorException");
         }
-        @Override
-        public void error(LoginContract.ValidateDataException exception)
+        public void error(LoginContract.ValidateDataException e)
         {
             hideWaiter();
-            showToast("ValidateDataException");
+            switch(e.error)
+            {
+                case EMPTY_LOGIN:
+                    showToast(R.string.empty_login_error_message);
+                    break;
+                case EMPTY_PASSWORD:
+                    showToast(R.string.empty_password_error_message);
+                    break;
+                case LOGIN_VALID:
+                    showToast(R.string.login_valid_error_message);
+                    break;
+                case PASSWORD_LENGTH:
+                    showToast(R.string.password_length_error_message);
+                    break;
+            }
         }
-        @Override
         public void success(UserPrivateData data)
         {
             behaviour.login(data);
@@ -69,7 +69,6 @@ public class LoginFragment
     private EditText password;
     private View waiter;
 
-    @Override
     protected void onClickView(int id)
     {
         switch(id)
@@ -79,10 +78,9 @@ public class LoginFragment
                 hideKeyBoard();
                 runOnNewThread(new Runnable()
                 {
-                    @Override
                     public void run()
                     {
-                        getPresenter().login(login.getText().toString(), password.getText().toString());
+                        presenter.login(login.getText().toString(), password.getText().toString());
                     }
                 }, 300);
                 break;
@@ -92,13 +90,10 @@ public class LoginFragment
         }
     }
 
-    @Override
     protected int getContentView()
     {
         return R.layout.login_screen;
     }
-
-    @Override
     protected void initViews(View v)
     {
         login = findView(R.id.login);
@@ -106,11 +101,9 @@ public class LoginFragment
         waiter = findView(R.id.waiter);
         setClickListener(findView(R.id.signin), findView(R.id.to_signup));
     }
-
-    @Override
     protected void init()
     {
-        setPresenter(new LoginPresenter(view, new LoginModel(App.getAppComponent().getConnection(), App.getAppComponent().getJsonConverter())));
+        presenter = new LoginPresenter(view, new LoginModel(App.component().dataRemote().authApi()));
         hideWaiter();
     }
 
@@ -118,7 +111,6 @@ public class LoginFragment
     {
         runOnUiThread(new Runnable()
         {
-            @Override
             public void run()
             {
                 waiter.setVisibility(View.VISIBLE);
@@ -129,7 +121,6 @@ public class LoginFragment
     {
         runOnUiThread(new Runnable()
         {
-            @Override
             public void run()
             {
                 waiter.setVisibility(View.GONE);

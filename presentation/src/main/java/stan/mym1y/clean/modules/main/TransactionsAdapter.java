@@ -5,15 +5,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import stan.mym1y.clean.cores.transactions.TransactionModel;
-import stan.mym1y.clean.dao.ListModel;
+import java.util.List;
+
+import stan.mym1y.clean.cores.transactions.Transaction;
 
 class TransactionsAdapter
         extends RecyclerView.Adapter<TransactionsHolder>
 {
     private final Context context;
     private final TransactionsAdapterListener listener;
-    private ListModel<TransactionModel> data;
+    private List<Transaction> data;
 
     TransactionsAdapter(Context c, TransactionsAdapterListener l)
     {
@@ -21,30 +22,26 @@ class TransactionsAdapter
         listener = l;
     }
 
-    @Override
     public TransactionsHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         return new TransactionsHolder(context, parent);
     }
 
-    @Override
     public void onBindViewHolder(TransactionsHolder holder, int position)
     {
-        final TransactionModel transactionModel = data.get(position);
-        holder.setCount(transactionModel.getCount());
-        holder.setDate(transactionModel.getDate());
+        final Transaction transaction = data.get(position);
+        holder.setCount(transaction.getCount());
+        holder.setDate(transaction.getDate());
         holder.setLongClick(new View.OnLongClickListener()
         {
-            @Override
             public boolean onLongClick(View view)
             {
-                listener.delete(transactionModel.getId());
+                listener.delete(transaction.getId());
                 return false;
             }
         });
     }
 
-    @Override
     public int getItemCount()
     {
         if(data == null)
@@ -53,7 +50,7 @@ class TransactionsAdapter
         }
         return data.size();
     }
-    void swapData(ListModel<TransactionModel> d)
+    void swapData(List<Transaction> d)
     {
         if(this.data != null)
         {

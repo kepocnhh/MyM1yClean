@@ -9,7 +9,7 @@ public abstract class ModelRouterPresenter<VIEW, MODEL, ROUTER>
         super(v, m);
         router = r;
     }
-    final protected ROUTER getRouter()
+    final protected ROUTER router()
     {
         return router;
     }

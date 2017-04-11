@@ -13,51 +13,48 @@ class GeneralPresenter
         super(v, m, r);
     }
 
-    @Override
     public void checkAuth()
     {
         onNewThread(new Runnable()
         {
-            @Override
             public void run()
             {
                 try
                 {
-                    getRouter().toMain(getModel().getUserPrivateData());
+                    model().getUserPrivateData();
                 }
                 catch(GeneralContract.UserNotAuthorizedException e)
                 {
-                    getRouter().toAuth();
+                    log("User Not Authorized!");
+                    router().toAuth();
+                    return;
                 }
+                router().toMain();
             }
         });
     }
-
-    @Override
     public void enter(final UserPrivateData data)
     {
+        log("enter...");
         onNewThread(new Runnable()
         {
-            @Override
             public void run()
             {
-                getModel().login(data);
-                getRouter().toMain(data);
+                model().login(data);
+                router().toMain();
             }
         });
     }
-
-    @Override
     public void logout()
     {
+        log("logout...");
         onNewThread(new Runnable()
         {
-            @Override
             public void run()
             {
-                getModel().logout();
-                getModel().clearTransactions();
-                getRouter().toAuth();
+                model().logout();
+                model().clearTransactions();
+                router().toAuth();
             }
         });
     }

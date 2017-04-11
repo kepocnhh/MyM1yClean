@@ -6,11 +6,10 @@ public interface SingleObserver<T>
     void error(Throwable t);
 
     abstract class Just<T>
-        implements SingleObserver<T>
+            implements SingleObserver<T>
     {
         public void error(Throwable t)
         {
-
         }
     }
 }

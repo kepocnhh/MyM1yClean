@@ -14,12 +14,10 @@ public class SynchronizationData
         hash = h;
     }
 
-    @Override
     public long getLastSyncTime()
     {
         return lastSyncTime;
     }
-    @Override
     public String getHash()
     {
         return hash;

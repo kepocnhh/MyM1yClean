@@ -8,54 +8,40 @@ import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.auth.RegistrationContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
-import stan.mym1y.clean.units.fragments.MVPFragment;
+import stan.mym1y.clean.units.fragments.UtilFragment;
 
 public class RegistrationFragment
-        extends MVPFragment<RegistrationContract.Presenter>
+        extends UtilFragment
 {
-    static public MVPFragment newInstanse(RegistrationContract.Behaviour b)
+    static public UtilFragment newInstanse(RegistrationContract.Behaviour b)
     {
         RegistrationFragment fragment = new RegistrationFragment();
         fragment.behaviour = b;
         return fragment;
     }
 
+    private RegistrationContract.Presenter presenter;
     private final RegistrationContract.View view = new RegistrationContract.View()
     {
-        @Override
-        public void error(ErrorsContract.NetworkErrorException exception)
+        public void error(ErrorsContract.NetworkException e)
         {
             hideWaiter();
-            showToast("NetworkErrorException");
+            showToast("NetworkException " + e.getMessage());
         }
-        @Override
         public void error(ErrorsContract.UnauthorizedException exception)
         {
             hideWaiter();
             showToast("UnauthorizedException");
         }
-        @Override
-        public void error(ErrorsContract.InvalidDataException exception)
-        {
-            showToast("InvalidDataException");
-        }
-        @Override
-        public void error(ErrorsContract.ServerErrorException exception)
-        {
-            showToast("ServerErrorException");
-        }
-        @Override
-        public void error(ErrorsContract.UnknownErrorException exception)
+        public void error()
         {
             showToast("UnknownErrorException");
         }
-        @Override
         public void error(RegistrationContract.ValidateDataException exception)
         {
             hideWaiter();
             showToast("ValidateDataException");
         }
-        @Override
         public void success(UserPrivateData data)
         {
             behaviour.registration(data);
@@ -69,7 +55,6 @@ public class RegistrationFragment
     private EditText password;
     private View waiter;
 
-    @Override
     protected void onClickView(int id)
     {
         switch(id)
@@ -82,7 +67,7 @@ public class RegistrationFragment
                     @Override
                     public void run()
                     {
-                        getPresenter().registration(login.getText().toString(), password.getText().toString());
+                        presenter.registration(login.getText().toString(), password.getText().toString());
                     }
                 }, 300);
                 break;
@@ -91,13 +76,10 @@ public class RegistrationFragment
                 break;
         }
     }
-
-    @Override
     protected int getContentView()
     {
         return R.layout.registration_screen;
     }
-    @Override
     protected void initViews(View v)
     {
         login = findView(R.id.login);
@@ -105,10 +87,9 @@ public class RegistrationFragment
         waiter = findView(R.id.waiter);
         setClickListener(findView(R.id.signup), findView(R.id.to_signin));
     }
-    @Override
     protected void init()
     {
-        setPresenter(new RegistrationPresenter(view, new RegistrationModel(App.getAppComponent().getConnection(), App.getAppComponent().getJsonConverter())));
+        presenter = new RegistrationPresenter(view, new RegistrationModel(App.component().dataRemote().authApi()));
         hideWaiter();
     }
 
@@ -116,7 +97,6 @@ public class RegistrationFragment
     {
         runOnUiThread(new Runnable()
         {
-            @Override
             public void run()
             {
                 waiter.setVisibility(View.VISIBLE);
@@ -127,7 +107,6 @@ public class RegistrationFragment
     {
         runOnUiThread(new Runnable()
         {
-            @Override
             public void run()
             {
                 waiter.setVisibility(View.GONE);

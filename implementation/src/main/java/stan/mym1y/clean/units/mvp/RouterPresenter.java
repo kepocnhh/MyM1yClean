@@ -9,7 +9,7 @@ public abstract class RouterPresenter<VIEW, ROUTER>
         super(v);
         router = r;
     }
-    final protected ROUTER getRouter()
+    final protected ROUTER router()
     {
         return router;
     }

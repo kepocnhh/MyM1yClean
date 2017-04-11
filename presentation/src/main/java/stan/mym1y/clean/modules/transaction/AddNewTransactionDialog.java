@@ -1,52 +1,28 @@
 package stan.mym1y.clean.modules.transaction;
 
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
 import stan.mym1y.clean.R;
+import stan.mym1y.clean.units.dialogs.UtilDialog;
 
 public class AddNewTransactionDialog
-        extends DialogFragment
+        extends UtilDialog
 {
-    static public DialogFragment newInstanse(AddNewTransactionListener l)
+    static public UtilDialog newInstanse(AddNewTransactionListener l)
     {
         AddNewTransactionDialog fragment = new AddNewTransactionDialog();
         fragment.listener = l;
         return fragment;
     }
 
-    private View mainView;
     private ImageView side;
     private EditText count;
-
-    private final View.OnClickListener clickListener = new View.OnClickListener()
-    {
-        @Override
-        public void onClick(View view)
-        {
-            switch(view.getId())
-            {
-                case R.id.add:
-                    newTransaction();
-                    break;
-                case R.id.cancel:
-                    dismiss();
-                    break;
-                case R.id.side:
-                    positive = !positive;
-                    updateSide();
-                    break;
-            }
-        }
-    };
 
     private AddNewTransactionListener listener;
     private boolean positive;
@@ -55,26 +31,38 @@ public class AddNewTransactionDialog
     private int positiveColor;
     private int negativeColor;
 
-    @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         return new Dialog(getActivity(), R.style.Dialog);
     }
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+
+    protected void onClickView(int id)
     {
-        mainView = inflater.inflate(R.layout.add_new_transaction_dialog, container, false);
-        initViews(mainView);
-        init();
-        return mainView;
+        switch(id)
+        {
+            case R.id.add:
+                newTransaction();
+                break;
+            case R.id.cancel:
+                dismiss();
+                break;
+            case R.id.side:
+                positive = !positive;
+                updateSide();
+                break;
+        }
     }
-    private void initViews(View v)
+    protected int getContentView()
+    {
+        return R.layout.add_new_transaction_dialog;
+    }
+    protected void initViews(View v)
     {
         count = findView(R.id.count);
         side = findView(R.id.side);
         setClickListener(findView(R.id.add), findView(R.id.cancel), side);
     }
-    private void init()
+    protected void init()
     {
         positive = true;
         positiveDrawable = getResources().getDrawable(R.mipmap.ic_add_white_24dp);
@@ -112,21 +100,6 @@ public class AddNewTransactionDialog
         catch(NumberFormatException e)
         {
 
-        }
-    }
-
-    protected <VIEW extends View> VIEW findView(int id)
-    {
-        return (VIEW)mainView.findViewById(id);
-    }
-    protected void setClickListener(View... views)
-    {
-        for(View v : views)
-        {
-            if(v != null)
-            {
-                v.setOnClickListener(clickListener);
-            }
         }
     }
 

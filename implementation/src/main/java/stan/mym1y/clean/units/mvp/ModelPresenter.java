@@ -9,7 +9,7 @@ public abstract class ModelPresenter<VIEW, MODEL>
         super(v);
         model = m;
     }
-    final protected MODEL getModel()
+    final protected MODEL model()
     {
         return model;
     }

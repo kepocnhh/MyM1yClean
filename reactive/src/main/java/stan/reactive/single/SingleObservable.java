@@ -1,27 +1,48 @@
 package stan.reactive.single;
 
 import stan.reactive.Func;
+import stan.reactive.Tuple;
 import stan.reactive.notify.NotifyObservable;
 import stan.reactive.notify.NotifyObserver;
+import stan.reactive.stream.StreamObservable;
+import stan.reactive.stream.StreamObserver;
 
 public abstract class SingleObservable<T>
         implements ObservableSource<T>
 {
-    public <U> SingleObservable<U> map(final Func<T, U> func)
+    public <U> SingleObservable<U> chain(final SingleObserver<T> observer, final SingleObservable<U> observable)
     {
         return new SingleObservable<U>()
         {
-            @Override
             public void subscribe(final SingleObserver<U> o)
             {
-                subscribeMap(new SingleObserver<T>()
+                SingleObservable.this.subscribe(new SingleObserver<T>()
                 {
-                    @Override
                     public void success(T t)
                     {
-                        o.success(func.call(t));
+                        observer.success(t);
+                        observable.subscribe(o);
                     }
-                    @Override
+                    public void error(Throwable t)
+                    {
+                        observer.error(t);
+                    }
+                });
+            }
+        };
+    }
+    public <U> SingleObservable<U> map(final Func<T, U> f)
+    {
+        return new SingleObservable<U>()
+        {
+            public void subscribe(final SingleObserver<U> o)
+            {
+                SingleObservable.this.subscribe(new SingleObserver<T>()
+                {
+                    public void success(T t)
+                    {
+                        o.success(f.call(t));
+                    }
                     public void error(Throwable t)
                     {
                         o.error(t);
@@ -30,21 +51,50 @@ public abstract class SingleObservable<T>
             }
         };
     }
-    public <U> SingleObservable<U> flat(final Func<T, SingleObservable<U>> func)
+    public <U> SingleObservable<Tuple<T, U>> merge(final SingleObservable<U> observable)
+    {
+        return SingleObservable.this.flat(new Func<T, SingleObservable<Tuple<T, U>>>()
+        {
+            public SingleObservable<Tuple<T, U>> call(final T t)
+            {
+                return observable.flat(new Func<U, SingleObservable<Tuple<T, U>>>()
+                {
+                    public SingleObservable<Tuple<T, U>> call(final U u)
+                    {
+                        return new SingleObservable<Tuple<T, U>>()
+                        {
+                            public void subscribe(SingleObserver<Tuple<T, U>> o)
+                            {
+                                o.success(new Tuple<T, U>()
+                                {
+                                    public T first()
+                                    {
+                                        return t;
+                                    }
+                                    public U second()
+                                    {
+                                        return u;
+                                    }
+                                });
+                            }
+                        };
+                    }
+                });
+            }
+        });
+    }
+    public <U> SingleObservable<U> flat(final Func<T, SingleObservable<U>> f)
     {
         return new SingleObservable<U>()
         {
-            @Override
             public void subscribe(final SingleObserver<U> o)
             {
-                subscribeMap(new SingleObserver<T>()
+                SingleObservable.this.subscribe(new SingleObserver<T>()
                 {
-                    @Override
-                    public void success(T u)
+                    public void success(T t)
                     {
-                        func.call(u).subscribe(o);
+                        f.call(t).subscribe(o);
                     }
-                    @Override
                     public void error(Throwable t)
                     {
                         o.error(t);
@@ -58,17 +108,34 @@ public abstract class SingleObservable<T>
     {
         return new NotifyObservable()
         {
-            @Override
             public void subscribe(final NotifyObserver o)
             {
-                subscribeMap(new SingleObserver<T>()
+                SingleObservable.this.subscribe(new SingleObserver<T>()
                 {
-                    @Override
                     public void success(T t)
                     {
                         o.notice();
                     }
-                    @Override
+                    public void error(Throwable t)
+                    {
+                        o.error(t);
+                    }
+                });
+            }
+        };
+    }
+    public NotifyObservable flatNotify(final Func<T, NotifyObservable> f)
+    {
+        return new NotifyObservable()
+        {
+            public void subscribe(final NotifyObserver o)
+            {
+                SingleObservable.this.subscribe(new SingleObserver<T>()
+                {
+                    public void success(T t)
+                    {
+                        f.call(t).subscribe(o);
+                    }
                     public void error(Throwable t)
                     {
                         o.error(t);
@@ -78,9 +145,46 @@ public abstract class SingleObservable<T>
         };
     }
 
-    private void subscribeMap(SingleObserver<T> observer)
+    public <U> StreamObservable<U> chainStream(final SingleObserver<T> observer, final StreamObservable<U> observable)
     {
-        subscribe(observer);
+        return new StreamObservable<U>()
+        {
+            public void subscribe(final StreamObserver<U> o)
+            {
+                SingleObservable.this.subscribe(new SingleObserver<T>()
+                {
+                    public void success(T t)
+                    {
+                        observer.success(t);
+                        observable.subscribe(o);
+                    }
+                    public void error(Throwable t)
+                    {
+                        observer.error(t);
+                    }
+                });
+            }
+        };
+    }
+    public <U> StreamObservable<U> flatStream(final Func<T, StreamObservable<U>> f)
+    {
+        return new StreamObservable<U>()
+        {
+            public void subscribe(final StreamObserver<U> o)
+            {
+                SingleObservable.this.subscribe(new SingleObserver<T>()
+                {
+                    public void success(T t)
+                    {
+                        f.call(t).subscribe(o);
+                    }
+                    public void error(Throwable t)
+                    {
+                        o.error(t);
+                    }
+                });
+            }
+        };
     }
 
     static public abstract class Work<K>

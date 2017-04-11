@@ -3,13 +3,13 @@ apply plugin: 'com.android.library'
 android {
     def global = rootProject.extensions.getByName("ext")
 
-    compileSdkVersion global.getAt("androidCompileSdkVersion")
-    buildToolsVersion global.getAt("androidBuildToolsVersion")
+    compileSdkVersion global["androidCompileSdkVersion"]
+    buildToolsVersion global["androidBuildToolsVersion"]
     defaultConfig {
-        minSdkVersion global.getAt("androidMinSdkVersion")
-        targetSdkVersion global.getAt("androidTargetSdkVersion")
-        versionCode global.getAt("androidVersionCode")
-        versionName global.getAt("androidVersionName")
+        minSdkVersion global["androidMinSdkVersion"]
+        targetSdkVersion global["androidTargetSdkVersion"]
+        versionCode global["androidVersionCode"]
+        versionName global["androidVersionName"]
     }
 }
 

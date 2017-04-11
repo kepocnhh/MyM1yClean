@@ -16,17 +16,14 @@ public class UserData
         refreshToken = rt;
     }
 
-    @Override
     public String getUserId()
     {
         return userId;
     }
-    @Override
     public String getUserToken()
     {
         return userToken;
     }
-    @Override
     public String getRefreshToken()
     {
         return refreshToken;
