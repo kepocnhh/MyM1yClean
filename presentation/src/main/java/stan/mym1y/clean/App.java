@@ -8,7 +8,7 @@ import stan.mym1y.clean.components.AppComponent;
 import stan.mym1y.clean.components.FoldersAccess;
 import stan.mym1y.clean.components.JsonConverter;
 import stan.mym1y.clean.components.MainComponent;
-import stan.mym1y.clean.jsonsimple.JSON;
+import stan.mym1y.clean.jsonorg.JSON;
 import stan.mym1y.clean.managers.FoldersManager;
 import stan.mym1y.clean.managers.SecurityManager;
 import stan.mym1y.clean.okhttp.OkHttp;

@@ -1,4 +1,4 @@
-package stan.json;
+package stan.boxes.json;
 
 import java.io.IOException;
 import java.io.StringWriter;

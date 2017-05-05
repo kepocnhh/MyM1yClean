@@ -1,4 +1,4 @@
-package stan.json;
+package stan.boxes.json;
 
 class Yylex
 {

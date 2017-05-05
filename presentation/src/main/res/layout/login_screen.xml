@@ -19,7 +19,7 @@
         <EditText
             android:id="@+id/login"
             android:lines="1"
-            android:inputType="text"
+            android:inputType="textEmailAddress"
             android:maxLines="1"
             android:maxLength="25"
             android:textSize="@dimen/text_size_big"

@@ -1,4 +1,4 @@
-package stan.json;
+package stan.boxes.json;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -40,7 +40,7 @@ public class JSONParser
     private JSONParser()
     {
     }
-
+    
     private int peekStatus(LinkedList statusStack)
     {
         if(statusStack.size() == 0)

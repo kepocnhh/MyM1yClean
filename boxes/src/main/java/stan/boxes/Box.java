@@ -13,9 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import stan.json.JSONParser;
-import stan.json.JSONWriter;
-import stan.json.ParseException;
+import stan.boxes.json.JSONParser;
+import stan.boxes.json.JSONWriter;
+import stan.boxes.json.ParseException;
 
 public class Box<DATA>
 {
