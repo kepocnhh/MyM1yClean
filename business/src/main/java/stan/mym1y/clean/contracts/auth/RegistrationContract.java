@@ -16,8 +16,8 @@ public interface RegistrationContract
     {
         void error(ErrorsContract.NetworkException e);
         void error(ErrorsContract.UnauthorizedException e);
+        void error(ValidateDataException e);
         void error();
-        void error(ValidateDataException exception);
         void success(UserPrivateData data);
     }
     interface Presenter
@@ -34,5 +34,19 @@ public interface RegistrationContract
     class ValidateDataException
             extends Exception
     {
+        public final Error error;
+
+        public ValidateDataException(Error e)
+        {
+            error = e;
+        }
+
+        public enum Error
+        {
+            EMPTY_PASSWORD,
+            EMPTY_LOGIN,
+            LOGIN_VALID,
+            PASSWORD_LENGTH,
+        }
     }
 }

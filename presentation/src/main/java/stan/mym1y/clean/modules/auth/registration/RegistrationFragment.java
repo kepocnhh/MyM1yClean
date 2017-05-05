@@ -26,21 +26,36 @@ public class RegistrationFragment
         public void error(ErrorsContract.NetworkException e)
         {
             hideWaiter();
-            showToast("NetworkException " + e.getMessage());
+            toast("NetworkException " + e.getMessage());
         }
-        public void error(ErrorsContract.UnauthorizedException exception)
+        public void error(ErrorsContract.UnauthorizedException e)
         {
             hideWaiter();
-            showToast("UnauthorizedException");
+            toast("UnauthorizedException");
+        }
+        public void error(RegistrationContract.ValidateDataException e)
+        {
+            hideWaiter();
+            switch(e.error)
+            {
+                case EMPTY_LOGIN:
+                    toast(R.string.empty_login_error_message);
+                    break;
+                case EMPTY_PASSWORD:
+                    toast(R.string.empty_password_error_message);
+                    break;
+                case LOGIN_VALID:
+                    toast(R.string.login_valid_error_message);
+                    break;
+                case PASSWORD_LENGTH:
+                    toast(R.string.password_length_error_message);
+                    break;
+            }
         }
         public void error()
         {
-            showToast("UnknownErrorException");
-        }
-        public void error(RegistrationContract.ValidateDataException exception)
-        {
             hideWaiter();
-            showToast("ValidateDataException");
+            toast("UnknownErrorException");
         }
         public void success(UserPrivateData data)
         {
@@ -62,9 +77,8 @@ public class RegistrationFragment
             case R.id.signup:
                 showWaiter();
                 hideKeyBoard();
-                runOnNewThread(new Runnable()
+                onNewThread(new Runnable()
                 {
-                    @Override
                     public void run()
                     {
                         presenter.registration(login.getText().toString(), password.getText().toString());

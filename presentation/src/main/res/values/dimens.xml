@@ -8,6 +8,9 @@
     <dimen name="container_size_large">72dp</dimen>
     <dimen name="container_size_largest">96dp</dimen>
 
+    <dimen name="dialog_width_small">256dp</dimen>
+    <dimen name="dialog_width">384dp</dimen>
+
     <dimen name="icon_small">16dp</dimen>
     <dimen name="icon">24dp</dimen>
     <dimen name="icon_medium">32dp</dimen>

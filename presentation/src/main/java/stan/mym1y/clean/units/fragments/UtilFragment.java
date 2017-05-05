@@ -17,10 +17,10 @@ import stan.mym1y.clean.utils.FontChangeCrawler;
 public abstract class UtilFragment
         extends Fragment
 {
+    static private final Handler uiHandler = new Handler(Looper.getMainLooper());
     private View.OnClickListener clickListener;
     private View mainView;
     private String tag;
-    private final Handler uiHandler = new Handler(Looper.getMainLooper());
     private InputMethodManager inputMethodManager;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle)
@@ -41,6 +41,10 @@ public abstract class UtilFragment
             initViews(mainView);
             init();
         }
+        return mainView;
+    }
+    final protected View mainView()
+    {
         return mainView;
     }
 
@@ -70,11 +74,11 @@ public abstract class UtilFragment
     {
         Log.e(tag, message);
     }
-    final protected void runOnNewThread(Runnable r)
+    final protected void onNewThread(Runnable r)
     {
         new Thread(r).start();
     }
-    final protected void runOnNewThread(Runnable r, final long ms)
+    final protected void onNewThread(Runnable r, final long ms)
     {
         new Thread(r)
         {
@@ -95,7 +99,20 @@ public abstract class UtilFragment
     {
         uiHandler.post(r);
     }
-    final protected void showToast(final int messageId)
+    final protected void runAfterResume(final Runnable r)
+    {
+        new Thread(new Runnable()
+        {
+            public void run()
+            {
+                while(!isResumed())
+                {
+                }
+                runOnUiThread(r);
+            }
+        }).start();
+    }
+    final protected void toast(final int messageId)
     {
         uiHandler.post(new Runnable()
         {
@@ -105,7 +122,7 @@ public abstract class UtilFragment
             }
         });
     }
-    final protected void showToast(final String message)
+    final protected void toast(final String message)
     {
         uiHandler.post(new Runnable()
         {

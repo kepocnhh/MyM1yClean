@@ -5,7 +5,7 @@
               android:layout_height="wrap_content">
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="256dp"
+        android:layout_width="@dimen/dialog_width_small"
         android:layout_height="match_parent">
         <TextView
             android:text="You sure?"
@@ -21,12 +21,14 @@
             android:textColor="@color/black"
             android:gravity="center_vertical"
             android:paddingLeft="12dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <LinearLayout
             android:gravity="right"
             android:layout_width="match_parent"
-            android:layout_height="48dp">
+            android:layout_height="56dp">
             <TextView
                 android:id="@+id/cancel"
                 android:text="Cancel"
@@ -34,8 +36,8 @@
                 android:textSize="14dp"
                 android:textColor="@color/black"
                 android:gravity="center_vertical"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"/>
             <TextView
@@ -45,8 +47,8 @@
                 android:textSize="14dp"
                 android:textColor="@color/red"
                 android:gravity="center_vertical"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="16dp"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"/>
         </LinearLayout>

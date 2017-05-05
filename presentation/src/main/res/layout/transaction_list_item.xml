@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:background="@color/white"
+             android:paddingLeft="24dp"
+             android:paddingRight="24dp"
              android:layout_width="match_parent"
-             android:layout_height="@dimen/container_size">
+             android:layout_height="@dimen/container_size_medium">
     <TextView
         android:id="@+id/count"
         android:textSize="@dimen/text_size_medium"

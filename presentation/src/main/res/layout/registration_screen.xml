@@ -66,8 +66,8 @@
         android:layout_height="@dimen/container_size">
         <ImageView
             android:id="@+id/new_transaction"
-            android:src="@mipmap/ic_arrow_back_white_24dp"
-            android:scaleType="centerInside"
+            android:src="@mipmap/arrow_left"
+            android:scaleType="center"
             android:tint="@color/black"
             android:layout_width="@dimen/container_size"
             android:layout_height="match_parent"/>

@@ -46,7 +46,7 @@ public class MainFragment
         }
         public void error()
         {
-            showToast("Unknown Error!");
+            toast("Unknown Error!");
         }
         public void update(final List<Transaction> transactions)
         {

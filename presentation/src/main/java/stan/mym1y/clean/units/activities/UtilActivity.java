@@ -2,9 +2,12 @@ package stan.mym1y.clean.units.activities;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import stan.mym1y.clean.utils.FontChangeCrawler;
@@ -42,7 +45,7 @@ public abstract class UtilActivity
             }
         }
     }
-    protected <VIEW extends View> VIEW findView(int id)
+    protected <VIEW extends View> VIEW view(int id)
     {
         return (VIEW)findViewById(id);
     }
@@ -50,7 +53,7 @@ public abstract class UtilActivity
     {
     }
 
-    final protected void showToast(final String message)
+    final protected void toast(final String message)
     {
         runOnUiThread(new Runnable()
         {
@@ -74,6 +77,22 @@ public abstract class UtilActivity
     {
         Log.e(tag, message);
 //        Log.e(getClass().getName(), message);
+    }
+    final protected void setStatusBarColor(final int color)
+    {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            runOnUiThread(new Runnable()
+            {
+                public void run()
+                {
+                    Window window = getWindow();
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                    window.setStatusBarColor(color);
+                }
+            });
+        }
     }
 
     abstract protected int getContentView();

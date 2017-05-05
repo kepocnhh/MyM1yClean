@@ -1,5 +1,8 @@
 package stan.mym1y.clean.modules.general;
 
+import android.os.Build;
+import android.view.View;
+
 import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.GeneralContract;
@@ -54,6 +57,11 @@ public class GeneralActivity
     }
     protected void init()
     {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
+        setStatusBarColor(getResources().getColor(R.color.white));
         presenter = new GeneralPresenter(view, new GeneralModel(App.component().dataLocal().transactionsAccess().transactions(), App.component().settings()), router);
         presenter.checkAuth();
     }

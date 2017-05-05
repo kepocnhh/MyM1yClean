@@ -16,8 +16,8 @@ public interface LoginContract
     {
         void error(ErrorsContract.NetworkException e);
         void error(ErrorsContract.UnauthorizedException e);
-        void error();
         void error(ValidateDataException exception);
+        void error();
         void success(UserPrivateData data);
     }
     interface Presenter
