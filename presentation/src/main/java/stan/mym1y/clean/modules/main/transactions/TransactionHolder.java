@@ -1,4 +1,4 @@
-package stan.mym1y.clean.modules.main;
+package stan.mym1y.clean.modules.main.transactions;
 
 import android.content.Context;
 import android.view.View;
@@ -10,20 +10,20 @@ import java.util.Date;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.units.adapters.Holder;
 
-class TransactionsHolder
+class TransactionHolder
     extends Holder
 {
-    private TextView count;
-    private TextView date;
+    private final TextView count;
+    private final TextView date;
 
-    private int positiveColor;
-    private int negativeColor;
+    private final int positiveColor;
+    private final int negativeColor;
 
-    TransactionsHolder(Context context, ViewGroup parent)
+    TransactionHolder(Context context, ViewGroup parent)
     {
         super(context, parent, R.layout.transaction_list_item);
-        count = (TextView)itemView.findViewById(R.id.count);
-        date = (TextView)itemView.findViewById(R.id.date);
+        count = view(R.id.count);
+        date = view(R.id.date);
         positiveColor = context.getResources().getColor(R.color.green);
         negativeColor = context.getResources().getColor(R.color.red);
     }

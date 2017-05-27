@@ -108,7 +108,8 @@ class MainPresenter
 
     private void updateLocal()
     {
-        view().update(model().getAll());
+        view().updateTransactions(model().getAllTransactions());
+        view().updateCashAccounts(model().getAllCashAccounts());
         view().update(model().getBalance());
     }
     private void updateAll()

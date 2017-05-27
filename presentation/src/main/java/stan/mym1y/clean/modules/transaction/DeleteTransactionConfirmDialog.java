@@ -10,14 +10,14 @@ import stan.mym1y.clean.units.dialogs.UtilDialog;
 public class DeleteTransactionConfirmDialog
         extends UtilDialog
 {
-    static public UtilDialog newInstanse(DeleteTransactionConfirmListener l)
+    static public UtilDialog newInstanse(Listener l)
     {
         DeleteTransactionConfirmDialog fragment = new DeleteTransactionConfirmDialog();
         fragment.listener = l;
         return fragment;
     }
 
-    private DeleteTransactionConfirmListener listener;
+    private Listener listener;
 
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
@@ -49,7 +49,7 @@ public class DeleteTransactionConfirmDialog
     {
     }
 
-    public interface DeleteTransactionConfirmListener
+    public interface Listener
     {
         void confirm();
     }

@@ -7,10 +7,12 @@ import stan.mym1y.clean.components.Security;
 import stan.mym1y.clean.components.Settings;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
+import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.cores.users.UserPrivateData;
+import stan.mym1y.clean.data.local.models.CashAccountsModels;
 import stan.mym1y.clean.data.local.models.TransactionsModels;
 import stan.mym1y.clean.data.remote.apis.AuthApi;
 import stan.mym1y.clean.data.remote.apis.DataApi;
@@ -26,15 +28,17 @@ class MainModel
     implements MainContract.Model
 {
     private final TransactionsModels.Transactions transactions;
+    private final CashAccountsModels.CashAccounts cashAccounts;
     private final Security security;
     private final Settings settings;
     private final JsonConverter jsonConverter;
     private final AuthApi authApi;
     private final DataApi dataApi;
 
-    MainModel(TransactionsModels.Transactions t, Security sm, Settings ss, JsonConverter j, AuthApi a, DataApi d)
+    MainModel(TransactionsModels.Transactions ts, CashAccountsModels.CashAccounts cas, Security sm, Settings ss, JsonConverter j, AuthApi a, DataApi d)
     {
-        transactions = t;
+        transactions = ts;
+        cashAccounts = cas;
         security = sm;
         settings = ss;
         jsonConverter = j;
@@ -42,9 +46,13 @@ class MainModel
         dataApi = d;
     }
 
-    public List<Transaction> getAll()
+    public List<Transaction> getAllTransactions()
     {
         return transactions.getAll();
+    }
+    public List<CashAccount> getAllCashAccounts()
+    {
+        return cashAccounts.getAll();
     }
 
     public NotifyObservable updateAll()

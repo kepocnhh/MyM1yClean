@@ -11,7 +11,10 @@ import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
+import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.transactions.Transaction;
+import stan.mym1y.clean.modules.main.cashaccounts.CashAccountsAdapter;
+import stan.mym1y.clean.modules.main.transactions.TransactionsAdapter;
 import stan.mym1y.clean.modules.transaction.AddNewTransactionDialog;
 import stan.mym1y.clean.modules.transaction.DeleteTransactionConfirmDialog;
 import stan.mym1y.clean.modules.transactions.TransactionView;
@@ -29,8 +32,10 @@ public class MainFragment
 
     private TextView balance;
     private RecyclerView transactions;
+    private RecyclerView cash_accounts;
 
-    private TransactionsAdapter adapter;
+    private TransactionsAdapter transactionsAdapter;
+    private CashAccountsAdapter cashAccountsAdapter;
 
     private MainContract.Presenter presenter;
     private final MainContract.View view = new MainContract.View()
@@ -48,14 +53,25 @@ public class MainFragment
         {
             toast("Unknown Error!");
         }
-        public void update(final List<Transaction> transactions)
+        public void updateTransactions(final List<Transaction> transactions)
         {
             runOnUiThread(new Runnable()
             {
                 public void run()
                 {
-                    adapter.swapData(transactions);
-                    adapter.notifyDataSetChanged();
+                    transactionsAdapter.swapData(transactions);
+                    transactionsAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+        public void updateCashAccounts(final List<CashAccount> cashAccounts)
+        {
+            runOnUiThread(new Runnable()
+            {
+                public void run()
+                {
+                    cashAccountsAdapter.swapData(cashAccounts);
+                    cashAccountsAdapter.notifyDataSetChanged();
                 }
             });
         }
@@ -71,17 +87,30 @@ public class MainFragment
         }
     };
     private MainContract.Behaviour behaviour;
-    private final TransactionsAdapterListener transactionsAdapterListener = new TransactionsAdapterListener()
+    private final TransactionsAdapter.Listener transactionsAdapterListener = new TransactionsAdapter.Listener()
     {
         public void delete(int id)
         {
             deleteTransaction(id);
         }
     };
+    private final CashAccountsAdapter.Listener cashAccountsAdapterListener = new CashAccountsAdapter.Listener()
+    {
+        public void delete(CashAccount cashAccount)
+        {
+        }
+        public void cashAccount(CashAccount cashAccount)
+        {
+            toast("id " + cashAccount.id());
+        }
+        public void addNewCashAccount()
+        {
+        }
+    };
 
     private String balance_label;
 
-    private final AddNewTransactionDialog.AddNewTransactionListener addNewTransactionListener = new AddNewTransactionDialog.AddNewTransactionListener()
+    private final AddNewTransactionDialog.Listener addNewTransactionListener = new AddNewTransactionDialog.Listener()
     {
         public void newTransaction(int count)
         {
@@ -109,19 +138,26 @@ public class MainFragment
     {
         balance = findView(R.id.balance);
         transactions = findView(R.id.transactions);
+        cash_accounts = findView(R.id.cash_accounts);
         setClickListener(findView(R.id.logout), findView(R.id.new_transaction));
     }
     protected void init()
     {
         presenter = new MainPresenter(view, new MainModel(App.component().dataLocal().transactionsAccess().transactions(),
+                App.component().dataLocal().cashAccountsAccess().cashAccounts(),
                 App.component().security(),
                 App.component().settings(),
                 App.component().jsonConverter(),
                 App.component().dataRemote().authApi(),
                 App.component().dataRemote().dataApi()));
         transactions.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new TransactionsAdapter(getActivity(), transactionsAdapterListener);
-        transactions.setAdapter(adapter);
+        transactionsAdapter = new TransactionsAdapter(getActivity(), transactionsAdapterListener);
+        transactions.setAdapter(transactionsAdapter);
+        LinearLayoutManager cashAccountsLinearLayoutManager = new LinearLayoutManager(getActivity());
+        cashAccountsLinearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        cash_accounts.setLayoutManager(cashAccountsLinearLayoutManager);
+        cashAccountsAdapter = new CashAccountsAdapter(getActivity(), cashAccountsAdapterListener);
+        cash_accounts.setAdapter(cashAccountsAdapter);
         balance_label = getActivity().getResources().getString(R.string.balance_label);
         presenter.update();
     }
@@ -132,7 +168,7 @@ public class MainFragment
     }
     private void deleteTransaction(final int id)
     {
-        DeleteTransactionConfirmDialog.newInstanse(new DeleteTransactionConfirmDialog.DeleteTransactionConfirmListener()
+        DeleteTransactionConfirmDialog.newInstanse(new DeleteTransactionConfirmDialog.Listener()
         {
             public void confirm()
             {

@@ -12,7 +12,7 @@ buildscript {
 allprojects {
   ext {
     androidApplicationId = 'stan.mym1y.clean'
-    androidVersionCode = 1705051351
-    androidVersionName = "0.04.02"
+    androidVersionCode = 1705271809
+    androidVersionName = "0.04.04"
   }
 }

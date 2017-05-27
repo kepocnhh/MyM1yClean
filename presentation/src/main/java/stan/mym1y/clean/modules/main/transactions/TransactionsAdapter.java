@@ -1,4 +1,4 @@
-package stan.mym1y.clean.modules.main;
+package stan.mym1y.clean.modules.main.transactions;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,25 +9,25 @@ import java.util.List;
 
 import stan.mym1y.clean.cores.transactions.Transaction;
 
-class TransactionsAdapter
-        extends RecyclerView.Adapter<TransactionsHolder>
+public class TransactionsAdapter
+        extends RecyclerView.Adapter<TransactionHolder>
 {
     private final Context context;
-    private final TransactionsAdapterListener listener;
+    private final Listener listener;
     private List<Transaction> data;
 
-    TransactionsAdapter(Context c, TransactionsAdapterListener l)
+    public TransactionsAdapter(Context c, Listener l)
     {
         context = c;
         listener = l;
     }
 
-    public TransactionsHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    public TransactionHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        return new TransactionsHolder(context, parent);
+        return new TransactionHolder(context, parent);
     }
 
-    public void onBindViewHolder(TransactionsHolder holder, int position)
+    public void onBindViewHolder(TransactionHolder holder, int position)
     {
         final Transaction transaction = data.get(position);
         holder.setCount(transaction.getCount());
@@ -50,12 +50,17 @@ class TransactionsAdapter
         }
         return data.size();
     }
-    void swapData(List<Transaction> d)
+    public void swapData(List<Transaction> d)
     {
-        if(this.data != null)
+        if(data != null)
         {
-            this.data.clear();
+            data.clear();
         }
-        this.data = d;
+        data = d;
+    }
+
+    public interface Listener
+    {
+        void delete(int id);
     }
 }

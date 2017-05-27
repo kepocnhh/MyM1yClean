@@ -14,7 +14,7 @@ import stan.mym1y.clean.units.dialogs.UtilDialog;
 public class AddNewTransactionDialog
         extends UtilDialog
 {
-    static public UtilDialog newInstanse(AddNewTransactionListener l)
+    static public UtilDialog newInstanse(Listener l)
     {
         AddNewTransactionDialog fragment = new AddNewTransactionDialog();
         fragment.listener = l;
@@ -24,7 +24,7 @@ public class AddNewTransactionDialog
     private ImageView side;
     private EditText count;
 
-    private AddNewTransactionListener listener;
+    private Listener listener;
     private boolean positive;
     private Drawable positiveDrawable;
     private Drawable negativeDrawable;
@@ -103,7 +103,7 @@ public class AddNewTransactionDialog
         }
     }
 
-    public interface AddNewTransactionListener
+    public interface Listener
     {
         void newTransaction(int count);
     }

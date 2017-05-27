@@ -2,6 +2,7 @@ package stan.mym1y.clean.contracts;
 
 import java.util.List;
 
+import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.reactive.notify.NotifyObservable;
@@ -10,7 +11,8 @@ public interface MainContract
 {
     interface Model
     {
-        List<Transaction> getAll();
+        List<Transaction> getAllTransactions();
+        List<CashAccount> getAllCashAccounts();
         NotifyObservable updateAll();
         NotifyObservable sendUpdatings();
         int getBalance();
@@ -22,7 +24,8 @@ public interface MainContract
         void error(ErrorsContract.NetworkException e);
         void error(ErrorsContract.UnauthorizedException e);
         void error();
-        void update(List<Transaction> transactions);
+        void updateTransactions(List<Transaction> transactions);
+        void updateCashAccounts(List<CashAccount> cashAccounts);
         void update(int balance);
     }
     interface Presenter
