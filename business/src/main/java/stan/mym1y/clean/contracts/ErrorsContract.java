@@ -19,6 +19,10 @@ public interface ErrorsContract
         }
     }
 
+    class DataNotExistException
+            extends MyM1yException
+    {
+    }
     class UnauthorizedException
             extends MyM1yException
     {

@@ -66,6 +66,12 @@ class MainPresenter
                         {
                             throw t;
                         }
+                        catch(ErrorsContract.DataNotExistException e)
+                        {
+                            log("data still not exist");
+                            model().sync();
+                            updateAll();
+                        }
                         catch(ErrorsContract.UnauthorizedException e)
                         {
                             view().error(e);

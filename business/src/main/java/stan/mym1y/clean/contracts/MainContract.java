@@ -18,6 +18,7 @@ public interface MainContract
         int getBalance();
         void delete(int id);
         void add(TransactionViewModel transaction);
+        void sync();
     }
     interface View
     {

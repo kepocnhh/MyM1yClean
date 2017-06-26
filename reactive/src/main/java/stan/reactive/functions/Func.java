@@ -1,4 +1,4 @@
-package stan.reactive;
+package stan.reactive.functions;
 
 public interface Func<T, U>
 {

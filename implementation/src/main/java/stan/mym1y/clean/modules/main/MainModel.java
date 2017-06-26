@@ -18,10 +18,8 @@ import stan.mym1y.clean.data.remote.apis.AuthApi;
 import stan.mym1y.clean.data.remote.apis.DataApi;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.transactions.TransactionData;
-import stan.reactive.Func;
 import stan.reactive.notify.NotifyObservable;
 import stan.reactive.notify.NotifyObserver;
-import stan.reactive.single.SingleObservable;
 import stan.reactive.single.SingleObserver;
 
 class MainModel
@@ -229,11 +227,21 @@ class MainModel
     public void delete(int id)
     {
         transactions.remove(id);
-        settings.setSyncData(new SynchronizationData(System.currentTimeMillis(),security.sha512(jsonConverter.get(transactions.getAll()))));
+        updateSyncData();
     }
     public void add(TransactionViewModel transaction)
     {
         transactions.add(new TransactionData(security.newUniqueId(), transaction.getCount(), transaction.getDate()));
-        settings.setSyncData(new SynchronizationData(System.currentTimeMillis(),security.sha512(jsonConverter.get(transactions.getAll()))));
+        updateSyncData();
+    }
+    public void sync()
+    {
+        updateSyncData();
+    }
+
+    private void updateSyncData()
+    {
+        List<Transaction> list = transactions.getAll();
+        settings.setSyncData(new SynchronizationData(System.currentTimeMillis(), security.sha512(System.currentTimeMillis() + "" + list.size() + "" + list.hashCode() + jsonConverter.get(list))));
     }
 }

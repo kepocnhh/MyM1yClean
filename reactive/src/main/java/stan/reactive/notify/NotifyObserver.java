@@ -6,7 +6,7 @@ public interface NotifyObserver
     void error(Throwable t);
 
     abstract class Just
-            implements NotifyObserver
+        implements NotifyObserver
     {
         public void error(Throwable t)
         {

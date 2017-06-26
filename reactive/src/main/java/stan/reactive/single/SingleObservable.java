@@ -1,15 +1,149 @@
 package stan.reactive.single;
 
-import stan.reactive.Func;
+import java.util.List;
+
+import stan.reactive.functions.Apply;
+import stan.reactive.functions.Func;
+import stan.reactive.Scheduler;
+import stan.reactive.Subscribable;
 import stan.reactive.Tuple;
+import stan.reactive.functions.Worker;
 import stan.reactive.notify.NotifyObservable;
 import stan.reactive.notify.NotifyObserver;
 import stan.reactive.stream.StreamObservable;
 import stan.reactive.stream.StreamObserver;
 
 public abstract class SingleObservable<T>
-        implements ObservableSource<T>
+        implements Subscribable<SingleObserver<T>>
 {
+    static public <U> SingleObservable<U> create(final U u)
+    {
+        return new SingleObservable<U>()
+        {
+            public void subscribe(SingleObserver<U> o)
+            {
+                o.success(u);
+            }
+        };
+    }
+    static public <U> SingleListObservable<U> create(final List<U> list)
+    {
+        return new SingleListObservable<U>()
+        {
+            public void subscribe(SingleObserver<List<U>> o)
+            {
+                o.success(list);
+            }
+        };
+    }
+    static public <U> SingleObservable<U> create(final Apply<U> apply)
+    {
+        return new SingleObservable<U>()
+        {
+            public void subscribe(SingleObserver<U> o)
+            {
+                o.success(apply.apply());
+            }
+        };
+    }
+    static public <U> SingleObservable<U> create(final Worker<U> worker)
+    {
+        return new SingleObservable<U>()
+        {
+            public void subscribe(SingleObserver<U> o)
+            {
+                try
+                {
+                    o.success(worker.work());
+                }
+                catch(Throwable throwable)
+                {
+                    o.error(throwable);
+                }
+            }
+        };
+    }
+
+    public <U> SingleObservable<U> map(final Func<T, U> f)
+    {
+        return new SingleObservable<U>()
+        {
+            public void subscribe(final SingleObserver<U> o)
+            {
+                SingleObservable.this.subscribe(new SingleObserver<T>()
+                {
+                    public void success(T t)
+                    {
+                        o.success(f.call(t));
+                    }
+                    public void error(Throwable t)
+                    {
+                        o.error(t);
+                    }
+                });
+            }
+        };
+    }
+    public <U> SingleObservable<U> flat(final Func<T, SingleObservable<U>> f)
+    {
+        return new SingleObservable<U>()
+        {
+            public void subscribe(final SingleObserver<U> o)
+            {
+                SingleObservable.this.subscribe(new SingleObserver<T>()
+                {
+                    public void success(T t)
+                    {
+                        f.call(t).subscribe(o);
+                    }
+                    public void error(Throwable t)
+                    {
+                        o.error(t);
+                    }
+                });
+            }
+        };
+    }
+    public <U> StreamObservable<U> stream(final Func<T, StreamObservable<U>> f)
+    {
+        return new StreamObservable<U>()
+        {
+            public void subscribe(final StreamObserver<U> o)
+            {
+                SingleObservable.this.subscribe(new SingleObserver<T>()
+                {
+                    public void success(T t)
+                    {
+                        f.call(t).subscribe(o);
+                    }
+                    public void error(Throwable t)
+                    {
+                        o.error(t);
+                    }
+                });
+            }
+        };
+    }
+    public NotifyObservable notice()
+    {
+        return new NotifyObservable()
+        {
+            public void subscribe(final NotifyObserver o)
+            {
+                SingleObservable.this.subscribe(new SingleObserver<T>()
+                {
+                    public void success(T t)
+                    {
+                        o.notice();
+                    }
+                    public void error(Throwable t)
+                    {
+                        o.error(t);
+                    }
+                });
+            }
+        };
+    }
     public <U> SingleObservable<U> chain(final SingleObserver<T> observer, final SingleObservable<U> observable)
     {
         return new SingleObservable<U>()
@@ -31,21 +165,43 @@ public abstract class SingleObservable<T>
             }
         };
     }
-    public <U> SingleObservable<U> map(final Func<T, U> f)
+    public <U> StreamObservable<U> chain(final SingleObserver<T> observer, final StreamObservable<U> observable)
     {
-        return new SingleObservable<U>()
+        return new StreamObservable<U>()
         {
-            public void subscribe(final SingleObserver<U> o)
+            public void subscribe(final StreamObserver<U> o)
             {
                 SingleObservable.this.subscribe(new SingleObserver<T>()
                 {
                     public void success(T t)
                     {
-                        o.success(f.call(t));
+                        observer.success(t);
+                        observable.subscribe(o);
                     }
                     public void error(Throwable t)
                     {
-                        o.error(t);
+                        observer.error(t);
+                    }
+                });
+            }
+        };
+    }
+    public NotifyObservable chain(final SingleObserver<T> observer, final NotifyObservable observable)
+    {
+        return new NotifyObservable()
+        {
+            public void subscribe(final NotifyObserver o)
+            {
+                SingleObservable.this.subscribe(new SingleObserver<T>()
+                {
+                    public void success(T t)
+                    {
+                        observer.success(t);
+                        observable.subscribe(o);
+                    }
+                    public void error(Throwable t)
+                    {
+                        observer.error(t);
                     }
                 });
             }
@@ -83,125 +239,54 @@ public abstract class SingleObservable<T>
             }
         });
     }
-    public <U> SingleObservable<U> flat(final Func<T, SingleObservable<U>> f)
+
+    public SingleObservable<T> subscribeOn(final Scheduler scheduler)
     {
-        return new SingleObservable<U>()
+        return new SingleObservable<T>()
         {
-            public void subscribe(final SingleObserver<U> o)
+            public void subscribe(final SingleObserver<T> o)
+            {
+                scheduler.run(new Runnable()
+                {
+                    public void run()
+                    {
+                        SingleObservable.this.subscribe(o);
+                    }
+                });
+            }
+        };
+    }
+    public SingleObservable<T> observeOn(final Scheduler scheduler)
+    {
+        return new SingleObservable<T>()
+        {
+            public void subscribe(final SingleObserver<T> o)
             {
                 SingleObservable.this.subscribe(new SingleObserver<T>()
                 {
-                    public void success(T t)
+                    public void success(final T t)
                     {
-                        f.call(t).subscribe(o);
+                        scheduler.run(new Runnable()
+                        {
+                            public void run()
+                            {
+                                o.success(t);
+                            }
+                        });
                     }
-                    public void error(Throwable t)
+                    public void error(final Throwable t)
                     {
-                        o.error(t);
+                        scheduler.run(new Runnable()
+                        {
+                            public void run()
+                            {
+                                o.error(t);
+                            }
+                        });
                     }
                 });
             }
         };
     }
 
-    public NotifyObservable mapNotify()
-    {
-        return new NotifyObservable()
-        {
-            public void subscribe(final NotifyObserver o)
-            {
-                SingleObservable.this.subscribe(new SingleObserver<T>()
-                {
-                    public void success(T t)
-                    {
-                        o.notice();
-                    }
-                    public void error(Throwable t)
-                    {
-                        o.error(t);
-                    }
-                });
-            }
-        };
-    }
-    public NotifyObservable flatNotify(final Func<T, NotifyObservable> f)
-    {
-        return new NotifyObservable()
-        {
-            public void subscribe(final NotifyObserver o)
-            {
-                SingleObservable.this.subscribe(new SingleObserver<T>()
-                {
-                    public void success(T t)
-                    {
-                        f.call(t).subscribe(o);
-                    }
-                    public void error(Throwable t)
-                    {
-                        o.error(t);
-                    }
-                });
-            }
-        };
-    }
-
-    public <U> StreamObservable<U> chainStream(final SingleObserver<T> observer, final StreamObservable<U> observable)
-    {
-        return new StreamObservable<U>()
-        {
-            public void subscribe(final StreamObserver<U> o)
-            {
-                SingleObservable.this.subscribe(new SingleObserver<T>()
-                {
-                    public void success(T t)
-                    {
-                        observer.success(t);
-                        observable.subscribe(o);
-                    }
-                    public void error(Throwable t)
-                    {
-                        observer.error(t);
-                    }
-                });
-            }
-        };
-    }
-    public <U> StreamObservable<U> flatStream(final Func<T, StreamObservable<U>> f)
-    {
-        return new StreamObservable<U>()
-        {
-            public void subscribe(final StreamObserver<U> o)
-            {
-                SingleObservable.this.subscribe(new SingleObserver<T>()
-                {
-                    public void success(T t)
-                    {
-                        f.call(t).subscribe(o);
-                    }
-                    public void error(Throwable t)
-                    {
-                        o.error(t);
-                    }
-                });
-            }
-        };
-    }
-
-    static public abstract class Work<K>
-            extends SingleObservable<K>
-    {
-        public void subscribe(SingleObserver<K> o)
-        {
-            try
-            {
-                o.success(work());
-            }
-            catch(Throwable t)
-            {
-                o.error(t);
-            }
-        }
-
-        protected abstract K work() throws Throwable;
-    }
 }

@@ -14,10 +14,11 @@ import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.data.remote.apis.DataApi;
 import stan.mym1y.clean.components.JsonConverter;
+import stan.reactive.functions.Action;
+import stan.reactive.functions.Worker;
 import stan.reactive.notify.NotifyObservable;
 import stan.reactive.notify.NotifyObserver;
 import stan.reactive.single.SingleObservable;
-import stan.reactive.single.SingleObserver;
 
 public class Data
     implements DataApi
@@ -35,9 +36,10 @@ public class Data
 
     public SingleObservable<List<Transaction>> getTransactions(final UserPrivateData data)
     {
-        return new SingleObservable<List<Transaction>>()
+        return SingleObservable.create(new Worker<List<Transaction>>()
         {
-            public void subscribe(SingleObserver<List<Transaction>> o)
+            public List<Transaction> work()
+                    throws Throwable
             {
                 HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.TRANSACTIONS + "/" +data.getUserId()+ ".json").newBuilder();
                 urlBuilder.addQueryParameter("auth", data.getUserToken());
@@ -50,42 +52,33 @@ public class Data
                 }
                 catch(Throwable t)
                 {
-                    o.error(new ErrorsContract.NetworkException(urlBuilder.build().toString()));
-                    return;
+                    throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
                 }
                 switch(response.code())
                 {
                     case Codes.SUCCESS:
                         try
                         {
-                            o.success(jsonConverter.getTransactions(response.body().string()));
+                            return jsonConverter.getTransactions(response.body().string());
                         }
                         catch(Exception e)
                         {
-                            o.error(new UnknownError());
+                            throw new UnknownError();
                         }
-                        break;
                     case Codes.UNAUTHORIZED:
-                        try
-                        {
-                            o.error(new ErrorsContract.UnauthorizedException());
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
-                        break;
+                        throw new ErrorsContract.UnauthorizedException();
                     default:
-                        o.error(new UnknownError());
+                        throw new UnknownError();
                 }
             }
-        };
+        });
     }
     public SingleObservable<SyncData> getSyncData(final UserPrivateData data)
     {
-        return new SingleObservable<SyncData>()
+        return SingleObservable.create(new Worker<SyncData>()
         {
-            public void subscribe(SingleObserver<SyncData> o)
+            public SyncData work()
+                    throws Throwable
             {
                 HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.SYNC + "/" +data.getUserId()+ ".json").newBuilder();
                 urlBuilder.addQueryParameter("auth", data.getUserToken());
@@ -98,36 +91,46 @@ public class Data
                 }
                 catch(Throwable t)
                 {
-                    o.error(new ErrorsContract.NetworkException(urlBuilder.build().toString()));
-                    return;
+                    throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
                 }
                 switch(response.code())
                 {
                     case Codes.SUCCESS:
+                        String json;
                         try
                         {
-                            o.success(jsonConverter.getSyncData(response.body().string()));
+                            json = response.body().string();
                         }
                         catch(Exception e)
                         {
-                            o.error(new UnknownError());
+                            throw new UnknownError();
                         }
-                        break;
+                        if(json == null)
+                        {
+                            throw new UnknownError();
+                        }
+                        if(json.equals("null"))
+                        {
+                            throw new ErrorsContract.DataNotExistException();
+                        }
+                        else
+                        {
+                            try
+                            {
+                                return jsonConverter.getSyncData(json);
+                            }
+                            catch(Exception e)
+                            {
+                                throw new UnknownError();
+                            }
+                        }
                     case Codes.UNAUTHORIZED:
-                        try
-                        {
-                            o.error(new ErrorsContract.UnauthorizedException());
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
-                        break;
+                        throw new ErrorsContract.UnauthorizedException();
                     default:
-                        o.error(new UnknownError());
+                        throw new UnknownError();
                 }
             }
-        };
+        });
     }
     public NotifyObservable putTransactions(final UserPrivateData data, final List<Transaction> transactions)
     {
@@ -180,9 +183,10 @@ public class Data
     }
     public NotifyObservable putSyncData(final UserPrivateData data, final SyncData syncData)
     {
-        return new NotifyObservable()
+        return NotifyObservable.create(new Action()
         {
-            public void subscribe(NotifyObserver o)
+            public void run()
+                    throws Throwable
             {
                 HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.SYNC + "/" +data.getUserId()+ ".json").newBuilder();
                 urlBuilder.addQueryParameter("auth", data.getUserToken());
@@ -196,35 +200,18 @@ public class Data
                 }
                 catch(Throwable t)
                 {
-                    o.error(new ErrorsContract.NetworkException(urlBuilder.build().toString()));
-                    return;
+                    throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
                 }
                 switch(response.code())
                 {
                     case Codes.SUCCESS:
-                        try
-                        {
-                            o.notice();
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
                         break;
                     case Codes.UNAUTHORIZED:
-                        try
-                        {
-                            o.error(new ErrorsContract.UnauthorizedException());
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
-                        break;
+                        throw new ErrorsContract.UnauthorizedException();
                     default:
-                        o.error(new UnknownError());
+                        throw new UnknownError();
                 }
             }
-        };
+        });
     }
 }

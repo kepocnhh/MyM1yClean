@@ -7,7 +7,14 @@ public interface StreamObserver<T>
     void error(Throwable t);
 
     abstract class Just<T>
-            implements StreamObserver<T>
+        implements StreamObserver<T>
+    {
+        public void error(Throwable t)
+        {
+        }
+    }
+    abstract class Infinity<T>
+        implements StreamObserver<T>
     {
         public void complete()
         {
