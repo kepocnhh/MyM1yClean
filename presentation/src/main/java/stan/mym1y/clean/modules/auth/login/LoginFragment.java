@@ -16,7 +16,7 @@ import stan.mym1y.clean.units.fragments.UtilFragment;
 public class LoginFragment
         extends UtilFragment
 {
-    static public UtilFragment newInstanse(LoginContract.Behaviour b)
+    static public UtilFragment newInstance(LoginContract.Behaviour b)
     {
         LoginFragment fragment = new LoginFragment();
         fragment.behaviour = b;

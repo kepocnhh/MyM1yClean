@@ -25,12 +25,12 @@ public class GeneralActivity
         public void toAuth()
         {
             log("to -> auth");
-            replace(R.id.subscreen, AuthFragment.newInstanse(authBehaviour));
+            replace(R.id.subscreen, AuthFragment.newInstance(authBehaviour));
         }
         public void toMain()
         {
             log("to -> main");
-            replace(R.id.subscreen, MainFragment.newInstanse(mainBehaviour));
+            replace(R.id.subscreen, MainFragment.newInstance(mainBehaviour));
         }
     };
     private final AuthContract.Behaviour authBehaviour = new AuthContract.Behaviour()

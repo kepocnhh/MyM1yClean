@@ -24,8 +24,8 @@ public class JSON
     {
         try
         {
-            return new JSONObject().put("email", data.getLogin())
-                                   .put("password", data.getPassword())
+            return new JSONObject().put("email", data.login())
+                                   .put("password", data.password())
                                    .put("returnSecureToken", true).toString();
         }
         catch(JSONException e)
@@ -64,16 +64,17 @@ public class JSON
     private JSONObject get(Transaction transaction)
             throws JSONException
     {
-        return new JSONObject().put("id", transaction.getId())
-                               .put("count", transaction.getCount())
-                               .put("date", transaction.getDate());
+        return new JSONObject().put("id", transaction.id())
+                               .put("cashAccountId", transaction.cashAccountId())
+                               .put("count", transaction.count())
+                               .put("date", transaction.date());
     }
     public String get(SyncData syncData)
     {
         try
         {
-            return new JSONObject().put("hash", syncData.getHash())
-                                   .put("lastSyncTime", syncData.getLastSyncTime()).toString();
+            return new JSONObject().put("hash", syncData.hash())
+                                   .put("lastSyncTime", syncData.lastSyncTime()).toString();
         }
         catch(JSONException e)
         {
@@ -136,9 +137,10 @@ public class JSON
     private Transaction getTransaction(JSONObject object)
             throws JSONException
     {
-        return new TransactionData(object.getInt("id"),
-                object.getInt("count"),
-                object.getLong("date"));
+        return new TransactionData(object.getLong("id"),
+                object.getLong("cashAccountId"),
+                object.getLong("date"),
+                object.getInt("count"));
     }
     public SyncData getSyncData(String json)
             throws ParseException

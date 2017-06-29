@@ -14,7 +14,7 @@ import stan.mym1y.clean.units.fragments.UtilFragment;
 public class AuthFragment
     extends UtilFragment
 {
-    static public UtilFragment newInstanse(AuthContract.Behaviour b)
+    static public UtilFragment newInstance(AuthContract.Behaviour b)
     {
         AuthFragment fragment = new AuthFragment();
         fragment.behaviour = b;
@@ -30,12 +30,12 @@ public class AuthFragment
         public void toLogin()
         {
             log("to -> login");
-            replace(R.id.auth_subscreen, LoginFragment.newInstanse(loginBehaviour));
+            replace(R.id.auth_subscreen, LoginFragment.newInstance(loginBehaviour));
         }
         public void toRegistration()
         {
             log("to -> registration");
-            replace(R.id.auth_subscreen, RegistrationFragment.newInstanse(registrationBehaviour));
+            replace(R.id.auth_subscreen, RegistrationFragment.newInstance(registrationBehaviour));
         }
     };
     private final LoginContract.Behaviour loginBehaviour = new LoginContract.Behaviour()
@@ -43,8 +43,8 @@ public class AuthFragment
         public void login(UserPrivateData data)
         {
             log("login:"
-                    + "\n\t" + "userId " + data.getUserId()
-                    + "\n\t" + "token " + data.getUserToken());
+                    + "\n\t" + "userId " + data.userId()
+                    + "\n\t" + "token " + data.userToken());
             behaviour.enter(data);
         }
         public void toSignup()
@@ -57,8 +57,8 @@ public class AuthFragment
         public void registration(UserPrivateData data)
         {
             log("registration:"
-                    + "\n\t" + "userId " + data.getUserId()
-                    + "\n\t" + "token " + data.getUserToken());
+                    + "\n\t" + "userId " + data.userId()
+                    + "\n\t" + "token " + data.userToken());
             behaviour.enter(data);
         }
         public void toSignin()

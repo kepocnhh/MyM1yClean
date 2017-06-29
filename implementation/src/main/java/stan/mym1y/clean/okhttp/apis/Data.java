@@ -41,8 +41,8 @@ public class Data
             public List<Transaction> work()
                     throws Throwable
             {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.TRANSACTIONS + "/" +data.getUserId()+ ".json").newBuilder();
-                urlBuilder.addQueryParameter("auth", data.getUserToken());
+                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.TRANSACTIONS + "/" +data.userId()+ ".json").newBuilder();
+                urlBuilder.addQueryParameter("auth", data.userToken());
                 Response response;
                 try
                 {
@@ -57,13 +57,33 @@ public class Data
                 switch(response.code())
                 {
                     case Codes.SUCCESS:
+                        String json;
                         try
                         {
-                            return jsonConverter.getTransactions(response.body().string());
+                            json = response.body().string();
                         }
                         catch(Exception e)
                         {
                             throw new UnknownError();
+                        }
+                        if(json == null)
+                        {
+                            throw new UnknownError();
+                        }
+                        if(json.equals("null"))
+                        {
+                            throw new ErrorsContract.DataNotExistException();
+                        }
+                        else
+                        {
+                            try
+                            {
+                                return jsonConverter.getTransactions(json);
+                            }
+                            catch(Exception e)
+                            {
+                                throw new UnknownError();
+                            }
                         }
                     case Codes.UNAUTHORIZED:
                         throw new ErrorsContract.UnauthorizedException();
@@ -80,8 +100,8 @@ public class Data
             public SyncData work()
                     throws Throwable
             {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.SYNC + "/" +data.getUserId()+ ".json").newBuilder();
-                urlBuilder.addQueryParameter("auth", data.getUserToken());
+                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.SYNC + "/" +data.userId()+ ".json").newBuilder();
+                urlBuilder.addQueryParameter("auth", data.userToken());
                 Response response;
                 try
                 {
@@ -134,12 +154,13 @@ public class Data
     }
     public NotifyObservable putTransactions(final UserPrivateData data, final List<Transaction> transactions)
     {
-        return new NotifyObservable()
+        return NotifyObservable.create(new Action()
         {
-            public void subscribe(NotifyObserver o)
+            public void run()
+                    throws Throwable
             {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.TRANSACTIONS + "/" +data.getUserId()+ ".json").newBuilder();
-                urlBuilder.addQueryParameter("auth", data.getUserToken());
+                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.TRANSACTIONS + "/" +data.userId()+ ".json").newBuilder();
+                urlBuilder.addQueryParameter("auth", data.userToken());
                 Response response;
                 try
                 {
@@ -150,36 +171,19 @@ public class Data
                 }
                 catch(Throwable t)
                 {
-                    o.error(new ErrorsContract.NetworkException(urlBuilder.build().toString()));
-                    return;
+                    throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
                 }
                 switch(response.code())
                 {
                     case Codes.SUCCESS:
-                        try
-                        {
-                            o.notice();
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
                         break;
                     case Codes.UNAUTHORIZED:
-                        try
-                        {
-                            o.error(new ErrorsContract.UnauthorizedException());
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
-                        break;
+                        throw new ErrorsContract.UnauthorizedException();
                     default:
-                        o.error(new UnknownError());
+                        throw new UnknownError();
                 }
             }
-        };
+        });
     }
     public NotifyObservable putSyncData(final UserPrivateData data, final SyncData syncData)
     {
@@ -188,8 +192,8 @@ public class Data
             public void run()
                     throws Throwable
             {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.SYNC + "/" +data.getUserId()+ ".json").newBuilder();
-                urlBuilder.addQueryParameter("auth", data.getUserToken());
+                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.SYNC + "/" +data.userId()+ ".json").newBuilder();
+                urlBuilder.addQueryParameter("auth", data.userToken());
                 Response response;
                 try
                 {

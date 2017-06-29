@@ -1,4 +1,4 @@
-package stan.mym1y.clean.modules.transaction;
+package stan.mym1y.clean.modules.transactions;
 
 import android.app.Dialog;
 import android.os.Bundle;

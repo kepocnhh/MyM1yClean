@@ -9,8 +9,8 @@ public interface TransactionsModels
     interface Transactions
     {
         List<Transaction> getAll();
-        Transaction get(int id);
-        void remove(int id);
+        Transaction get(long id);
+        void remove(long id);
         void add(Transaction transaction);
         void addAll(List<Transaction> transactions);
         void clear();

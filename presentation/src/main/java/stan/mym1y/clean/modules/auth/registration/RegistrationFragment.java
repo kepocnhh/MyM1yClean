@@ -13,7 +13,7 @@ import stan.mym1y.clean.units.fragments.UtilFragment;
 public class RegistrationFragment
         extends UtilFragment
 {
-    static public UtilFragment newInstanse(RegistrationContract.Behaviour b)
+    static public UtilFragment newInstance(RegistrationContract.Behaviour b)
     {
         RegistrationFragment fragment = new RegistrationFragment();
         fragment.behaviour = b;

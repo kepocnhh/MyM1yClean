@@ -3,6 +3,7 @@ package stan.mym1y.clean.contracts;
 import java.util.List;
 
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
+import stan.mym1y.clean.cores.cashaccounts.CashAccountViewModel;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.reactive.notify.NotifyObservable;
@@ -16,7 +17,8 @@ public interface MainContract
         NotifyObservable updateAll();
         NotifyObservable sendUpdatings();
         int getBalance();
-        void delete(int id);
+        void delete(Transaction transaction);
+        void add(CashAccountViewModel cashAccount);
         void add(TransactionViewModel transaction);
         void sync();
     }
@@ -25,15 +27,17 @@ public interface MainContract
         void error(ErrorsContract.NetworkException e);
         void error(ErrorsContract.UnauthorizedException e);
         void error();
-        void updateTransactions(List<Transaction> transactions);
-        void updateCashAccounts(List<CashAccount> cashAccounts);
+        void emptyCashAccounts();
+        void emptyTransactions(List<CashAccount> cashAccounts);
+        void update(List<CashAccount> cashAccounts, List<Transaction> transactions);
         void update(int balance);
     }
     interface Presenter
     {
         void update();
-        void newTransaction(TransactionViewModel transaction);
-        void deleteTransaction(int id);
+        void add(CashAccountViewModel cashAccount);
+        void add(TransactionViewModel transaction);
+        void delete(Transaction transaction);
     }
 
     interface Behaviour

@@ -1,4 +1,4 @@
-package stan.mym1y.clean.modules.transaction;
+package stan.mym1y.clean.modules.transactions;
 
 import android.app.Dialog;
 import android.graphics.PorterDuff;
@@ -14,7 +14,7 @@ import stan.mym1y.clean.units.dialogs.UtilDialog;
 public class AddNewTransactionDialog
         extends UtilDialog
 {
-    static public UtilDialog newInstanse(Listener l)
+    static public UtilDialog newInstance(Listener l)
     {
         AddNewTransactionDialog fragment = new AddNewTransactionDialog();
         fragment.listener = l;

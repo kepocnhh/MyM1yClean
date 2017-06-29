@@ -22,8 +22,8 @@ class GeneralModel
     {
         UserPrivateData data = settings.getUserPrivateData();
         if(data == null
-                || data.getUserId() == null || data.getUserId().length() == 0
-                || data.getUserToken() == null || data.getUserToken().length() == 0)
+                || data.userId() == null || data.userId().length() == 0
+                || data.userToken() == null || data.userToken().length() == 0)
         {
             throw new GeneralContract.UserNotAuthorizedException();
         }

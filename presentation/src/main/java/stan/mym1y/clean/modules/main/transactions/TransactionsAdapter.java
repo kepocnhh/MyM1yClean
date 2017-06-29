@@ -30,13 +30,13 @@ public class TransactionsAdapter
     public void onBindViewHolder(TransactionHolder holder, int position)
     {
         final Transaction transaction = data.get(position);
-        holder.setCount(transaction.getCount());
-        holder.setDate(transaction.getDate());
+        holder.setCount(transaction.count());
+        holder.setDate(transaction.date());
         holder.setLongClick(new View.OnLongClickListener()
         {
             public boolean onLongClick(View view)
             {
-                listener.delete(transaction.getId());
+                listener.delete(transaction);
                 return false;
             }
         });
@@ -61,6 +61,6 @@ public class TransactionsAdapter
 
     public interface Listener
     {
-        void delete(int id);
+        void delete(Transaction transaction);
     }
 }

@@ -1,7 +1,12 @@
 package stan.mym1y.clean.modules.main;
 
+import java.util.List;
+
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
+import stan.mym1y.clean.cores.cashaccounts.CashAccount;
+import stan.mym1y.clean.cores.cashaccounts.CashAccountViewModel;
+import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.units.mvp.ModelPresenter;
 import stan.reactive.notify.NotifyObserver;
@@ -89,7 +94,19 @@ class MainPresenter
             }
         });
     }
-    public void newTransaction(final TransactionViewModel transaction)
+
+    public void add(final CashAccountViewModel cashAccount)
+    {
+        onNewThread(new Runnable()
+        {
+            public void run()
+            {
+                model().add(cashAccount);
+                updateAll();
+            }
+        });
+    }
+    public void add(final TransactionViewModel transaction)
     {
         onNewThread(new Runnable()
         {
@@ -100,13 +117,14 @@ class MainPresenter
             }
         });
     }
-    public void deleteTransaction(final int id)
+
+    public void delete(final Transaction transaction)
     {
         onNewThread(new Runnable()
         {
             public void run()
             {
-                model().delete(id);
+                model().delete(transaction);
                 updateAll();
             }
         });
@@ -114,8 +132,20 @@ class MainPresenter
 
     private void updateLocal()
     {
-        view().updateTransactions(model().getAllTransactions());
-        view().updateCashAccounts(model().getAllCashAccounts());
+        List<CashAccount> cashAccounts = model().getAllCashAccounts();
+        List<Transaction> transactions = model().getAllTransactions();
+        if(cashAccounts.isEmpty())
+        {
+            view().emptyCashAccounts();
+        }
+        else if(transactions.isEmpty())
+        {
+            view().emptyTransactions(cashAccounts);
+        }
+        else
+        {
+            view().update(cashAccounts, transactions);
+        }
         view().update(model().getBalance());
     }
     private void updateAll()

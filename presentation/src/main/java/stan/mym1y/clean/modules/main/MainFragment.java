@@ -13,29 +13,24 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.transactions.Transaction;
+import stan.mym1y.clean.modules.cashaccounts.AddNewCashAccountDialog;
+import stan.mym1y.clean.modules.cashaccounts.CashAccountView;
 import stan.mym1y.clean.modules.main.cashaccounts.CashAccountsAdapter;
 import stan.mym1y.clean.modules.main.transactions.TransactionsAdapter;
-import stan.mym1y.clean.modules.transaction.AddNewTransactionDialog;
-import stan.mym1y.clean.modules.transaction.DeleteTransactionConfirmDialog;
+import stan.mym1y.clean.modules.transactions.AddNewTransactionDialog;
+import stan.mym1y.clean.modules.transactions.DeleteTransactionConfirmDialog;
 import stan.mym1y.clean.modules.transactions.TransactionView;
 import stan.mym1y.clean.units.fragments.UtilFragment;
 
 public class MainFragment
         extends UtilFragment
 {
-    static public UtilFragment newInstanse(MainContract.Behaviour b)
+    static public UtilFragment newInstance(MainContract.Behaviour b)
     {
         MainFragment fragment = new MainFragment();
         fragment.behaviour = b;
         return fragment;
     }
-
-    private TextView balance;
-    private RecyclerView transactions;
-    private RecyclerView cash_accounts;
-
-    private TransactionsAdapter transactionsAdapter;
-    private CashAccountsAdapter cashAccountsAdapter;
 
     private MainContract.Presenter presenter;
     private final MainContract.View view = new MainContract.View()
@@ -53,24 +48,50 @@ public class MainFragment
         {
             toast("Unknown Error!");
         }
-        public void updateTransactions(final List<Transaction> transactions)
+        public void emptyCashAccounts()
         {
             runOnUiThread(new Runnable()
             {
                 public void run()
                 {
-                    transactionsAdapter.swapData(transactions);
-                    transactionsAdapter.notifyDataSetChanged();
+                    cash_accounts_container.setVisibility(View.GONE);
+                    transactions.setVisibility(View.GONE);
+                    empty_cash_accounts.setVisibility(View.VISIBLE);
+                    empty_transactions.setVisibility(View.GONE);
+                    new_transaction.setVisibility(View.GONE);
                 }
             });
         }
-        public void updateCashAccounts(final List<CashAccount> cashAccounts)
+        public void emptyTransactions(final List<CashAccount> cashAccounts)
         {
             runOnUiThread(new Runnable()
             {
                 public void run()
                 {
+                    cash_accounts_container.setVisibility(View.VISIBLE);
+                    transactions.setVisibility(View.GONE);
+                    empty_cash_accounts.setVisibility(View.GONE);
+                    empty_transactions.setVisibility(View.VISIBLE);
+                    new_transaction.setVisibility(View.VISIBLE);
                     cashAccountsAdapter.swapData(cashAccounts);
+                    cashAccountsAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+        public void update(final List<CashAccount> cas, final List<Transaction> ts)
+        {
+            runOnUiThread(new Runnable()
+            {
+                public void run()
+                {
+                    cash_accounts_container.setVisibility(View.VISIBLE);
+                    transactions.setVisibility(View.VISIBLE);
+                    empty_cash_accounts.setVisibility(View.GONE);
+                    empty_transactions.setVisibility(View.GONE);
+                    new_transaction.setVisibility(View.VISIBLE);
+                    transactionsAdapter.swapData(ts);
+                    transactionsAdapter.notifyDataSetChanged();
+                    cashAccountsAdapter.swapData(cas);
                     cashAccountsAdapter.notifyDataSetChanged();
                 }
             });
@@ -87,13 +108,6 @@ public class MainFragment
         }
     };
     private MainContract.Behaviour behaviour;
-    private final TransactionsAdapter.Listener transactionsAdapterListener = new TransactionsAdapter.Listener()
-    {
-        public void delete(int id)
-        {
-            deleteTransaction(id);
-        }
-    };
     private final CashAccountsAdapter.Listener cashAccountsAdapterListener = new CashAccountsAdapter.Listener()
     {
         public void delete(CashAccount cashAccount)
@@ -105,16 +119,34 @@ public class MainFragment
         }
         public void addNewCashAccount()
         {
+            newCashAccount();
+        }
+    };
+    private final TransactionsAdapter.Listener transactionsAdapterListener = new TransactionsAdapter.Listener()
+    {
+        public void delete(Transaction transaction)
+        {
+            deleteTransaction(transaction);
         }
     };
 
+    private View cash_accounts_container;
+    private View empty_cash_accounts;
+    private View empty_transactions;
+    private TextView balance;
+    private RecyclerView cash_accounts;
+    private RecyclerView transactions;
+    private View new_transaction;
+
+    private TransactionsAdapter transactionsAdapter;
+    private CashAccountsAdapter cashAccountsAdapter;
     private String balance_label;
 
     private final AddNewTransactionDialog.Listener addNewTransactionListener = new AddNewTransactionDialog.Listener()
     {
         public void newTransaction(int count)
         {
-            presenter.newTransaction(new TransactionView(count, System.currentTimeMillis()));
+            presenter.add(new TransactionView(-1, System.currentTimeMillis(), count));//TODO create cash account system
         }
     };
 
@@ -128,6 +160,10 @@ public class MainFragment
             case R.id.new_transaction:
                 newTransaction();
                 break;
+            case R.id.add_new_cash_account:
+                log("try add new cash account");
+                newCashAccount();
+                break;
         }
     }
     protected int getContentView()
@@ -136,10 +172,14 @@ public class MainFragment
     }
     protected void initViews(View v)
     {
+        cash_accounts_container = findView(R.id.cash_accounts_container);
+        empty_cash_accounts = findView(R.id.empty_cash_accounts);
+        empty_transactions = findView(R.id.empty_transactions);
         balance = findView(R.id.balance);
-        transactions = findView(R.id.transactions);
         cash_accounts = findView(R.id.cash_accounts);
-        setClickListener(findView(R.id.logout), findView(R.id.new_transaction));
+        transactions = findView(R.id.transactions);
+        new_transaction = findView(R.id.new_transaction);
+        setClickListener(findView(R.id.logout), new_transaction, findView(R.id.add_new_cash_account));
     }
     protected void init()
     {
@@ -160,19 +200,35 @@ public class MainFragment
         cash_accounts.setAdapter(cashAccountsAdapter);
         balance_label = getActivity().getResources().getString(R.string.balance_label);
         presenter.update();
+        cash_accounts_container.setVisibility(View.GONE);
+        empty_cash_accounts.setVisibility(View.GONE);
+        empty_transactions.setVisibility(View.GONE);
+        transactions.setVisibility(View.GONE);
+        new_transaction.setVisibility(View.GONE);
+    }
+
+    private void newCashAccount()
+    {
+        AddNewCashAccountDialog.newInstance(new AddNewCashAccountDialog.Listener()
+        {
+            public void newCashAccount(String title)
+            {
+                presenter.add(new CashAccountView(title));
+            }
+        }).show(getFragmentManager(), AddNewCashAccountDialog.class.getName());
     }
 
     private void newTransaction()
     {
-        AddNewTransactionDialog.newInstanse(addNewTransactionListener).show(getFragmentManager(), AddNewTransactionDialog.class.getName());
+        AddNewTransactionDialog.newInstance(addNewTransactionListener).show(getFragmentManager(), AddNewTransactionDialog.class.getName());
     }
-    private void deleteTransaction(final int id)
+    private void deleteTransaction(final Transaction transaction)
     {
         DeleteTransactionConfirmDialog.newInstanse(new DeleteTransactionConfirmDialog.Listener()
         {
             public void confirm()
             {
-                presenter.deleteTransaction(id);
+                presenter.delete(transaction);
             }
         }).show(getFragmentManager(), DeleteTransactionConfirmDialog.class.getName());
     }

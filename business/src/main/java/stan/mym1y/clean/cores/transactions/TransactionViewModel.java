@@ -2,6 +2,7 @@ package stan.mym1y.clean.cores.transactions;
 
 public interface TransactionViewModel
 {
-    long getDate();
-    int getCount();
+    long cashAccountId();
+    long date();
+    int count();
 }

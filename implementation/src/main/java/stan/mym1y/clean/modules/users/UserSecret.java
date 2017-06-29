@@ -14,11 +14,11 @@ public class UserSecret
         password = p;
     }
 
-    public String getLogin()
+    public String login()
     {
         return login;
     }
-    public String getPassword()
+    public String password()
     {
         return password;
     }

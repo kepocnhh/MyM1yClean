@@ -5,26 +5,32 @@ import stan.mym1y.clean.cores.transactions.Transaction;
 public class TransactionData
     implements Transaction
 {
-    private int id;
-    private int count;
-    private long date;
+    private final long id;
+    private final long cashAccountId;
+    private final long date;
+    private final int count;
 
-    public TransactionData(int i, int c, long d)
+    public TransactionData(long i, long cai, long d, int c)
     {
         id = i;
+        cashAccountId = cai;
         count = c;
         date = d;
     }
 
-    public int getId()
+    public long id()
     {
         return id;
     }
-    public long getDate()
+    public long cashAccountId()
+    {
+        return cashAccountId;
+    }
+    public long date()
     {
         return date;
     }
-    public int getCount()
+    public int count()
     {
         return count;
     }

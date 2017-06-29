@@ -25,18 +25,18 @@ public class Transactions
             public Map write(Transaction data)
             {
                 Map map = new HashMap();
-                map.put("id", data.getId());
-                map.put("count", data.getCount());
-                map.put("date", data.getDate());
+                map.put("id", data.id());
+                map.put("cashAccountId", data.cashAccountId());
+                map.put("count", data.count());
+                map.put("date", data.date());
                 return map;
             }
             public Transaction read(Map map)
             {
-                return new TransactionData(
-                        ((Long)map.get("id")).intValue()
-                        ,((Long)map.get("count")).intValue()
-                        ,(Long)map.get("date")
-                );
+                return new TransactionData((Long)map.get("id"),
+                        (Long)map.get("cashAccountId"),
+                        (Long)map.get("date"),
+                        ((Long)map.get("count")).intValue());
             }
         }, path + "/transactionsbox");
     }
@@ -51,28 +51,28 @@ public class Transactions
                 {
                     public int compare(Transaction t1, Transaction t2)
                     {
-                        return t1.getDate() < t2.getDate() ? 1 : t1.getDate() == t2.getDate() ? 0 : -1;
+                        return t1.date() < t2.date() ? 1 : t1.date() == t2.date() ? 0 : -1;
                     }
                 });
             }
-            public Transaction get(final int id)
+            public Transaction get(final long id)
             {
                 List<Transaction> transactions = transactionsBox.get(new Query<Transaction>()
                 {
                     public boolean query(Transaction transaction)
                     {
-                        return transaction.getId() == id;
+                        return transaction.id() == id;
                     }
                 });
                 return transactions.size() > 0 ? transactions.get(0) : null;
             }
-            public void remove(final int id)
+            public void remove(final long id)
             {
                 transactionsBox.removeFirst(new Query<Transaction>()
                 {
                     public boolean query(Transaction transaction)
                     {
-                        return transaction.getId() == id;
+                        return transaction.id() == id;
                     }
                 });
             }

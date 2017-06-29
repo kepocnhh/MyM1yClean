@@ -12,4 +12,7 @@
     <string name="empty_login_error_message">Login is required!</string>
     <string name="password_length_error_message">Password must be at least 6 characters!</string>
     <string name="login_valid_error_message">Login must be an email address!</string>
+    <string name="empty_cash_accounts_text">empty cash accounts</string>
+    <string name="add_new_cash_account_text">add new cash account +</string>
+    <string name="empty_transactions_text">empty transactions</string>
 </resources>

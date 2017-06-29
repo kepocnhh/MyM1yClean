@@ -5,9 +5,9 @@ import stan.mym1y.clean.cores.users.UserPrivateData;
 public class UserData
     implements UserPrivateData
 {
-    private String userId;
-    private String userToken;
-    private String refreshToken;
+    private final String userId;
+    private final String userToken;
+    private final String refreshToken;
 
     public UserData(String id, String token, String rt)
     {
@@ -16,15 +16,15 @@ public class UserData
         refreshToken = rt;
     }
 
-    public String getUserId()
+    public String userId()
     {
         return userId;
     }
-    public String getUserToken()
+    public String userToken()
     {
         return userToken;
     }
-    public String getRefreshToken()
+    public String refreshToken()
     {
         return refreshToken;
     }

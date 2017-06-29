@@ -5,8 +5,8 @@ import stan.mym1y.clean.cores.sync.SyncData;
 public class SynchronizationData
     implements SyncData
 {
-    private long lastSyncTime;
-    private String hash;
+    private final long lastSyncTime;
+    private final String hash;
 
     public SynchronizationData(long lst, String h)
     {
@@ -14,11 +14,11 @@ public class SynchronizationData
         hash = h;
     }
 
-    public long getLastSyncTime()
+    public long lastSyncTime()
     {
         return lastSyncTime;
     }
-    public String getHash()
+    public String hash()
     {
         return hash;
     }

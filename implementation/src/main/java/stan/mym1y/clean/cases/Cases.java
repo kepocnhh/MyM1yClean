@@ -24,9 +24,9 @@ public class Cases
             public Map write(UserPrivateData data)
             {
                 Map map = new HashMap();
-                map.put("userId", data.getUserId());
-                map.put("userToken", data.getUserToken());
-                map.put("refreshToken", data.getRefreshToken());
+                map.put("userId", data.userId());
+                map.put("userToken", data.userToken());
+                map.put("refreshToken", data.refreshToken());
                 return map;
             }
             public UserPrivateData read(Map map)
@@ -39,8 +39,8 @@ public class Cases
             public Map write(SyncData syncData)
             {
                 Map map = new HashMap();
-                map.put("lastSyncTime", syncData.getLastSyncTime());
-                map.put("hash", syncData.getHash());
+                map.put("lastSyncTime", syncData.lastSyncTime());
+                map.put("hash", syncData.hash());
                 return map;
             }
             public SyncData read(Map map)

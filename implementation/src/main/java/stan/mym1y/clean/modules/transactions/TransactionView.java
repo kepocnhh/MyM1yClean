@@ -5,20 +5,26 @@ import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 public class TransactionView
     implements TransactionViewModel
 {
-    private int count;
-    private long date;
+    private final long cashAccountId;
+    private final long date;
+    private final int count;
 
-    public TransactionView(int c, long d)
+    public TransactionView(long cai, long d, int c)
     {
-        count = c;
+        cashAccountId = cai;
         date = d;
+        count = c;
     }
 
-    public long getDate()
+    public long cashAccountId()
+    {
+        return cashAccountId;
+    }
+    public long date()
     {
         return date;
     }
-    public int getCount()
+    public int count()
     {
         return count;
     }
