@@ -4,11 +4,15 @@ import android.app.Dialog;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
+import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.units.dialogs.UtilDialog;
 
 public class AddNewTransactionDialog
@@ -21,15 +25,18 @@ public class AddNewTransactionDialog
         return fragment;
     }
 
+    private RecyclerView cash_accounts;
     private ImageView side;
     private EditText count;
 
     private Listener listener;
+    private CashAccountsAdapter cashAccountsAdapter;
     private boolean positive;
     private Drawable positiveDrawable;
     private Drawable negativeDrawable;
     private int positiveColor;
     private int negativeColor;
+    private long cashAccountId;
 
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
@@ -58,12 +65,26 @@ public class AddNewTransactionDialog
     }
     protected void initViews(View v)
     {
+        cash_accounts = findView(R.id.cash_accounts);
         count = findView(R.id.count);
         side = findView(R.id.side);
         setClickListener(findView(R.id.add), findView(R.id.cancel), side);
     }
     protected void init()
     {
+        LinearLayoutManager cashAccountsLinearLayoutManager = new LinearLayoutManager(getActivity());
+        cashAccountsLinearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        cash_accounts.setLayoutManager(cashAccountsLinearLayoutManager);
+        cashAccountsAdapter = new CashAccountsAdapter(getActivity(), new CashAccountsAdapter.Listener()
+        {
+            public void cashAccount(CashAccount cashAccount)
+            {
+                log("cash account: " + cashAccount.title());
+                cashAccountId = cashAccount.id();
+            }
+        });
+        cash_accounts.setAdapter(cashAccountsAdapter);
+        cashAccountsAdapter.swapData(App.component().dataLocal().cashAccountsAccess().cashAccounts().getAll());//TODO fix hardcode
         positive = true;
         positiveDrawable = getResources().getDrawable(R.mipmap.ic_add_white_24dp);
         negativeDrawable = getResources().getDrawable(R.mipmap.ic_remove_white_24dp);
@@ -94,7 +115,7 @@ public class AddNewTransactionDialog
             {
                 return;
             }
-            listener.newTransaction(positive ? c : -c);
+            listener.newTransaction(cashAccountId, positive ? c : -c);
             dismiss();
         }
         catch(NumberFormatException e)
@@ -105,6 +126,6 @@ public class AddNewTransactionDialog
 
     public interface Listener
     {
-        void newTransaction(int count);
+        void newTransaction(long cashAccountId, int count);
     }
 }

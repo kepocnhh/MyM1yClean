@@ -7,14 +7,16 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.transactions.Transaction;
+import stan.reactive.Tuple;
 
 public class TransactionsAdapter
         extends RecyclerView.Adapter<TransactionHolder>
 {
     private final Context context;
     private final Listener listener;
-    private List<Transaction> data;
+    private List<Tuple<CashAccount, Transaction>> data;
 
     public TransactionsAdapter(Context c, Listener l)
     {
@@ -29,9 +31,9 @@ public class TransactionsAdapter
 
     public void onBindViewHolder(TransactionHolder holder, int position)
     {
-        final Transaction transaction = data.get(position);
-        holder.setCount(transaction.count());
-        holder.setDate(transaction.date());
+        final CashAccount cashAccount = data.get(position).first();
+        final Transaction transaction = data.get(position).second();
+        holder.render(cashAccount, transaction);
         holder.setLongClick(new View.OnLongClickListener()
         {
             public boolean onLongClick(View view)
@@ -50,7 +52,7 @@ public class TransactionsAdapter
         }
         return data.size();
     }
-    public void swapData(List<Transaction> d)
+    public void swapData(List<Tuple<CashAccount, Transaction>> d)
     {
         if(data != null)
         {

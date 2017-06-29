@@ -9,6 +9,7 @@ public interface TransactionsModels
     interface Transactions
     {
         List<Transaction> getAll();
+        List<Transaction> getAllFromCashAccountId(long cashAccountId);
         Transaction get(long id);
         void remove(long id);
         void add(Transaction transaction);

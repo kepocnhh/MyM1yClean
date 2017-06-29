@@ -55,6 +55,22 @@ public class Transactions
                     }
                 });
             }
+            public List<Transaction> getAllFromCashAccountId(final long cashAccountId)
+            {
+                return transactionsBox.get(new Query<Transaction>()
+                {
+                    public boolean query(Transaction transaction)
+                    {
+                        return transaction.cashAccountId() == cashAccountId;
+                    }
+                }, new Comparator<Transaction>()
+                {
+                    public int compare(Transaction t1, Transaction t2)
+                    {
+                        return t1.date() < t2.date() ? 1 : t1.date() == t2.date() ? 0 : -1;
+                    }
+                });
+            }
             public Transaction get(final long id)
             {
                 List<Transaction> transactions = transactionsBox.get(new Query<Transaction>()
@@ -64,7 +80,7 @@ public class Transactions
                         return transaction.id() == id;
                     }
                 });
-                return transactions.size() > 0 ? transactions.get(0) : null;
+                return !transactions.isEmpty() ? transactions.get(0) : null;
             }
             public void remove(final long id)
             {

@@ -10,7 +10,7 @@ import java.util.List;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 
 public class CashAccountsAdapter
-        extends RecyclerView.Adapter<CashAccountHolder>
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 {
     private final Context context;
     private final Listener listener;
@@ -22,11 +22,39 @@ public class CashAccountsAdapter
         listener = l;
     }
 
-    public CashAccountHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        return new CashAccountHolder(context, parent);
+        switch(viewType)
+        {
+            case ViewTypes.ADD_NEW:
+                return new AddNewCashAccountHolder(context, parent);
+            case ViewTypes.NORMAL:
+                return new CashAccountHolder(context, parent);
+        }
+        throw new RuntimeException("view type " + viewType + " not recognized!");
     }
-    public void onBindViewHolder(CashAccountHolder holder, int position)
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position)
+    {
+        if(position == getItemCount()-1)
+        {
+            onBindViewHolder((AddNewCashAccountHolder)holder);
+        }
+        else
+        {
+            onBindViewHolder((CashAccountHolder)holder, position);
+        }
+    }
+    private void onBindViewHolder(AddNewCashAccountHolder holder)
+    {
+        holder.setClick(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                listener.addNewCashAccount();
+            }
+        });
+    }
+    private void onBindViewHolder(CashAccountHolder holder, int position)
     {
         final CashAccount cashAccount = data.get(position);
         holder.render(cashAccount);
@@ -52,7 +80,18 @@ public class CashAccountsAdapter
         {
             return 0;
         }
-        return data.size();
+        return data.size() + 1;
+    }
+    public int getItemViewType(int position)
+    {
+        if(position == getItemCount()-1)
+        {
+            return ViewTypes.ADD_NEW;
+        }
+        else
+        {
+            return ViewTypes.NORMAL;
+        }
     }
     public void swapData(List<CashAccount> d)
     {
@@ -61,6 +100,12 @@ public class CashAccountsAdapter
             data.clear();
         }
         data = d;
+    }
+
+    private interface ViewTypes
+    {
+        int ADD_NEW = 1;
+        int NORMAL = 2;
     }
 
     public interface Listener

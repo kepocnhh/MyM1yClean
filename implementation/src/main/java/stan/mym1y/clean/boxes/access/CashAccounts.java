@@ -59,6 +59,10 @@ public class CashAccounts
             {
                 cashAccountsBox.add(cashAccount);
             }
+            public void clear()
+            {
+                cashAccountsBox.clear();
+            }
         };
     }
 }

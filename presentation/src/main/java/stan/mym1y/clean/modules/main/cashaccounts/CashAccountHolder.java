@@ -12,13 +12,13 @@ import stan.mym1y.clean.units.adapters.Holder;
 class CashAccountHolder
         extends Holder
 {
-    private final TextView id;
+//    private final TextView id;
     private final TextView title;
 
     CashAccountHolder(Context context, ViewGroup parent)
     {
         super(context, parent, R.layout.cashaccount_list_item);
-        id = view(R.id.id);
+//        id = view(R.id.id);
         title = view(R.id.title);
     }
 
@@ -32,7 +32,7 @@ class CashAccountHolder
     }
     void render(CashAccount cashAccount)
     {
-        id.setText(""+cashAccount.id());
+//        id.setText(""+cashAccount.id());
         title.setText(""+cashAccount.title());
     }
 }

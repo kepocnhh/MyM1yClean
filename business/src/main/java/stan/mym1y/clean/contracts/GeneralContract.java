@@ -9,7 +9,7 @@ public interface GeneralContract
         UserPrivateData getUserPrivateData() throws UserNotAuthorizedException;
         void login(UserPrivateData data);
         void logout();
-        void clearTransactions();
+        void clearAll();
     }
     interface View
     {

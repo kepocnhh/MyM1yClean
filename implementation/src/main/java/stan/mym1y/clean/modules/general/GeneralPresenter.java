@@ -53,7 +53,7 @@ class GeneralPresenter
             public void run()
             {
                 model().logout();
-                model().clearTransactions();
+                model().clearAll();
                 router().toAuth();
             }
         });

@@ -62,7 +62,9 @@ public class GeneralActivity
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
         setStatusBarColor(getResources().getColor(R.color.white));
-        presenter = new GeneralPresenter(view, new GeneralModel(App.component().dataLocal().transactionsAccess().transactions(), App.component().settings()), router);
+        presenter = new GeneralPresenter(view, new GeneralModel(App.component().dataLocal().cashAccountsAccess().cashAccounts(),
+                App.component().dataLocal().transactionsAccess().transactions(),
+                App.component().settings()), router);
         presenter.checkAuth();
     }
 }

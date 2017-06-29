@@ -8,13 +8,25 @@
         android:layout_width="@dimen/dialog_width_small"
         android:layout_height="match_parent">
         <TextView
+            android:text="Set cash account"
+            android:textSize="14dp"
+            android:textColor="@color/black"
+            android:gravity="center_vertical"
+            android:paddingLeft="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"/>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/cash_accounts"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/container_size_large"/>
+        <TextView
             android:text="Enter count"
             android:textSize="14dp"
             android:textColor="@color/black"
             android:gravity="center_vertical"
             android:paddingLeft="12dp"
             android:layout_width="match_parent"
-            android:layout_height="48dp"/>
+            android:layout_height="36dp"/>
         <LinearLayout
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
@@ -28,20 +40,34 @@
                 android:layout_gravity="center_vertical|right"
                 android:layout_width="48dp"
                 android:layout_height="48dp"/>
-            <EditText
+            <!--<EditText-->
+                <!--android:id="@+id/count"-->
+                <!--android:inputType="number"-->
+                <!--android:lines="1"-->
+                <!--android:maxLines="1"-->
+                <!--android:maxLength="10"-->
+                <!--android:textSize="16dp"-->
+                <!--android:textCursorDrawable="@drawable/edit_cursor_primary"-->
+                <!--android:background="@drawable/edit_primary"-->
+                <!--android:textColor="@color/colorPrimary"-->
+                <!--android:paddingLeft="12dp"-->
+                <!--android:layout_marginRight="12dp"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"/>-->
+            <stan.mym1y.clean.units.views.LostFocusEditText
                 android:id="@+id/count"
-                android:inputType="number"
                 android:lines="1"
+                android:inputType="number"
                 android:maxLines="1"
                 android:maxLength="10"
-                android:textSize="16dp"
-                android:textCursorDrawable="@drawable/edit_cursor_primary"
-                android:background="@drawable/edit_primary"
-                android:textColor="@color/colorPrimary"
+                android:textSize="@dimen/text_size_big"
+                android:textCursorDrawable="@drawable/edit_cursor_black"
+                android:background="@drawable/edit_bottom_black"
+                android:textColor="@color/black"
                 android:paddingLeft="12dp"
                 android:layout_marginRight="12dp"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="@dimen/container_size_less"/>
         </LinearLayout>
         <LinearLayout
             android:gravity="right"

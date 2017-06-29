@@ -8,12 +8,15 @@ import android.widget.TextView;
 import java.util.Date;
 
 import stan.mym1y.clean.R;
+import stan.mym1y.clean.cores.cashaccounts.CashAccount;
+import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.units.adapters.Holder;
 
 class TransactionHolder
     extends Holder
 {
     private final TextView count;
+    private final TextView cash_account;
     private final TextView date;
 
     private final int positiveColor;
@@ -23,6 +26,7 @@ class TransactionHolder
     {
         super(context, parent, R.layout.transaction_list_item);
         count = view(R.id.count);
+        cash_account = view(R.id.cash_account);
         date = view(R.id.date);
         positiveColor = context.getResources().getColor(R.color.green);
         negativeColor = context.getResources().getColor(R.color.red);
@@ -32,23 +36,21 @@ class TransactionHolder
     {
         itemView.setOnLongClickListener(listener);
     }
-    void setCount(int c)
+    void render(CashAccount cashAccount, Transaction transaction)
     {
-        if(c < 0)
+        if(transaction.count() < 0)
         {
-            count.setText(String.valueOf(c));
+            count.setText(String.valueOf(transaction.count()));
             count.setTextColor(negativeColor);
         }
         else
         {
-            count.setText("+" + c);
+            count.setText("+" + transaction.count());
             count.setTextColor(positiveColor);
         }
-    }
-    void setDate(long d)
-    {
-        Date dt = new Date(d);
+        Date dt = new Date(transaction.date());
         date.setText(proxy((dt.getYear()-100)) + "." + proxy((dt.getMonth()+1)) + "." + proxy(dt.getDate()) + " " + proxy(dt.getHours()) + ":" + proxy(dt.getMinutes()) + ":" + proxy(dt.getSeconds()));
+        cash_account.setText(cashAccount.title());
     }
     private String proxy(int num)
     {

@@ -3,16 +3,19 @@ package stan.mym1y.clean.modules.general;
 import stan.mym1y.clean.components.Settings;
 import stan.mym1y.clean.contracts.GeneralContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
+import stan.mym1y.clean.data.local.models.CashAccountsModels;
 import stan.mym1y.clean.data.local.models.TransactionsModels;
 
 class GeneralModel
     implements GeneralContract.Model
 {
-    private TransactionsModels.Transactions transactions;
-    private Settings settings;
+    private final CashAccountsModels.CashAccounts cashAccounts;
+    private final TransactionsModels.Transactions transactions;
+    private final Settings settings;
 
-    GeneralModel(TransactionsModels.Transactions t, Settings sttngs)
+    GeneralModel(CashAccountsModels.CashAccounts ca, TransactionsModels.Transactions t, Settings sttngs)
     {
+        cashAccounts = ca;
         transactions = t;
         settings = sttngs;
     }
@@ -38,8 +41,9 @@ class GeneralModel
     {
         settings.logout();
     }
-    public void clearTransactions()
+    public void clearAll()
     {
         transactions.clear();
+        cashAccounts.clear();
     }
 }

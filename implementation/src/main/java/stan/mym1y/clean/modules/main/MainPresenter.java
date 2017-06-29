@@ -9,7 +9,10 @@ import stan.mym1y.clean.cores.cashaccounts.CashAccountViewModel;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.units.mvp.ModelPresenter;
+import stan.reactive.Scheduler;
+import stan.reactive.Tuple;
 import stan.reactive.notify.NotifyObserver;
+import stan.reactive.single.SingleObserver;
 
 class MainPresenter
     extends ModelPresenter<MainContract.View, MainContract.Model>
@@ -97,25 +100,29 @@ class MainPresenter
 
     public void add(final CashAccountViewModel cashAccount)
     {
-        onNewThread(new Runnable()
-        {
-            public void run()
-            {
-                model().add(cashAccount);
-                updateAll();
-            }
-        });
+        model().add(cashAccount)
+               .subscribeOn(Scheduler.NEW)
+               .observeOn(Scheduler.NEW)
+               .subscribe(new SingleObserver.Just<CashAccount>()
+               {
+                   public void success(CashAccount cashAccount)
+                   {
+                       updateCashAccount(cashAccount.id());
+                   }
+               });
     }
     public void add(final TransactionViewModel transaction)
     {
-        onNewThread(new Runnable()
-        {
-            public void run()
-            {
-                model().add(transaction);
-                updateAll();
-            }
-        });
+        model().add(transaction)
+               .subscribeOn(Scheduler.NEW)
+               .observeOn(Scheduler.NEW)
+               .subscribe(new SingleObserver.Just<Transaction>()
+               {
+                   public void success(Transaction transaction)
+                   {
+                       updateCashAccount(transaction.cashAccountId());
+                   }
+               });
     }
 
     public void delete(final Transaction transaction)
@@ -133,7 +140,7 @@ class MainPresenter
     private void updateLocal()
     {
         List<CashAccount> cashAccounts = model().getAllCashAccounts();
-        List<Transaction> transactions = model().getAllTransactions();
+        List<Tuple<CashAccount, Transaction>> transactions = model().getAllTransactions();
         if(cashAccounts.isEmpty())
         {
             view().emptyCashAccounts();
@@ -148,6 +155,22 @@ class MainPresenter
         }
         view().update(model().getBalance());
     }
+    private void updateCashAccount(final long cashAccountId)
+    {
+        together(new Runnable()
+        {
+            public void run()
+            {
+                updateLocal();
+            }
+        }, new Runnable()
+        {
+            public void run()
+            {
+                model().sendUpdatingsCashAccount(cashAccountId).subscribe(sendUpdatingsObserver);
+            }
+        });
+    }
     private void updateAll()
     {
         together(new Runnable()
@@ -160,7 +183,7 @@ class MainPresenter
         {
             public void run()
             {
-                model().sendUpdatings().subscribe(sendUpdatingsObserver);
+                model().sendAllUpdatings().subscribe(sendUpdatingsObserver);
             }
         });
     }

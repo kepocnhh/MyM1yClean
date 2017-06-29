@@ -21,6 +21,7 @@ import stan.mym1y.clean.modules.transactions.AddNewTransactionDialog;
 import stan.mym1y.clean.modules.transactions.DeleteTransactionConfirmDialog;
 import stan.mym1y.clean.modules.transactions.TransactionView;
 import stan.mym1y.clean.units.fragments.UtilFragment;
+import stan.reactive.Tuple;
 
 public class MainFragment
         extends UtilFragment
@@ -78,7 +79,7 @@ public class MainFragment
                 }
             });
         }
-        public void update(final List<CashAccount> cas, final List<Transaction> ts)
+        public void update(final List<CashAccount> cas, final List<Tuple<CashAccount, Transaction>> ts)
         {
             runOnUiThread(new Runnable()
             {
@@ -144,9 +145,9 @@ public class MainFragment
 
     private final AddNewTransactionDialog.Listener addNewTransactionListener = new AddNewTransactionDialog.Listener()
     {
-        public void newTransaction(int count)
+        public void newTransaction(long cashAccountId, int count)
         {
-            presenter.add(new TransactionView(-1, System.currentTimeMillis(), count));//TODO create cash account system
+            presenter.add(new TransactionView(cashAccountId, System.currentTimeMillis(), count));
         }
     };
 
@@ -199,12 +200,12 @@ public class MainFragment
         cashAccountsAdapter = new CashAccountsAdapter(getActivity(), cashAccountsAdapterListener);
         cash_accounts.setAdapter(cashAccountsAdapter);
         balance_label = getActivity().getResources().getString(R.string.balance_label);
-        presenter.update();
         cash_accounts_container.setVisibility(View.GONE);
         empty_cash_accounts.setVisibility(View.GONE);
         empty_transactions.setVisibility(View.GONE);
         transactions.setVisibility(View.GONE);
         new_transaction.setVisibility(View.GONE);
+        presenter.update();
     }
 
     private void newCashAccount()

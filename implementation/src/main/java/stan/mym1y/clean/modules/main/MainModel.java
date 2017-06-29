@@ -1,5 +1,6 @@
 package stan.mym1y.clean.modules.main;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import stan.mym1y.clean.components.JsonConverter;
@@ -9,6 +10,7 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.cashaccounts.CashAccountViewModel;
+import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
@@ -18,10 +20,14 @@ import stan.mym1y.clean.data.local.models.TransactionsModels;
 import stan.mym1y.clean.data.remote.apis.AuthApi;
 import stan.mym1y.clean.data.remote.apis.DataApi;
 import stan.mym1y.clean.modules.cashaccounts.CashAccountData;
+import stan.mym1y.clean.modules.network.requests.CashAccountRequestData;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.transactions.TransactionData;
+import stan.reactive.Tuple;
+import stan.reactive.functions.Apply;
 import stan.reactive.notify.NotifyObservable;
 import stan.reactive.notify.NotifyObserver;
+import stan.reactive.single.SingleObservable;
 import stan.reactive.single.SingleObserver;
 
 class MainModel
@@ -46,10 +52,38 @@ class MainModel
         dataApi = d;
     }
 
-    public List<Transaction> getAllTransactions()
+    public List<Tuple<CashAccount, Transaction>> getAllTransactions()
     {
-        return transactions.getAll();
+        List<Transaction> ts = transactions.getAll();
+        List<Tuple<CashAccount, Transaction>> list = new ArrayList<>(ts.size());
+        for(Transaction transaction: ts)
+        {
+            list.add(new FullTransaction(cashAccounts.get(transaction.cashAccountId()), transaction));
+        }
+        return list;
     }
+    private class FullTransaction
+        implements Tuple<CashAccount, Transaction>
+    {
+        private final CashAccount cashAccount;
+        private final Transaction transaction;
+
+        FullTransaction(CashAccount cashAccount, Transaction transaction)
+        {
+            this.cashAccount = cashAccount;
+            this.transaction = transaction;
+        }
+
+        public CashAccount first()
+        {
+            return cashAccount;
+        }
+        public Transaction second()
+        {
+            return transaction;
+        }
+    }
+
     public List<CashAccount> getAllCashAccounts()
     {
         return cashAccounts.getAll();
@@ -67,12 +101,17 @@ class MainModel
                     {
                         if(data.lastSyncTime() > settings.getSyncData().lastSyncTime())
                         {
-                            dataApi.getTransactions(settings.getUserPrivateData()).subscribe(new SingleObserver<List<Transaction>>()
+                            dataApi.getTransactions(settings.getUserPrivateData()).subscribe(new SingleObserver<List<CashAccountRequest>>()
                             {
-                                public void success(List<Transaction> ts)
+                                public void success(List<CashAccountRequest> cashAccountRequests)
                                 {
+                                    cashAccounts.clear();
                                     transactions.clear();
-                                    transactions.addAll(ts);
+                                    for(CashAccountRequest cashAccountRequest: cashAccountRequests)
+                                    {
+                                        cashAccounts.add(cashAccountRequest.cashAccount());
+                                        transactions.addAll(cashAccountRequest.transactions());
+                                    }
                                     o.notice();
                                 }
                                 public void error(Throwable t)
@@ -87,7 +126,7 @@ class MainModel
                         }
                         else
                         {
-                            dataApi.putTransactions(settings.getUserPrivateData(), transactions.getAll()).subscribe(new NotifyObserver()
+                            dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
                             {
                                 public void notice()
                                 {
@@ -115,12 +154,17 @@ class MainModel
                                         {
                                             if(data.lastSyncTime() > settings.getSyncData().lastSyncTime())
                                             {
-                                                dataApi.getTransactions(settings.getUserPrivateData()).subscribe(new SingleObserver<List<Transaction>>()
+                                                dataApi.getTransactions(settings.getUserPrivateData()).subscribe(new SingleObserver<List<CashAccountRequest>>()
                                                 {
-                                                    public void success(List<Transaction> ts)
+                                                    public void success(List<CashAccountRequest> cashAccountRequests)
                                                     {
+                                                        cashAccounts.clear();
                                                         transactions.clear();
-                                                        transactions.addAll(ts);
+                                                        for(CashAccountRequest cashAccountRequest: cashAccountRequests)
+                                                        {
+                                                            cashAccounts.add(cashAccountRequest.cashAccount());
+                                                            transactions.addAll(cashAccountRequest.transactions());
+                                                        }
                                                         o.notice();
                                                     }
                                                     public void error(Throwable t)
@@ -135,7 +179,7 @@ class MainModel
                                             }
                                             else
                                             {
-                                                dataApi.putTransactions(settings.getUserPrivateData(), transactions.getAll()).subscribe(new NotifyObserver()
+                                                dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
                                                 {
                                                     public void notice()
                                                     {
@@ -169,13 +213,13 @@ class MainModel
             }
         };
     }
-    public NotifyObservable sendUpdatings()
+    public NotifyObservable sendAllUpdatings()
     {
         return new NotifyObservable()
         {
             public void subscribe(final NotifyObserver o)
             {
-                dataApi.putTransactions(settings.getUserPrivateData(), transactions.getAll()).chain(new NotifyObserver()
+                dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).chain(new NotifyObserver()
                 {
                     public void notice()
                     {
@@ -190,7 +234,7 @@ class MainModel
                                 public void success(UserPrivateData data)
                                 {
                                     settings.login(data);
-                                    dataApi.putTransactions(settings.getUserPrivateData(), transactions.getAll()).subscribe(new NotifyObserver()
+                                    dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
                                     {
                                         public void notice()
                                         {
@@ -217,6 +261,67 @@ class MainModel
             }
         };
     }
+    public NotifyObservable sendUpdatingsCashAccount(final long cashAccountId)
+    {
+        return new NotifyObservable()
+        {
+            public void subscribe(final NotifyObserver o)
+            {
+                dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId))).chain(new NotifyObserver()
+                {
+                    public void notice()
+                    {
+                    }
+                    public void error(Throwable t)
+                    {
+                        if(t instanceof ErrorsContract.UnauthorizedException)
+                        {
+                            final NotifyObserver notifyObserver = this;
+                            authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()).subscribe(new SingleObserver<UserPrivateData>()
+                            {
+                                public void success(UserPrivateData data)
+                                {
+                                    settings.login(data);
+                                    dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId))).subscribe(new NotifyObserver()
+                                    {
+                                        public void notice()
+                                        {
+                                            notifyObserver.notice();
+                                        }
+                                        public void error(Throwable t)
+                                        {
+                                            o.error(t);
+                                        }
+                                    });
+                                }
+                                public void error(Throwable t)
+                                {
+                                    o.error(t);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            o.error(t);
+                        }
+                    }
+                }, dataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData())).subscribe(o);
+            }
+        };
+    }
+    private CashAccountRequest getCashAccountRequest(CashAccount cashAccount)
+    {
+        return new CashAccountRequestData(cashAccount, transactions.getAllFromCashAccountId(cashAccount.id()));
+    }
+    private List<CashAccountRequest> getCashAccountRequests()
+    {
+        List<CashAccountRequest> list = new ArrayList<>();
+        for(CashAccount cashAccount: cashAccounts.getAll())
+        {
+            list.add(getCashAccountRequest(cashAccount));
+        }
+        return list;
+    }
     public int getBalance()
     {
         int b = 0;
@@ -232,15 +337,31 @@ class MainModel
         updateSyncData();
     }
 
-    public void add(CashAccountViewModel cashAccount)
+    public SingleObservable<CashAccount> add(final CashAccountViewModel cashAccount)
     {
-        cashAccounts.add(new CashAccountData(security.newUniqueId(), cashAccount.title()));
-        updateSyncData();
+        return SingleObservable.create(new Apply<CashAccount>()
+        {
+            public CashAccount apply()
+            {
+                long id = security.newUniqueId();
+                cashAccounts.add(new CashAccountData(id, cashAccount.title()));
+                updateSyncData();
+                return cashAccounts.get(id);
+            }
+        });
     }
-    public void add(TransactionViewModel transaction)
+    public SingleObservable<Transaction> add(final TransactionViewModel transaction)
     {
-        transactions.add(new TransactionData(security.newUniqueId(), transaction.cashAccountId(), transaction.date(), transaction.count()));
-        updateSyncData();
+        return SingleObservable.create(new Apply<Transaction>()
+        {
+            public Transaction apply()
+            {
+                long id = security.newUniqueId();
+                transactions.add(new TransactionData(id, transaction.cashAccountId(), transaction.date(), transaction.count()));
+                updateSyncData();
+                return transactions.get(id);
+            }
+        });
     }
     public void sync()
     {
