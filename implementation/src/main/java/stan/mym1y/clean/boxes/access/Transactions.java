@@ -92,6 +92,16 @@ public class Transactions
                     }
                 });
             }
+            public void removeAllFromCashAccountId(final long cashAccountId)
+            {
+                transactionsBox.removeAll(new Query<Transaction>()
+                {
+                    public boolean query(Transaction transaction)
+                    {
+                        return transaction.cashAccountId() == cashAccountId;
+                    }
+                });
+            }
             public void add(Transaction transaction)
             {
                 transactionsBox.add(transaction);

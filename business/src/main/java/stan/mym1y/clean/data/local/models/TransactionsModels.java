@@ -12,6 +12,7 @@ public interface TransactionsModels
         List<Transaction> getAllFromCashAccountId(long cashAccountId);
         Transaction get(long id);
         void remove(long id);
+        void removeAllFromCashAccountId(long cashAccountId);
         void add(Transaction transaction);
         void addAll(List<Transaction> transactions);
         void clear();

@@ -15,6 +15,7 @@ import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.modules.cashaccounts.AddNewCashAccountDialog;
 import stan.mym1y.clean.modules.cashaccounts.CashAccountView;
+import stan.mym1y.clean.modules.cashaccounts.DeleteCashAccountConfirmDialog;
 import stan.mym1y.clean.modules.main.cashaccounts.CashAccountsAdapter;
 import stan.mym1y.clean.modules.main.transactions.TransactionsAdapter;
 import stan.mym1y.clean.modules.transactions.AddNewTransactionDialog;
@@ -63,7 +64,7 @@ public class MainFragment
                 }
             });
         }
-        public void emptyTransactions(final List<CashAccount> cashAccounts)
+        public void emptyTransactions(final List<Tuple<CashAccount, CashAccount.Extra>> cashAccounts)
         {
             runOnUiThread(new Runnable()
             {
@@ -79,7 +80,7 @@ public class MainFragment
                 }
             });
         }
-        public void update(final List<CashAccount> cas, final List<Tuple<CashAccount, Transaction>> ts)
+        public void update(final List<Tuple<CashAccount, CashAccount.Extra>> cas, final List<Tuple<Transaction, Transaction.Extra>> ts)
         {
             runOnUiThread(new Runnable()
             {
@@ -113,6 +114,7 @@ public class MainFragment
     {
         public void delete(CashAccount cashAccount)
         {
+            deleteCashAccount(cashAccount);
         }
         public void cashAccount(CashAccount cashAccount)
         {
@@ -218,6 +220,16 @@ public class MainFragment
             }
         }).show(getFragmentManager(), AddNewCashAccountDialog.class.getName());
     }
+    private void deleteCashAccount(final CashAccount cashAccount)
+    {
+        DeleteCashAccountConfirmDialog.newInstance(new DeleteCashAccountConfirmDialog.Listener()
+        {
+            public void confirm()
+            {
+                presenter.delete(cashAccount);
+            }
+        }).show(getFragmentManager(), DeleteCashAccountConfirmDialog.class.getName());
+    }
 
     private void newTransaction()
     {
@@ -225,7 +237,7 @@ public class MainFragment
     }
     private void deleteTransaction(final Transaction transaction)
     {
-        DeleteTransactionConfirmDialog.newInstanse(new DeleteTransactionConfirmDialog.Listener()
+        DeleteTransactionConfirmDialog.newInstance(new DeleteTransactionConfirmDialog.Listener()
         {
             public void confirm()
             {

@@ -14,12 +14,13 @@ public interface MainContract
 {
     interface Model
     {
-        List<Tuple<CashAccount, Transaction>> getAllTransactions();
-        List<CashAccount> getAllCashAccounts();
+        List<Tuple<Transaction, Transaction.Extra>> getAllTransactions();
+        List<Tuple<CashAccount, CashAccount.Extra>> getAllCashAccounts();
         NotifyObservable updateAll();
         NotifyObservable sendAllUpdatings();
         NotifyObservable sendUpdatingsCashAccount(long cashAccountId);
         int getBalance();
+        void delete(CashAccount cashAccount);
         void delete(Transaction transaction);
         SingleObservable<CashAccount> add(CashAccountViewModel cashAccount);
         SingleObservable<Transaction> add(TransactionViewModel transaction);
@@ -31,8 +32,8 @@ public interface MainContract
         void error(ErrorsContract.UnauthorizedException e);
         void error();
         void emptyCashAccounts();
-        void emptyTransactions(List<CashAccount> cashAccounts);
-        void update(List<CashAccount> cashAccounts, List<Tuple<CashAccount, Transaction>> transactions);
+        void emptyTransactions(List<Tuple<CashAccount, CashAccount.Extra>> cashAccounts);
+        void update(List<Tuple<CashAccount, CashAccount.Extra>> cashAccounts, List<Tuple<Transaction, Transaction.Extra>> transactions);
         void update(int balance);
     }
     interface Presenter
@@ -40,6 +41,7 @@ public interface MainContract
         void update();
         void add(CashAccountViewModel cashAccount);
         void add(TransactionViewModel transaction);
+        void delete(CashAccount cashAccount);
         void delete(Transaction transaction);
     }
 

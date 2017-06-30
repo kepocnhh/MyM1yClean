@@ -8,7 +8,6 @@ import android.widget.TextView;
 import java.util.Date;
 
 import stan.mym1y.clean.R;
-import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.units.adapters.Holder;
 
@@ -36,7 +35,7 @@ class TransactionHolder
     {
         itemView.setOnLongClickListener(listener);
     }
-    void render(CashAccount cashAccount, Transaction transaction)
+    void render(Transaction transaction, Transaction.Extra extra)
     {
         if(transaction.count() < 0)
         {
@@ -50,7 +49,7 @@ class TransactionHolder
         }
         Date dt = new Date(transaction.date());
         date.setText(proxy((dt.getYear()-100)) + "." + proxy((dt.getMonth()+1)) + "." + proxy(dt.getDate()) + " " + proxy(dt.getHours()) + ":" + proxy(dt.getMinutes()) + ":" + proxy(dt.getSeconds()));
-        cash_account.setText(cashAccount.title());
+        cash_account.setText(extra.cashAccountTitle());
     }
     private String proxy(int num)
     {

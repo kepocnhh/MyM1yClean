@@ -55,6 +55,16 @@ public class CashAccounts
                 });
                 return !transactions.isEmpty() ? transactions.get(0) : null;
             }
+            public void remove(final long id)
+            {
+                cashAccountsBox.removeFirst(new Query<CashAccount>()
+                {
+                    public boolean query(CashAccount cashAccount)
+                    {
+                        return cashAccount.id() == id;
+                    }
+                });
+            }
             public void add(CashAccount cashAccount)
             {
                 cashAccountsBox.add(cashAccount);

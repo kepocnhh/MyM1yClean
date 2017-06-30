@@ -20,9 +20,11 @@ import stan.mym1y.clean.data.local.models.TransactionsModels;
 import stan.mym1y.clean.data.remote.apis.AuthApi;
 import stan.mym1y.clean.data.remote.apis.DataApi;
 import stan.mym1y.clean.modules.cashaccounts.CashAccountData;
+import stan.mym1y.clean.modules.cashaccounts.CashAccountExtra;
 import stan.mym1y.clean.modules.network.requests.CashAccountRequestData;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.transactions.TransactionData;
+import stan.mym1y.clean.modules.transactions.TransactionExtra;
 import stan.reactive.Tuple;
 import stan.reactive.functions.Apply;
 import stan.reactive.notify.NotifyObservable;
@@ -52,41 +54,73 @@ class MainModel
         dataApi = d;
     }
 
-    public List<Tuple<CashAccount, Transaction>> getAllTransactions()
+    public List<Tuple<Transaction, Transaction.Extra>> getAllTransactions()
     {
         List<Transaction> ts = transactions.getAll();
-        List<Tuple<CashAccount, Transaction>> list = new ArrayList<>(ts.size());
+        List<Tuple<Transaction, Transaction.Extra>> list = new ArrayList<>(ts.size());
         for(Transaction transaction: ts)
         {
-            list.add(new FullTransaction(cashAccounts.get(transaction.cashAccountId()), transaction));
+            list.add(new FullTransaction(transaction, new TransactionExtra(cashAccounts.get(transaction.cashAccountId()).title())));
         }
         return list;
     }
     private class FullTransaction
-        implements Tuple<CashAccount, Transaction>
+        implements Tuple<Transaction, Transaction.Extra>
     {
-        private final CashAccount cashAccount;
-        private final Transaction transaction;
+        private final Transaction first;
+        private final Transaction.Extra second;
 
-        FullTransaction(CashAccount cashAccount, Transaction transaction)
+        FullTransaction(Transaction f, Transaction.Extra s)
         {
-            this.cashAccount = cashAccount;
-            this.transaction = transaction;
+            first = f;
+            second = s;
+        }
+
+        public Transaction first()
+        {
+            return first;
+        }
+        public Transaction.Extra second()
+        {
+            return second;
+        }
+    }
+
+    public List<Tuple<CashAccount, CashAccount.Extra>> getAllCashAccounts()
+    {
+        List<CashAccount> cs = cashAccounts.getAll();
+        List<Tuple<CashAccount, CashAccount.Extra>> list = new ArrayList<>(cs.size());
+        for(CashAccount cashAccount: cs)
+        {
+            int balance = 0;
+            for(Transaction t : transactions.getAllFromCashAccountId(cashAccount.id()))
+            {
+                balance += t.count();
+            }
+            list.add(new FullCashAccount(cashAccount, new CashAccountExtra(balance)));
+        }
+        return list;
+    }
+    private class FullCashAccount
+            implements Tuple<CashAccount, CashAccount.Extra>
+    {
+        private final CashAccount first;
+        private final CashAccount.Extra second;
+
+        FullCashAccount(CashAccount f, CashAccount.Extra s)
+        {
+            first = f;
+            second = s;
         }
 
         public CashAccount first()
         {
-            return cashAccount;
+            return first;
         }
-        public Transaction second()
+        public CashAccount.Extra second()
         {
-            return transaction;
+            return second;
         }
-    }
-
-    public List<CashAccount> getAllCashAccounts()
-    {
-        return cashAccounts.getAll();
     }
 
     public NotifyObservable updateAll()
@@ -330,6 +364,12 @@ class MainModel
             b += t.count();
         }
         return b;
+    }
+    public void delete(CashAccount cashAccount)
+    {
+        cashAccounts.remove(cashAccount.id());
+        transactions.removeAllFromCashAccountId(cashAccount.id());
+        updateSyncData();
     }
     public void delete(Transaction transaction)
     {

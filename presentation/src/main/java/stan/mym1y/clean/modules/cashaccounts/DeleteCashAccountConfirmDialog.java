@@ -1,4 +1,4 @@
-package stan.mym1y.clean.modules.transactions;
+package stan.mym1y.clean.modules.cashaccounts;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -7,12 +7,12 @@ import android.view.View;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.units.dialogs.UtilDialog;
 
-public class DeleteTransactionConfirmDialog
+public class DeleteCashAccountConfirmDialog
         extends UtilDialog
 {
     static public UtilDialog newInstance(Listener l)
     {
-        DeleteTransactionConfirmDialog fragment = new DeleteTransactionConfirmDialog();
+        DeleteCashAccountConfirmDialog fragment = new DeleteCashAccountConfirmDialog();
         fragment.listener = l;
         return fragment;
     }
@@ -39,7 +39,7 @@ public class DeleteTransactionConfirmDialog
     }
     protected int getContentView()
     {
-        return R.layout.delete_transaction_confirm_dialog;
+        return R.layout.delete_cashaccount_confirm_dialog;
     }
     protected void initViews(View v)
     {

@@ -124,7 +124,17 @@ class MainPresenter
                    }
                });
     }
-
+    public void delete(final CashAccount cashAccount)
+    {
+        onNewThread(new Runnable()
+        {
+            public void run()
+            {
+                model().delete(cashAccount);
+                updateAll();
+            }
+        });
+    }
     public void delete(final Transaction transaction)
     {
         onNewThread(new Runnable()
@@ -139,8 +149,8 @@ class MainPresenter
 
     private void updateLocal()
     {
-        List<CashAccount> cashAccounts = model().getAllCashAccounts();
-        List<Tuple<CashAccount, Transaction>> transactions = model().getAllTransactions();
+        List<Tuple<CashAccount, CashAccount.Extra>> cashAccounts = model().getAllCashAccounts();
+        List<Tuple<Transaction, Transaction.Extra>> transactions = model().getAllTransactions();
         if(cashAccounts.isEmpty())
         {
             view().emptyCashAccounts();

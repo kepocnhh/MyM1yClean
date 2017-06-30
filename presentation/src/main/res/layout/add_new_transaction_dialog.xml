@@ -9,26 +9,27 @@
         android:layout_height="match_parent">
         <TextView
             android:text="Set cash account"
-            android:textSize="14dp"
+            android:textSize="@dimen/text_size_medium"
             android:textColor="@color/black"
             android:gravity="center_vertical"
             android:paddingLeft="12dp"
+            android:layout_marginTop="12dp"
             android:layout_width="match_parent"
-            android:layout_height="36dp"/>
+            android:layout_height="28dp"/>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/cash_accounts"
             android:layout_width="match_parent"
             android:layout_height="@dimen/container_size_large"/>
         <TextView
             android:text="Enter count"
-            android:textSize="14dp"
+            android:textSize="@dimen/text_size_medium"
             android:textColor="@color/black"
             android:gravity="center_vertical"
+            android:layout_marginTop="12dp"
             android:paddingLeft="12dp"
             android:layout_width="match_parent"
-            android:layout_height="36dp"/>
+            android:layout_height="28dp"/>
         <LinearLayout
-            android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:layout_width="match_parent"
             android:layout_height="48dp">

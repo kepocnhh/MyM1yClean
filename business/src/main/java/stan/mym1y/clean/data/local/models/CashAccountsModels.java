@@ -10,6 +10,7 @@ public interface CashAccountsModels
     {
         List<CashAccount> getAll();
         CashAccount get(long id);
+        void remove(long id);
         void add(CashAccount cashAccount);
         void clear();
     }

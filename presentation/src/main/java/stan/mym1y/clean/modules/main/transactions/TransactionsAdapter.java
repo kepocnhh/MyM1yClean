@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.reactive.Tuple;
 
@@ -16,7 +15,7 @@ public class TransactionsAdapter
 {
     private final Context context;
     private final Listener listener;
-    private List<Tuple<CashAccount, Transaction>> data;
+    private List<Tuple<Transaction, Transaction.Extra>> data;
 
     public TransactionsAdapter(Context c, Listener l)
     {
@@ -31,9 +30,9 @@ public class TransactionsAdapter
 
     public void onBindViewHolder(TransactionHolder holder, int position)
     {
-        final CashAccount cashAccount = data.get(position).first();
-        final Transaction transaction = data.get(position).second();
-        holder.render(cashAccount, transaction);
+        final Transaction transaction = data.get(position).first();
+        final Transaction.Extra extra = data.get(position).second();
+        holder.render(transaction, extra);
         holder.setLongClick(new View.OnLongClickListener()
         {
             public boolean onLongClick(View view)
@@ -52,7 +51,7 @@ public class TransactionsAdapter
         }
         return data.size();
     }
-    public void swapData(List<Tuple<CashAccount, Transaction>> d)
+    public void swapData(List<Tuple<Transaction, Transaction.Extra>> d)
     {
         if(data != null)
         {

@@ -8,13 +8,14 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
+import stan.reactive.Tuple;
 
 public class CashAccountsAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 {
     private final Context context;
     private final Listener listener;
-    private List<CashAccount> data;
+    private List<Tuple<CashAccount, CashAccount.Extra>> data;
 
     public CashAccountsAdapter(Context c, Listener l)
     {
@@ -56,8 +57,9 @@ public class CashAccountsAdapter
     }
     private void onBindViewHolder(CashAccountHolder holder, int position)
     {
-        final CashAccount cashAccount = data.get(position);
-        holder.render(cashAccount);
+        final CashAccount cashAccount = data.get(position).first();
+        final CashAccount.Extra extra = data.get(position).second();
+        holder.render(cashAccount, extra);
         holder.setClick(new View.OnClickListener()
         {
             public void onClick(View v)
@@ -93,7 +95,7 @@ public class CashAccountsAdapter
             return ViewTypes.NORMAL;
         }
     }
-    public void swapData(List<CashAccount> d)
+    public void swapData(List<Tuple<CashAccount, CashAccount.Extra>> d)
     {
         if(data != null)
         {

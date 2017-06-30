@@ -6,4 +6,9 @@ public interface Transaction
     long cashAccountId();
     long date();
     int count();
+
+    interface Extra
+    {
+        String cashAccountTitle();
+    }
 }
