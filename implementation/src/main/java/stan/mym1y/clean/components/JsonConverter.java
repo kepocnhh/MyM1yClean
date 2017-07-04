@@ -2,11 +2,13 @@ package stan.mym1y.clean.components;
 
 import java.util.List;
 
+import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.users.UserSecretData;
+import stan.mym1y.clean.cores.versions.Versions;
 
 public interface JsonConverter
 {
@@ -17,9 +19,10 @@ public interface JsonConverter
     String get(CashAccountRequest cashAccountRequest);
     String getCashAccountRequests(List<CashAccountRequest> cashAccountRequests);
 
+    Versions getVersions(String json) throws ParseException;
+    List<Currency> getCurrencies(String json) throws ParseException;
     UserPrivateData getUserPrivateData(String string) throws ParseException;
     UserPrivateData getUserPrivateDataAfterRefresh(String string) throws ParseException;
-    List<Transaction> getTransactions(String string) throws ParseException;
     SyncData getSyncData(String string) throws ParseException;
     List<CashAccountRequest> getCashAccounts(String json) throws ParseException;
 

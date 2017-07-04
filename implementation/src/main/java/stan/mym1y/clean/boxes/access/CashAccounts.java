@@ -16,6 +16,42 @@ public class CashAccounts
     implements CashAccountsAccess
 {
     private final Box<CashAccount> cashAccountsBox;
+    private final CashAccountsModels.CashAccounts cashAccounts = new CashAccountsModels.CashAccounts()
+    {
+        public List<CashAccount> getAll()
+        {
+            return cashAccountsBox.getAll();
+        }
+        public CashAccount get(final long id)
+        {
+            List<CashAccount> transactions = cashAccountsBox.get(new Query<CashAccount>()
+            {
+                public boolean query(CashAccount cashAccount)
+                {
+                    return cashAccount.id() == id;
+                }
+            });
+            return !transactions.isEmpty() ? transactions.get(0) : null;
+        }
+        public void remove(final long id)
+        {
+            cashAccountsBox.removeFirst(new Query<CashAccount>()
+            {
+                public boolean query(CashAccount cashAccount)
+                {
+                    return cashAccount.id() == id;
+                }
+            });
+        }
+        public void add(CashAccount cashAccount)
+        {
+            cashAccountsBox.add(cashAccount);
+        }
+        public void clear()
+        {
+            cashAccountsBox.clear();
+        }
+    };
 
     public CashAccounts(String path)
     {
@@ -25,12 +61,16 @@ public class CashAccounts
             {
                 Map map = new HashMap();
                 map.put("id", data.id());
+                map.put("uuid", data.uuid());
+                map.put("currencyCodeNumber", data.currencyCodeNumber());
                 map.put("title", data.title());
                 return map;
             }
             public CashAccount read(Map map)
             {
                 return new CashAccountData((Long)map.get("id"),
+                        (String)map.get("uuid"),
+                        (String)map.get("currencyCodeNumber"),
                         (String)map.get("title"));
             }
         }, path + "/cashAccountsBox");
@@ -38,41 +78,6 @@ public class CashAccounts
 
     public CashAccountsModels.CashAccounts cashAccounts()
     {
-        return new CashAccountsModels.CashAccounts()
-        {
-            public List<CashAccount> getAll()
-            {
-                return cashAccountsBox.getAll();
-            }
-            public CashAccount get(final long id)
-            {
-                List<CashAccount> transactions = cashAccountsBox.get(new Query<CashAccount>()
-                {
-                    public boolean query(CashAccount cashAccount)
-                    {
-                        return cashAccount.id() == id;
-                    }
-                });
-                return !transactions.isEmpty() ? transactions.get(0) : null;
-            }
-            public void remove(final long id)
-            {
-                cashAccountsBox.removeFirst(new Query<CashAccount>()
-                {
-                    public boolean query(CashAccount cashAccount)
-                    {
-                        return cashAccount.id() == id;
-                    }
-                });
-            }
-            public void add(CashAccount cashAccount)
-            {
-                cashAccountsBox.add(cashAccount);
-            }
-            public void clear()
-            {
-                cashAccountsBox.clear();
-            }
-        };
+        return cashAccounts;
     }
 }

@@ -2,7 +2,9 @@ package stan.mym1y.clean.modules.general;
 
 import stan.mym1y.clean.contracts.GeneralContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
+import stan.mym1y.clean.cores.versions.Versions;
 import stan.mym1y.clean.units.mvp.ModelRouterPresenter;
+import stan.reactive.single.SingleObserver;
 
 class GeneralPresenter
     extends ModelRouterPresenter<GeneralContract.View, GeneralContract.Model, GeneralContract.Router>
@@ -13,6 +15,10 @@ class GeneralPresenter
         super(v, m, r);
     }
 
+    public void start()
+    {
+        router().toStart();
+    }
     public void checkAuth()
     {
         onNewThread(new Runnable()

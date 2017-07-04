@@ -16,11 +16,13 @@ public interface GeneralContract
     }
     interface Router
     {
+        void toStart();
         void toAuth();
         void toMain();
     }
     interface Presenter
     {
+        void start();
         void checkAuth();
         void enter(UserPrivateData data);
         void logout();

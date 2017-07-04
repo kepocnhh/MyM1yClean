@@ -16,4 +16,6 @@
     <string name="add_new_cash_account_text">add new cash account +</string>
     <string name="empty_transactions_text">empty transactions</string>
     <string name="delete_cash_account_confirm_message">Cash account will be deleted!</string>
+    <string name="error_sync_text">Error with sync! App need some data for first launch.</string>
+    <string name="try_again">try again</string>
 </resources>

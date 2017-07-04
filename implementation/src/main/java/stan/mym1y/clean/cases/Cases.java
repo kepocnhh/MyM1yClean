@@ -8,12 +8,15 @@ import stan.boxes.ORM;
 import stan.mym1y.clean.components.Settings;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.users.UserPrivateData;
+import stan.mym1y.clean.cores.versions.Versions;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.users.UserData;
+import stan.mym1y.clean.modules.versions.VersionsData;
 
 public class Cases
     implements Settings
 {
+    private final Case<Versions> versionsCase;
     private final Case<UserPrivateData> userPrivateDataCase;
     private final Case<SyncData> syncDataCase;
 
@@ -48,6 +51,32 @@ public class Cases
                 return new SynchronizationData((Long)map.get("lastSyncTime"), (String)map.get("hash"));
             }
         }, path + "/syncDataCase");
+        versionsCase = new Case<>(new VersionsData(false, -1, -1), new ORM<Versions>()
+        {
+            public Map write(Versions versions)
+            {
+                Map map = new HashMap();
+                map.put("init", versions.init());
+                map.put("version", versions.version());
+                map.put("currencies", versions.currencies());
+                return map;
+            }
+            public Versions read(Map map)
+            {
+                return new VersionsData((Boolean)map.get("init"),
+                        (Long)map.get("version"),
+                        (Long)map.get("currencies"));
+            }
+        }, path + "versionsCase");
+    }
+
+    public Versions getVersions()
+    {
+        return versionsCase.get();
+    }
+    public void setVersions(Versions versions)
+    {
+        versionsCase.save(versions);
     }
 
     public UserPrivateData getUserPrivateData()

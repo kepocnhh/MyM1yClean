@@ -11,16 +11,20 @@ import java.util.List;
 
 import stan.mym1y.clean.components.JsonConverter;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
+import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.users.UserSecretData;
+import stan.mym1y.clean.cores.versions.Versions;
 import stan.mym1y.clean.modules.cashaccounts.CashAccountData;
+import stan.mym1y.clean.modules.currencies.CurrencyData;
 import stan.mym1y.clean.modules.network.requests.CashAccountRequestData;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.transactions.TransactionData;
 import stan.mym1y.clean.modules.users.UserData;
+import stan.mym1y.clean.modules.versions.VersionsData;
 
 public class JSON
         implements JsonConverter
@@ -74,7 +78,7 @@ public class JSON
             throws JSONException
     {
         return new JSONObject().put("id", transaction.id())
-                               .put("cashAccountId", transaction.cashAccountId())
+//                               .put("cashAccountId", transaction.cashAccountId())
                                .put("count", transaction.count())
                                .put("date", transaction.date());
     }
@@ -114,7 +118,7 @@ public class JSON
         {
             for(CashAccountRequest cashAccountRequest: cashAccountRequests)
             {
-                object.put(""+cashAccountRequest.cashAccount().id(), getCashAccountRequest(cashAccountRequest));
+                object.put(cashAccountRequest.cashAccount().uuid(), getCashAccountRequest(cashAccountRequest));
             }
         }
         catch(JSONException e)
@@ -124,11 +128,57 @@ public class JSON
         return object.toString();
     }
 
+    public Versions getVersions(String json)
+            throws ParseException
+    {
+        try
+        {
+            JSONObject object = new JSONObject(json);
+            return new VersionsData(true, object.getLong("version"),
+                    object.getLong("currencies"));
+        }
+        catch(Throwable t)
+        {
+            throw new ParseException(t);
+        }
+    }
+    public List<Currency> getCurrencies(String json)
+            throws ParseException
+    {
+        try
+        {
+            JSONArray array = new JSONArray(json);
+            if(array.length() == 0)
+            {
+                return Collections.emptyList();
+            }
+            List<Currency> currencies = new ArrayList<>(array.length());
+            for(int i=0; i<array.length(); i++)
+            {
+                currencies.add(getCurrency(array.getJSONObject(i)));
+            }
+            return currencies;
+        }
+        catch(Throwable t)
+        {
+            throw new ParseException(t);
+        }
+    }
+    private Currency getCurrency(JSONObject object)
+            throws JSONException
+    {
+        return new CurrencyData(object.getString("codeName"),
+                object.getString("codeNumber"),
+                object.getString("name"),
+                Currency.MinorUnitType.valueOf(object.getString("minorUnitType")));
+    }
+
     private JSONObject get(CashAccount cashAccount)
     {
         try
         {
             return new JSONObject().put("id", cashAccount.id())
+                                   .put("currencyCodeNumber", cashAccount.currencyCodeNumber())
                                    .put("title", cashAccount.title());
         }
         catch(JSONException e)
@@ -167,19 +217,7 @@ public class JSON
             throw new ParseException(t);
         }
     }
-    public List<Transaction> getTransactions(String json)
-            throws ParseException
-    {
-        try
-        {
-            return getTransactions(new JSONArray(json));
-        }
-        catch(Throwable t)
-        {
-            throw new ParseException(t);
-        }
-    }
-    private List<Transaction> getTransactions(JSONArray array)
+    private List<Transaction> getTransactions(JSONArray array, long cashAccountId)
             throws JSONException
     {
         if(array.length() == 0)
@@ -189,15 +227,16 @@ public class JSON
         List<Transaction> transactions = new ArrayList<>(array.length());
         for(int i=0; i<array.length(); i++)
         {
-            transactions.add(getTransaction(array.getJSONObject(i)));
+            transactions.add(getTransaction(array.getJSONObject(i), cashAccountId));
         }
         return transactions;
     }
-    private Transaction getTransaction(JSONObject object)
+    private Transaction getTransaction(JSONObject object, long cashAccountId)
             throws JSONException
     {
         return new TransactionData(object.getLong("id"),
-                object.getLong("cashAccountId"),
+//                object.getLong("cashAccountId"),
+                cashAccountId,
                 object.getLong("date"),
                 object.getInt("count"));
     }
@@ -225,7 +264,8 @@ public class JSON
             Iterator<String> iterator = object.keys();
             while(iterator.hasNext())
             {
-                cashAccountRequests.add(getCashAccountRequest(object.getJSONObject(iterator.next())));
+                String uuid = iterator.next();
+                cashAccountRequests.add(getCashAccountRequest(object.getJSONObject(uuid), uuid));
             }
             return cashAccountRequests;
         }
@@ -234,22 +274,22 @@ public class JSON
             throw new ParseException(t);
         }
     }
-    private CashAccountRequest getCashAccountRequest(JSONObject object)
+    private CashAccountRequest getCashAccountRequest(JSONObject object, String uuid)
             throws JSONException
     {
         JSONArray transactions = object.optJSONArray("transactions");
         if(transactions == null)
         {
-            return new CashAccountRequestData(getCashAccount(object), Collections.<Transaction>emptyList());
+            return new CashAccountRequestData(getCashAccount(object, uuid), Collections.<Transaction>emptyList());
         }
         else
         {
-            return new CashAccountRequestData(getCashAccount(object), getTransactions(transactions));
+            return new CashAccountRequestData(getCashAccount(object, uuid), getTransactions(transactions, object.getLong("id")));
         }
     }
-    private CashAccount getCashAccount(JSONObject object)
+    private CashAccount getCashAccount(JSONObject object, String uuid)
             throws JSONException
     {
-        return new CashAccountData(object.getLong("id"), object.getString("title"));
+        return new CashAccountData(object.getLong("id"), uuid, object.getString("currencyCodeNumber"), object.getString("title"));
     }
 }

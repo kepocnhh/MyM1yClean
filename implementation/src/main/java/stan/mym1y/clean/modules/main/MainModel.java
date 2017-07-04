@@ -384,7 +384,7 @@ class MainModel
             public CashAccount apply()
             {
                 long id = security.newUniqueId();
-                cashAccounts.add(new CashAccountData(id, cashAccount.title()));
+                cashAccounts.add(new CashAccountData(id, security.newUUID(), "", cashAccount.title()));//TODO add currency system
                 updateSyncData();
                 return cashAccounts.get(id);
             }
