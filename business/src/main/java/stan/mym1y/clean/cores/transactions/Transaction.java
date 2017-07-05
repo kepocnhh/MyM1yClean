@@ -6,6 +6,7 @@ public interface Transaction
     long cashAccountId();
     long date();
     int count();
+    int minorCount();
 
     interface Extra
     {

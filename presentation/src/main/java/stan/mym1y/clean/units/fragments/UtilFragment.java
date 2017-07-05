@@ -2,6 +2,7 @@ package stan.mym1y.clean.units.fragments;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -9,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -136,6 +139,43 @@ public abstract class UtilFragment
     {
         inputMethodManager.hideSoftInputFromWindow(mainView.getWindowToken(), 0);
     }
+    final protected void setSystemUiVisibilityLight(final boolean light)
+    {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            runOnUiThread(new Runnable()
+            {
+                public void run()
+                {
+                    if(light)
+                    {
+                        getActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    }
+                    else
+                    {
+//                        getActivity().getWindow().getDecorView().dispatchSystemUiVisibilityChanged(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                        getActivity().getWindow().getDecorView().setSystemUiVisibility(0);
+                    }
+                }
+            });
+        }
+    }
+    final protected void setStatusBarColor(final int color)
+    {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            runOnUiThread(new Runnable()
+            {
+                public void run()
+                {
+                    Window window = getActivity().getWindow();
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                    window.setStatusBarColor(color);
+                }
+            });
+        }
+    }
 
     final protected void replace(final int id, final Fragment fragment)
     {
@@ -145,6 +185,18 @@ public abstract class UtilFragment
             {
                 getFragmentManager().beginTransaction()
                                     .replace(id, fragment)
+                                    .commit();
+            }
+        });
+    }
+    final protected void clear(final int id)
+    {
+        runOnUiThread(new Runnable()
+        {
+            public void run()
+            {
+                getFragmentManager().beginTransaction()
+                                    .remove(getFragmentManager().findFragmentById(id))
                                     .commit();
             }
         });

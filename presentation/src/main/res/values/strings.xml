@@ -18,4 +18,8 @@
     <string name="delete_cash_account_confirm_message">Cash account will be deleted!</string>
     <string name="error_sync_text">Error with sync! App need some data for first launch.</string>
     <string name="try_again">try again</string>
+    <string name="set_currency_text">Set currency</string>
+    <string name="enter_title_text">Enter title</string>
+    <string name="set_cash_account_text">Set cash account</string>
+    <string name="enter_count_text">Enter count</string>
 </resources>

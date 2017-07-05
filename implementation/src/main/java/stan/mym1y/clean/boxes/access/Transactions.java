@@ -28,6 +28,7 @@ public class Transactions
                 map.put("id", data.id());
                 map.put("cashAccountId", data.cashAccountId());
                 map.put("count", data.count());
+                map.put("minorCount", data.minorCount());
                 map.put("date", data.date());
                 return map;
             }
@@ -36,7 +37,8 @@ public class Transactions
                 return new TransactionData((Long)map.get("id"),
                         (Long)map.get("cashAccountId"),
                         (Long)map.get("date"),
-                        ((Long)map.get("count")).intValue());
+                        ((Long)map.get("count")).intValue(),
+                        ((Long)map.get("minorCount")).intValue());
             }
         }, path + "/transactionsbox");
     }

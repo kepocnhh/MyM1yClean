@@ -34,11 +34,16 @@ public interface LoginContract
     class ValidateDataException
             extends Exception
     {
-        public final Error error;
+        private final Error error;
 
         public ValidateDataException(Error e)
         {
             error = e;
+        }
+
+        public Error error()
+        {
+            return error;
         }
 
         public enum Error

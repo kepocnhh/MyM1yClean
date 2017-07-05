@@ -75,7 +75,7 @@ public class Currencies
                 return new CurrencyData((String)map.get("codeName"),
                         (String)map.get("codeNumber"),
                         (String)map.get("name"),
-                        Currency.MinorUnitType.valueOf((String)map.get("codeNumber")));
+                        Currency.MinorUnitType.valueOf((String)map.get("minorUnitType")));
             }
         }, path + "/currenciesBox");
     }

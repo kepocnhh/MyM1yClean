@@ -8,12 +8,14 @@ public class TransactionView
     private final long cashAccountId;
     private final long date;
     private final int count;
+    private final int minorCount;
 
-    public TransactionView(long cai, long d, int c)
+    public TransactionView(long cai, long d, int c, int mc)
     {
         cashAccountId = cai;
         date = d;
         count = c;
+        minorCount = mc;
     }
 
     public long cashAccountId()
@@ -27,5 +29,9 @@ public class TransactionView
     public int count()
     {
         return count;
+    }
+    public int minorCount()
+    {
+        return minorCount;
     }
 }

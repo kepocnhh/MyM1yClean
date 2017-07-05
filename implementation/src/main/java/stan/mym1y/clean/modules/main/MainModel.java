@@ -377,27 +377,27 @@ class MainModel
         updateSyncData();
     }
 
-    public SingleObservable<CashAccount> add(final CashAccountViewModel cashAccount)
+    public SingleObservable<CashAccount> add(final CashAccountViewModel cashAccountViewModel)
     {
         return SingleObservable.create(new Apply<CashAccount>()
         {
             public CashAccount apply()
             {
                 long id = security.newUniqueId();
-                cashAccounts.add(new CashAccountData(id, security.newUUID(), "", cashAccount.title()));//TODO add currency system
+                cashAccounts.add(new CashAccountData(id, security.newUUID(), cashAccountViewModel.currencyCodeNumber(), cashAccountViewModel.title()));
                 updateSyncData();
                 return cashAccounts.get(id);
             }
         });
     }
-    public SingleObservable<Transaction> add(final TransactionViewModel transaction)
+    public SingleObservable<Transaction> add(final TransactionViewModel transactionViewModel)
     {
         return SingleObservable.create(new Apply<Transaction>()
         {
             public Transaction apply()
             {
                 long id = security.newUniqueId();
-                transactions.add(new TransactionData(id, transaction.cashAccountId(), transaction.date(), transaction.count()));
+                transactions.add(new TransactionData(id, transactionViewModel.cashAccountId(), transactionViewModel.date(), transactionViewModel.count(), transactionViewModel.minorCount()));
                 updateSyncData();
                 return transactions.get(id);
             }

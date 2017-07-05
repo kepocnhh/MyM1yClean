@@ -78,6 +78,26 @@ public abstract class UtilActivity
         Log.e(tag, message);
 //        Log.e(getClass().getName(), message);
     }
+    final protected void setSystemUiVisibilityLight(final boolean light)
+    {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            runOnUiThread(new Runnable()
+            {
+                public void run()
+                {
+                    if(light)
+                    {
+                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    }
+                    else
+                    {
+                        getWindow().getDecorView().dispatchSystemUiVisibilityChanged(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    }
+                }
+            });
+        }
+    }
     final protected void setStatusBarColor(final int color)
     {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)

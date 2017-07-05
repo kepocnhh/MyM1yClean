@@ -71,10 +71,7 @@ public class GeneralActivity
     }
     protected void init()
     {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-        {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
+        setSystemUiVisibilityLight(true);
         setStatusBarColor(getResources().getColor(R.color.white));
         presenter = new GeneralPresenter(view, new GeneralModel(App.component().dataLocal().cashAccountsAccess().cashAccounts(),
                 App.component().dataLocal().transactionsAccess().transactions(),

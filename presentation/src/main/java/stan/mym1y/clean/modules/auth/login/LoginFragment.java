@@ -39,7 +39,7 @@ public class LoginFragment
         public void error(LoginContract.ValidateDataException e)
         {
             hideWaiter();
-            switch(e.error)
+            switch(e.error())
             {
                 case EMPTY_LOGIN:
                     toast(R.string.empty_login_error_message);

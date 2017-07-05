@@ -1,4 +1,4 @@
-package stan.mym1y.clean.modules.transactions;
+package stan.mym1y.clean.modules.transactions.cashaccounts;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -12,7 +12,7 @@ import stan.mym1y.clean.R;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.units.adapters.Holder;
 
-class CashAccountsAdapter
+public class CashAccountsAdapter
         extends RecyclerView.Adapter<CashAccountsAdapter.CashAccountHolder>
 {
     private final Context context;
@@ -20,7 +20,7 @@ class CashAccountsAdapter
     private List<CashAccount> data;
     private long selectId;
 
-    CashAccountsAdapter(Context c, Listener l)
+    public CashAccountsAdapter(Context c, Listener l)
     {
         context = c;
         listener = l;
@@ -52,7 +52,7 @@ class CashAccountsAdapter
         }
         return data.size();
     }
-    void swapData(List<CashAccount> d)
+    public void swapData(List<CashAccount> d)
     {
         if(data != null)
         {
@@ -66,7 +66,7 @@ class CashAccountsAdapter
         }
     }
 
-    interface Listener
+    public interface Listener
     {
         void cashAccount(CashAccount cashAccount);
     }

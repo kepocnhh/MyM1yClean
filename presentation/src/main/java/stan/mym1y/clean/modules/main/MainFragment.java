@@ -11,16 +11,18 @@ import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
+import stan.mym1y.clean.contracts.cashaccounts.AddNewCashAccountContract;
+import stan.mym1y.clean.contracts.transactions.AddNewTransactionContract;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
+import stan.mym1y.clean.cores.cashaccounts.CashAccountViewModel;
 import stan.mym1y.clean.cores.transactions.Transaction;
-import stan.mym1y.clean.modules.cashaccounts.AddNewCashAccountDialog;
-import stan.mym1y.clean.modules.cashaccounts.CashAccountView;
+import stan.mym1y.clean.cores.transactions.TransactionViewModel;
+import stan.mym1y.clean.modules.cashaccounts.AddNewCashAccountFragment;
 import stan.mym1y.clean.modules.cashaccounts.DeleteCashAccountConfirmDialog;
 import stan.mym1y.clean.modules.main.cashaccounts.CashAccountsAdapter;
 import stan.mym1y.clean.modules.main.transactions.TransactionsAdapter;
-import stan.mym1y.clean.modules.transactions.AddNewTransactionDialog;
+import stan.mym1y.clean.modules.transactions.AddNewTransactionFragment;
 import stan.mym1y.clean.modules.transactions.DeleteTransactionConfirmDialog;
-import stan.mym1y.clean.modules.transactions.TransactionView;
 import stan.mym1y.clean.units.fragments.UtilFragment;
 import stan.reactive.Tuple;
 
@@ -145,11 +147,28 @@ public class MainFragment
     private CashAccountsAdapter cashAccountsAdapter;
     private String balance_label;
 
-    private final AddNewTransactionDialog.Listener addNewTransactionListener = new AddNewTransactionDialog.Listener()
+    private final AddNewCashAccountContract.Behaviour addNewCashAccountBehaviour = new AddNewCashAccountContract.Behaviour()
     {
-        public void newTransaction(long cashAccountId, int count)
+        public void newCashAccount(CashAccountViewModel cashAccountViewModel)
         {
-            presenter.add(new TransactionView(cashAccountId, System.currentTimeMillis(), count));
+            presenter.add(cashAccountViewModel);
+            clear(R.id.add_subscreen);
+        }
+        public void cancel()
+        {
+            clear(R.id.add_subscreen);
+        }
+    };
+    private final AddNewTransactionContract.Behaviour addNewTransactionBehaviour = new AddNewTransactionContract.Behaviour()
+    {
+        public void newTransaction(TransactionViewModel transactionViewModel)
+        {
+            presenter.add(transactionViewModel);
+            clear(R.id.add_subscreen);
+        }
+        public void cancel()
+        {
+            clear(R.id.add_subscreen);
         }
     };
 
@@ -212,13 +231,7 @@ public class MainFragment
 
     private void newCashAccount()
     {
-        AddNewCashAccountDialog.newInstance(new AddNewCashAccountDialog.Listener()
-        {
-            public void newCashAccount(String title)
-            {
-                presenter.add(new CashAccountView(title));
-            }
-        }).show(getFragmentManager(), AddNewCashAccountDialog.class.getName());
+        replace(R.id.add_subscreen, AddNewCashAccountFragment.newInstance(addNewCashAccountBehaviour));
     }
     private void deleteCashAccount(final CashAccount cashAccount)
     {
@@ -233,7 +246,7 @@ public class MainFragment
 
     private void newTransaction()
     {
-        AddNewTransactionDialog.newInstance(addNewTransactionListener).show(getFragmentManager(), AddNewTransactionDialog.class.getName());
+        replace(R.id.add_subscreen, AddNewTransactionFragment.newInstance(addNewTransactionBehaviour));
     }
     private void deleteTransaction(final Transaction transaction)
     {

@@ -80,6 +80,7 @@ public class JSON
         return new JSONObject().put("id", transaction.id())
 //                               .put("cashAccountId", transaction.cashAccountId())
                                .put("count", transaction.count())
+                               .put("minorCount", transaction.minorCount())
                                .put("date", transaction.date());
     }
     public String get(SyncData syncData)
@@ -238,7 +239,8 @@ public class JSON
 //                object.getLong("cashAccountId"),
                 cashAccountId,
                 object.getLong("date"),
-                object.getInt("count"));
+                object.getInt("count"),
+                object.getInt("minorCount"));
     }
     public SyncData getSyncData(String json)
             throws ParseException
