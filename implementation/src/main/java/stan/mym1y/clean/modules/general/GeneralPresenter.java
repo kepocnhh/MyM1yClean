@@ -17,7 +17,36 @@ class GeneralPresenter
 
     public void start()
     {
-        router().toStart();
+        onNewThread(new Runnable()
+        {
+            public void run()
+            {
+                final Versions cacheVersions = model().getCacheVersions();
+                if(!cacheVersions.init())
+                {
+                    router().toStart();
+                    return;
+                }
+                model().getActualVersions().subscribe(new SingleObserver<Versions>()
+                {
+                    public void success(Versions versions)
+                    {
+                        if(versions.version() != cacheVersions.version())
+                        {
+                            router().toStart();
+                        }
+                        else
+                        {
+                            checkAuth();
+                        }
+                    }
+                    public void error(Throwable t)
+                    {
+                        router().toStart();
+                    }
+                });
+            }
+        });
     }
     public void checkAuth()
     {

@@ -78,7 +78,8 @@ public class GeneralActivity
         setStatusBarColor(getResources().getColor(R.color.white));
         presenter = new GeneralPresenter(view, new GeneralModel(App.component().dataLocal().cashAccountsAccess().cashAccounts(),
                 App.component().dataLocal().transactionsAccess().transactions(),
-                App.component().settings()), router);
+                App.component().settings(),
+                App.component().dataRemote().globalDataApi()), router);
         presenter.start();
     }
 }

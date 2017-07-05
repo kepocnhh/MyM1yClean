@@ -7,7 +7,7 @@ import stan.mym1y.clean.contracts.StartContract;
 import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.versions.Versions;
 import stan.mym1y.clean.data.local.models.CurrenciesModels;
-import stan.mym1y.clean.data.remote.apis.DataApi;
+import stan.mym1y.clean.data.remote.apis.GlobalDataApi;
 import stan.reactive.notify.NotifyObservable;
 import stan.reactive.notify.NotifyObserver;
 import stan.reactive.single.SingleObservable;
@@ -18,18 +18,18 @@ class StartModel
 {
     private final Settings settings;
     private final CurrenciesModels.Currencies currencies;
-    private final DataApi dataApi;
+    private final GlobalDataApi globalDataApi;
 
-    StartModel(Settings ss, CurrenciesModels.Currencies cs, DataApi da)
+    StartModel(Settings ss, CurrenciesModels.Currencies cs, GlobalDataApi gda)
     {
         settings = ss;
         currencies = cs;
-        dataApi = da;
+        globalDataApi = gda;
     }
 
     public SingleObservable<Versions> getActualVersions()
     {
-        return dataApi.getVersions();
+        return globalDataApi.getVersions();
     }
     public Versions getCacheVersions()
     {
@@ -45,7 +45,7 @@ class StartModel
         {
             public void subscribe(final NotifyObserver o)
             {
-                dataApi.getCurrencies().subscribe(new SingleObserver<List<Currency>>()
+                globalDataApi.getCurrencies().subscribe(new SingleObserver<List<Currency>>()
                 {
                     public void success(List<Currency> cs)
                     {

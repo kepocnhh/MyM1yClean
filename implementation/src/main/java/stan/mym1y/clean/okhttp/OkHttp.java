@@ -5,16 +5,19 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import stan.mym1y.clean.data.remote.Connection;
 import stan.mym1y.clean.data.remote.apis.AuthApi;
-import stan.mym1y.clean.data.remote.apis.DataApi;
 import stan.mym1y.clean.components.JsonConverter;
+import stan.mym1y.clean.data.remote.apis.GlobalDataApi;
+import stan.mym1y.clean.data.remote.apis.PrivateDataApi;
 import stan.mym1y.clean.okhttp.apis.Auth;
-import stan.mym1y.clean.okhttp.apis.Data;
+import stan.mym1y.clean.okhttp.apis.GlobalData;
+import stan.mym1y.clean.okhttp.apis.PrivateData;
 
 public class OkHttp
         implements Connection
 {
     private final AuthApi authApi;
-    private final DataApi dataApi;
+    private final PrivateDataApi privateDataApi;
+    private final GlobalDataApi globalDataApi;
 
     public OkHttp(JsonConverter jc)
     {
@@ -24,15 +27,20 @@ public class OkHttp
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .build();
         authApi = new Auth(client, jc);
-        dataApi = new Data(client, jc);
+        privateDataApi = new PrivateData(client, jc);
+        globalDataApi = new GlobalData(client, jc);
     }
 
     public AuthApi authApi()
     {
         return authApi;
     }
-    public DataApi dataApi()
+    public PrivateDataApi privateDataApi()
     {
-        return dataApi;
+        return privateDataApi;
+    }
+    public GlobalDataApi globalDataApi()
+    {
+        return globalDataApi;
     }
 }

@@ -192,7 +192,7 @@ public class MainFragment
                 App.component().settings(),
                 App.component().jsonConverter(),
                 App.component().dataRemote().authApi(),
-                App.component().dataRemote().dataApi()));
+                App.component().dataRemote().privateDataApi()));
         transactions.setLayoutManager(new LinearLayoutManager(getActivity()));
         transactionsAdapter = new TransactionsAdapter(getActivity(), transactionsAdapterListener);
         transactions.setAdapter(transactionsAdapter);

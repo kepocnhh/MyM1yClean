@@ -18,7 +18,7 @@ import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.data.local.models.CashAccountsModels;
 import stan.mym1y.clean.data.local.models.TransactionsModels;
 import stan.mym1y.clean.data.remote.apis.AuthApi;
-import stan.mym1y.clean.data.remote.apis.DataApi;
+import stan.mym1y.clean.data.remote.apis.PrivateDataApi;
 import stan.mym1y.clean.modules.cashaccounts.CashAccountData;
 import stan.mym1y.clean.modules.cashaccounts.CashAccountExtra;
 import stan.mym1y.clean.modules.network.requests.CashAccountRequestData;
@@ -41,17 +41,17 @@ class MainModel
     private final Settings settings;
     private final JsonConverter jsonConverter;
     private final AuthApi authApi;
-    private final DataApi dataApi;
+    private final PrivateDataApi privateDataApi;
 
-    MainModel(TransactionsModels.Transactions ts, CashAccountsModels.CashAccounts cas, Security sm, Settings ss, JsonConverter j, AuthApi a, DataApi d)
+    MainModel(TransactionsModels.Transactions ts, CashAccountsModels.CashAccounts cas, Security sm, Settings ss, JsonConverter j, AuthApi aa, PrivateDataApi pda)
     {
         transactions = ts;
         cashAccounts = cas;
         security = sm;
         settings = ss;
         jsonConverter = j;
-        authApi = a;
-        dataApi = d;
+        authApi = aa;
+        privateDataApi = pda;
     }
 
     public List<Tuple<Transaction, Transaction.Extra>> getAllTransactions()
@@ -129,13 +129,13 @@ class MainModel
         {
             public void subscribe(final NotifyObserver o)
             {
-                dataApi.getSyncData(settings.getUserPrivateData()).subscribe(new SingleObserver<SyncData>()
+                privateDataApi.getSyncData(settings.getUserPrivateData()).subscribe(new SingleObserver<SyncData>()
                 {
                     public void success(SyncData data)
                     {
                         if(data.lastSyncTime() > settings.getSyncData().lastSyncTime())
                         {
-                            dataApi.getTransactions(settings.getUserPrivateData()).subscribe(new SingleObserver<List<CashAccountRequest>>()
+                            privateDataApi.getTransactions(settings.getUserPrivateData()).subscribe(new SingleObserver<List<CashAccountRequest>>()
                             {
                                 public void success(List<CashAccountRequest> cashAccountRequests)
                                 {
@@ -160,7 +160,7 @@ class MainModel
                         }
                         else
                         {
-                            dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
+                            privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
                             {
                                 public void notice()
                                 {
@@ -182,13 +182,13 @@ class MainModel
                                 public void success(UserPrivateData data)
                                 {
                                     settings.login(data);
-                                    dataApi.getSyncData(settings.getUserPrivateData()).subscribe(new SingleObserver<SyncData>()
+                                    privateDataApi.getSyncData(settings.getUserPrivateData()).subscribe(new SingleObserver<SyncData>()
                                     {
                                         public void success(SyncData data)
                                         {
                                             if(data.lastSyncTime() > settings.getSyncData().lastSyncTime())
                                             {
-                                                dataApi.getTransactions(settings.getUserPrivateData()).subscribe(new SingleObserver<List<CashAccountRequest>>()
+                                                privateDataApi.getTransactions(settings.getUserPrivateData()).subscribe(new SingleObserver<List<CashAccountRequest>>()
                                                 {
                                                     public void success(List<CashAccountRequest> cashAccountRequests)
                                                     {
@@ -213,7 +213,7 @@ class MainModel
                                             }
                                             else
                                             {
-                                                dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
+                                                privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
                                                 {
                                                     public void notice()
                                                     {
@@ -253,7 +253,7 @@ class MainModel
         {
             public void subscribe(final NotifyObserver o)
             {
-                dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).chain(new NotifyObserver()
+                privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).chain(new NotifyObserver()
                 {
                     public void notice()
                     {
@@ -268,7 +268,7 @@ class MainModel
                                 public void success(UserPrivateData data)
                                 {
                                     settings.login(data);
-                                    dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
+                                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
                                     {
                                         public void notice()
                                         {
@@ -291,7 +291,7 @@ class MainModel
                             o.error(t);
                         }
                     }
-                }, dataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData())).subscribe(o);
+                }, privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData())).subscribe(o);
             }
         };
     }
@@ -301,7 +301,7 @@ class MainModel
         {
             public void subscribe(final NotifyObserver o)
             {
-                dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId))).chain(new NotifyObserver()
+                privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId))).chain(new NotifyObserver()
                 {
                     public void notice()
                     {
@@ -316,7 +316,7 @@ class MainModel
                                 public void success(UserPrivateData data)
                                 {
                                     settings.login(data);
-                                    dataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId))).subscribe(new NotifyObserver()
+                                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId))).subscribe(new NotifyObserver()
                                     {
                                         public void notice()
                                         {
@@ -339,7 +339,7 @@ class MainModel
                             o.error(t);
                         }
                     }
-                }, dataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData())).subscribe(o);
+                }, privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData())).subscribe(o);
             }
         };
     }

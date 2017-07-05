@@ -93,7 +93,7 @@ public class StartFragment
         error_container.setVisibility(View.GONE);
         presenter = new StartPresenter(view, new StartModel(App.component().settings(),
                 App.component().dataLocal().currenciesAccess().currencies(),
-                App.component().dataRemote().dataApi()));
+                App.component().dataRemote().globalDataApi()));
         presenter.checkSync();
     }
 }
