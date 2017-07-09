@@ -207,6 +207,7 @@ public class MainFragment
     {
         presenter = new MainPresenter(view, new MainModel(App.component().dataLocal().transactionsAccess().transactions(),
                 App.component().dataLocal().cashAccountsAccess().cashAccounts(),
+                App.component().dataLocal().currenciesAccess().currencies(),
                 App.component().security(),
                 App.component().settings(),
                 App.component().jsonConverter(),

@@ -16,6 +16,7 @@ import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.data.local.models.CashAccountsModels;
+import stan.mym1y.clean.data.local.models.CurrenciesModels;
 import stan.mym1y.clean.data.local.models.TransactionsModels;
 import stan.mym1y.clean.data.remote.apis.AuthApi;
 import stan.mym1y.clean.data.remote.apis.PrivateDataApi;
@@ -37,16 +38,18 @@ class MainModel
 {
     private final TransactionsModels.Transactions transactions;
     private final CashAccountsModels.CashAccounts cashAccounts;
+    private final CurrenciesModels.Currencies currencies;
     private final Security security;
     private final Settings settings;
     private final JsonConverter jsonConverter;
     private final AuthApi authApi;
     private final PrivateDataApi privateDataApi;
 
-    MainModel(TransactionsModels.Transactions ts, CashAccountsModels.CashAccounts cas, Security sm, Settings ss, JsonConverter j, AuthApi aa, PrivateDataApi pda)
+    MainModel(TransactionsModels.Transactions ts, CashAccountsModels.CashAccounts cas, CurrenciesModels.Currencies crc, Security sm, Settings ss, JsonConverter j, AuthApi aa, PrivateDataApi pda)
     {
         transactions = ts;
         cashAccounts = cas;
+        currencies = crc;
         security = sm;
         settings = ss;
         jsonConverter = j;
@@ -60,7 +63,8 @@ class MainModel
         List<Tuple<Transaction, Transaction.Extra>> list = new ArrayList<>(ts.size());
         for(Transaction transaction: ts)
         {
-            list.add(new FullTransaction(transaction, new TransactionExtra(cashAccounts.get(transaction.cashAccountId()).title())));
+            CashAccount cashAccount = cashAccounts.get(transaction.cashAccountId());
+            list.add(new FullTransaction(transaction, new TransactionExtra(cashAccount.title(), currencies.get(cashAccount.currencyCodeNumber()))));
         }
         return list;
     }

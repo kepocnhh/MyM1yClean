@@ -11,9 +11,12 @@ import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.transactions.AddNewTransactionContract;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
+import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.modules.transactions.cashaccounts.CashAccountsAdapter;
 import stan.mym1y.clean.units.fragments.UtilFragment;
+import stan.reactive.Tuple;
+import stan.reactive.single.SingleObserver;
 
 public class AddNewTransactionFragment
         extends UtilFragment
@@ -39,9 +42,13 @@ public class AddNewTransactionFragment
                 }
             });
         }
-        public void addNewCashAccount(TransactionViewModel transactionViewModel)
+        public void addNewTransaction(TransactionViewModel transactionViewModel)
         {
             behaviour.newTransaction(transactionViewModel);
+        }
+        public void updateTransaction(TransactionViewModel transactionViewModel, Currency currency)
+        {
+            setCounts(currency, transactionViewModel.count(), transactionViewModel.minorCount());
         }
         public void error(AddNewTransactionContract.ValidateDataException exception)
         {
@@ -59,7 +66,6 @@ public class AddNewTransactionFragment
         public void confirm(int count, int minorCount)
         {
             presenter.setCount(count, minorCount);
-            count_text.setText("" + count + "." + minorCount);
             clear(R.id.enter_count_subscreen);
             setSystemUiVisibilityLight(true);
             setStatusBarColor(getActivity().getResources().getColor(R.color.white));
@@ -71,6 +77,9 @@ public class AddNewTransactionFragment
             setStatusBarColor(getActivity().getResources().getColor(R.color.white));
         }
     };
+    private int positiveColor;
+    private int negativeColor;
+    private int neutralColor;
 
     protected void onClickView(int id)
     {
@@ -83,8 +92,14 @@ public class AddNewTransactionFragment
                 behaviour.cancel();
                 break;
             case R.id.count_text:
-                replace(R.id.enter_count_subscreen, EnterCountFragment.newInstance(enterCountListener, 0, 0));
-                setSystemUiVisibilityLight(false);
+                presenter.updateTransaction().subscribe(new SingleObserver.Just<Tuple<TransactionViewModel, Currency>>()
+                {
+                    public void success(Tuple<TransactionViewModel, Currency> tuple)
+                    {
+                        replace(R.id.enter_count_subscreen, EnterCountFragment.newInstance(enterCountListener, tuple.second().minorUnitType(), tuple.first().count(), tuple.first().minorCount()));
+                        setSystemUiVisibilityLight(false);
+                    }
+                });
                 break;
         }
     }
@@ -111,9 +126,38 @@ public class AddNewTransactionFragment
             }
         });
         cash_accounts.setAdapter(cashAccountsAdapter);
-        presenter = new AddNewTransactionPresenter(view, new AddNewTransactionModel(App.component().dataLocal().cashAccountsAccess().cashAccounts()));
+        presenter = new AddNewTransactionPresenter(view, new AddNewTransactionModel(App.component().dataLocal().cashAccountsAccess().cashAccounts(),
+                App.component().dataLocal().currenciesAccess().currencies()));
         presenter.update();
         presenter.setDate(System.currentTimeMillis());
-        count_text.setText("0.0");
+        positiveColor = getActivity().getResources().getColor(R.color.green);
+        negativeColor = getActivity().getResources().getColor(R.color.red);
+        neutralColor = getActivity().getResources().getColor(R.color.graydark);
+    }
+
+
+    private void setCounts(Currency currency, int count, int minorCount)
+    {
+        if(count == 0 && minorCount == 0)
+        {
+            count_text.setText("nothing");
+            count_text.setTextColor(neutralColor);
+        }
+        else
+        {
+            switch(currency.minorUnitType())
+            {
+                case NONE:
+                    count_text.setText((count > 0 ? "+" : "-") + String.valueOf(Math.abs(count)) + " " + currency.codeName());
+                    break;
+                case TEN:
+                    count_text.setText((count > 0 ? "+" : "-") + String.valueOf(Math.abs(count)) + "." + String.valueOf(minorCount) + " " + currency.codeName());
+                    break;
+                case HUNDRED:
+                    count_text.setText((count > 0 ? "+" : "-") + String.valueOf(Math.abs(count)) + "." + (minorCount < 10 ? "0" + minorCount : minorCount) + " " + currency.codeName());
+                    break;
+            }
+            count_text.setTextColor(count > 0 ? positiveColor : negativeColor);
+        }
     }
 }

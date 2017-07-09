@@ -9,8 +9,8 @@ public interface CurrenciesModels
     interface Currencies
     {
         List<Currency> getAll();
-        Currency get(String codeName);
-        void remove(String codeName);
+        Currency get(String codeNumber);
+        void remove(String codeNumber);
         void add(Currency currency);
         void add(List<Currency> currencies);
         void clear();

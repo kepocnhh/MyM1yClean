@@ -37,16 +37,19 @@ class TransactionHolder
     }
     void render(Transaction transaction, Transaction.Extra extra)
     {
-        if(transaction.count() < 0)
+        switch(extra.currency().minorUnitType())
         {
-            count.setText(String.valueOf(transaction.count()));
-            count.setTextColor(negativeColor);
+            case NONE:
+                count.setText((transaction.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(transaction.count())) + " " + extra.currency().codeName());
+                break;
+            case TEN:
+                count.setText((transaction.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(transaction.count())) + "." + String.valueOf(transaction.minorCount()) + " " + extra.currency().codeName());
+                break;
+            case HUNDRED:
+                count.setText((transaction.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(transaction.count())) + "." + (transaction.minorCount() < 10 ? "0" + transaction.minorCount() : transaction.minorCount()) + " " + extra.currency().codeName());
+                break;
         }
-        else
-        {
-            count.setText("+" + transaction.count());
-            count.setTextColor(positiveColor);
-        }
+        count.setTextColor(transaction.count() > 0 ? positiveColor : negativeColor);
         Date dt = new Date(transaction.date());
         date.setText(proxy((dt.getYear()-100)) + "." + proxy((dt.getMonth()+1)) + "." + proxy(dt.getDate()) + " " + proxy(dt.getHours()) + ":" + proxy(dt.getMinutes()) + ":" + proxy(dt.getSeconds()));
         cash_account.setText(extra.cashAccountTitle());

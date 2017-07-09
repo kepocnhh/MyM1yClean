@@ -7,38 +7,15 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-    <FrameLayout
+    <TextView
+        android:id="@+id/count_value"
+        android:textSize="24dp"
+        android:textColor="@color/white"
+        android:background="@color/green"
+        android:paddingLeft="16dp"
+        android:gravity="center_vertical"
         android:layout_width="match_parent"
-        android:layout_height="128dp">
-        <TextView
-            android:id="@+id/count_value"
-            android:text="asdsadasd"
-            android:textSize="24dp"
-            android:textColor="@color/white"
-            android:background="@color/green"
-            android:paddingLeft="16dp"
-            android:gravity="center_vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-        <ImageView
-            android:id="@+id/cancel"
-            android:src="@mipmap/cancel"
-            android:tint="@color/white"
-            android:layout_marginTop="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_gravity="right"
-            android:layout_width="24dp"
-            android:layout_height="24dp"/>
-        <ImageView
-            android:id="@+id/confirm"
-            android:src="@mipmap/checked"
-            android:tint="@color/white"
-            android:layout_marginBottom="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_gravity="right|bottom"
-            android:layout_width="24dp"
-            android:layout_height="24dp"/>
-    </FrameLayout>
+        android:layout_height="128dp"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/container_size_less">
@@ -198,5 +175,25 @@
                     android:layout_height="24dp"/>
             </FrameLayout>
         </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/container_size_large">
+        <ImageView
+            android:id="@+id/cancel"
+            android:src="@mipmap/cancel"
+            android:tint="@color/black"
+            android:padding="24dp"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+        <ImageView
+            android:id="@+id/confirm"
+            android:src="@mipmap/checked"
+            android:tint="@color/black"
+            android:padding="24dp"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
     </LinearLayout>
 </LinearLayout>

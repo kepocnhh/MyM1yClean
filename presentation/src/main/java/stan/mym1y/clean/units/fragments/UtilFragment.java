@@ -143,37 +143,17 @@ public abstract class UtilFragment
     {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
-            runOnUiThread(new Runnable()
-            {
-                public void run()
-                {
-                    if(light)
-                    {
-                        getActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-                    }
-                    else
-                    {
-//                        getActivity().getWindow().getDecorView().dispatchSystemUiVisibilityChanged(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-                        getActivity().getWindow().getDecorView().setSystemUiVisibility(0);
-                    }
-                }
-            });
+            getActivity().getWindow().getDecorView().setSystemUiVisibility(light ? View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR : 0);
         }
     }
     final protected void setStatusBarColor(final int color)
     {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
-            runOnUiThread(new Runnable()
-            {
-                public void run()
-                {
-                    Window window = getActivity().getWindow();
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-                    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                    window.setStatusBarColor(color);
-                }
-            });
+            Window window = getActivity().getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(color);
         }
     }
 
