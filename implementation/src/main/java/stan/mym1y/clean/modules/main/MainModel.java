@@ -14,7 +14,6 @@ import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
-import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.data.local.models.CashAccountsModels;
 import stan.mym1y.clean.data.local.models.CurrenciesModels;
 import stan.mym1y.clean.data.local.models.TransactionsModels;
@@ -27,14 +26,13 @@ import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.transactions.TransactionData;
 import stan.mym1y.clean.modules.transactions.TransactionExtra;
 import stan.reactive.Tuple;
+import stan.reactive.functions.Action;
 import stan.reactive.functions.Apply;
 import stan.reactive.notify.NotifyObservable;
-import stan.reactive.notify.NotifyObserver;
 import stan.reactive.single.SingleObservable;
-import stan.reactive.single.SingleObserver;
 
 class MainModel
-    implements MainContract.Model
+        implements MainContract.Model
 {
     private final TransactionsModels.Transactions transactions;
     private final CashAccountsModels.CashAccounts cashAccounts;
@@ -69,7 +67,7 @@ class MainModel
         return list;
     }
     private class FullTransaction
-        implements Tuple<Transaction, Transaction.Extra>
+            implements Tuple<Transaction, Transaction.Extra>
     {
         private final Transaction first;
         private final Transaction.Extra second;
@@ -129,223 +127,88 @@ class MainModel
 
     public NotifyObservable updateAll()
     {
-        return new NotifyObservable()
+        return NotifyObservable.create(new Action()
         {
-            public void subscribe(final NotifyObserver o)
+            public void run()
+                    throws Throwable
             {
-                privateDataApi.getSyncData(settings.getUserPrivateData()).subscribe(new SingleObserver<SyncData>()
+                try
                 {
-                    public void success(SyncData data)
-                    {
-                        if(data.lastSyncTime() > settings.getSyncData().lastSyncTime())
-                        {
-                            privateDataApi.getTransactions(settings.getUserPrivateData()).subscribe(new SingleObserver<List<CashAccountRequest>>()
-                            {
-                                public void success(List<CashAccountRequest> cashAccountRequests)
-                                {
-                                    cashAccounts.clear();
-                                    transactions.clear();
-                                    for(CashAccountRequest cashAccountRequest: cashAccountRequests)
-                                    {
-                                        cashAccounts.add(cashAccountRequest.cashAccount());
-                                        transactions.addAll(cashAccountRequest.transactions());
-                                    }
-                                    o.notice();
-                                }
-                                public void error(Throwable t)
-                                {
-                                    o.error(t);
-                                }
-                            });
-                        }
-                        else if(data.lastSyncTime() == settings.getSyncData().lastSyncTime() && data.hash().equals(settings.getSyncData().hash()))
-                        {
-                            o.notice();
-                        }
-                        else
-                        {
-                            privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
-                            {
-                                public void notice()
-                                {
-                                    o.notice();
-                                }
-                                public void error(Throwable t)
-                                {
-                                    o.error(t);
-                                }
-                            });
-                        }
-                    }
-                    public void error(Throwable t)
-                    {
-                        if(t instanceof ErrorsContract.UnauthorizedException)
-                        {
-                            authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()).subscribe(new SingleObserver<UserPrivateData>()
-                            {
-                                public void success(UserPrivateData data)
-                                {
-                                    settings.login(data);
-                                    privateDataApi.getSyncData(settings.getUserPrivateData()).subscribe(new SingleObserver<SyncData>()
-                                    {
-                                        public void success(SyncData data)
-                                        {
-                                            if(data.lastSyncTime() > settings.getSyncData().lastSyncTime())
-                                            {
-                                                privateDataApi.getTransactions(settings.getUserPrivateData()).subscribe(new SingleObserver<List<CashAccountRequest>>()
-                                                {
-                                                    public void success(List<CashAccountRequest> cashAccountRequests)
-                                                    {
-                                                        cashAccounts.clear();
-                                                        transactions.clear();
-                                                        for(CashAccountRequest cashAccountRequest: cashAccountRequests)
-                                                        {
-                                                            cashAccounts.add(cashAccountRequest.cashAccount());
-                                                            transactions.addAll(cashAccountRequest.transactions());
-                                                        }
-                                                        o.notice();
-                                                    }
-                                                    public void error(Throwable t)
-                                                    {
-                                                        o.error(t);
-                                                    }
-                                                });
-                                            }
-                                            else if(data.lastSyncTime() == settings.getSyncData().lastSyncTime() && data.hash().equals(settings.getSyncData().hash()))
-                                            {
-                                                o.notice();
-                                            }
-                                            else
-                                            {
-                                                privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
-                                                {
-                                                    public void notice()
-                                                    {
-                                                        o.notice();
-                                                    }
-                                                    public void error(Throwable t)
-                                                    {
-                                                        o.error(t);
-                                                    }
-                                                });
-                                            }
-                                        }
-                                        public void error(Throwable t)
-                                        {
-                                            o.error(t);
-                                        }
-                                    });
-                                }
-                                public void error(Throwable t)
-                                {
-                                    o.error(t);
-                                }
-                            });
-                        }
-                        else
-                        {
-                            o.error(t);
-                        }
-                    }
-                });
+                    syncData(privateDataApi.getSyncData(settings.getUserPrivateData()));
+                }
+                catch(ErrorsContract.UnauthorizedException unauthorizedError)
+                {
+                    settings.login(authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()));
+                    syncData(privateDataApi.getSyncData(settings.getUserPrivateData()));
+                }
             }
-        };
+        });
     }
+    private void syncData(SyncData syncData)
+            throws ErrorsContract.UnauthorizedException, ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, UnknownError
+    {
+        if(syncData.lastSyncTime() > settings.getSyncData().lastSyncTime())
+        {
+            List<CashAccountRequest> cashAccountRequests = privateDataApi.getTransactions(settings.getUserPrivateData());
+            cashAccounts.clear();
+            transactions.clear();
+            for(CashAccountRequest cashAccountRequest: cashAccountRequests)
+            {
+                cashAccounts.add(cashAccountRequest.cashAccount());
+                transactions.addAll(cashAccountRequest.transactions());
+            }
+        }
+        else if(syncData.lastSyncTime() == settings.getSyncData().lastSyncTime() && syncData.hash().equals(settings.getSyncData().hash()))
+        {
+        }
+        else
+        {
+            privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests());
+            privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
+        }
+    }
+
     public NotifyObservable sendAllUpdatings()
     {
-        return new NotifyObservable()
+        return NotifyObservable.create(new Action()
         {
-            public void subscribe(final NotifyObserver o)
+            public void run()
+                    throws Throwable
             {
-                privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).chain(new NotifyObserver()
+                try
                 {
-                    public void notice()
-                    {
-                    }
-                    public void error(Throwable t)
-                    {
-                        if(t instanceof ErrorsContract.UnauthorizedException)
-                        {
-                            final NotifyObserver notifyObserver = this;
-                            authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()).subscribe(new SingleObserver<UserPrivateData>()
-                            {
-                                public void success(UserPrivateData data)
-                                {
-                                    settings.login(data);
-                                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests()).subscribe(new NotifyObserver()
-                                    {
-                                        public void notice()
-                                        {
-                                            notifyObserver.notice();
-                                        }
-                                        public void error(Throwable t)
-                                        {
-                                            o.error(t);
-                                        }
-                                    });
-                                }
-                                public void error(Throwable t)
-                                {
-                                    o.error(t);
-                                }
-                            });
-                        }
-                        else
-                        {
-                            o.error(t);
-                        }
-                    }
-                }, privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData())).subscribe(o);
+                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests());
+                    privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
+                }
+                catch(ErrorsContract.UnauthorizedException unauthorizedError)
+                {
+                    settings.login(authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()));
+                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests());
+                    privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
+                }
             }
-        };
+        });
     }
     public NotifyObservable sendUpdatingsCashAccount(final long cashAccountId)
     {
-        return new NotifyObservable()
+        return NotifyObservable.create(new Action()
         {
-            public void subscribe(final NotifyObserver o)
+            public void run()
+                    throws Throwable
             {
-                privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId))).chain(new NotifyObserver()
+                try
                 {
-                    public void notice()
-                    {
-                    }
-                    public void error(Throwable t)
-                    {
-                        if(t instanceof ErrorsContract.UnauthorizedException)
-                        {
-                            final NotifyObserver notifyObserver = this;
-                            authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()).subscribe(new SingleObserver<UserPrivateData>()
-                            {
-                                public void success(UserPrivateData data)
-                                {
-                                    settings.login(data);
-                                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId))).subscribe(new NotifyObserver()
-                                    {
-                                        public void notice()
-                                        {
-                                            notifyObserver.notice();
-                                        }
-                                        public void error(Throwable t)
-                                        {
-                                            o.error(t);
-                                        }
-                                    });
-                                }
-                                public void error(Throwable t)
-                                {
-                                    o.error(t);
-                                }
-                            });
-                        }
-                        else
-                        {
-                            o.error(t);
-                        }
-                    }
-                }, privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData())).subscribe(o);
+                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId)));
+                    privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
+                }
+                catch(ErrorsContract.UnauthorizedException unauthorizedError)
+                {
+                    settings.login(authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()));
+                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId)));
+                    privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
+                }
             }
-        };
+        });
     }
     private CashAccountRequest getCashAccountRequest(CashAccount cashAccount)
     {
@@ -387,10 +250,10 @@ class MainModel
         {
             public CashAccount apply()
             {
-                long id = security.newUniqueId();
-                cashAccounts.add(new CashAccountData(id, security.newUUID(), cashAccountViewModel.currencyCodeNumber(), cashAccountViewModel.title()));
+                CashAccount newCashAccount = new CashAccountData(security.newUniqueId(), security.newUUID(), cashAccountViewModel.currencyCodeNumber(), cashAccountViewModel.title());
+                cashAccounts.add(newCashAccount);
                 updateSyncData();
-                return cashAccounts.get(id);
+                return newCashAccount;
             }
         });
     }
@@ -400,10 +263,10 @@ class MainModel
         {
             public Transaction apply()
             {
-                long id = security.newUniqueId();
-                transactions.add(new TransactionData(id, transactionViewModel.cashAccountId(), transactionViewModel.date(), transactionViewModel.count(), transactionViewModel.minorCount()));
+                Transaction newTransaction = new TransactionData(security.newUniqueId(), transactionViewModel.cashAccountId(), transactionViewModel.date(), transactionViewModel.count(), transactionViewModel.minorCount());
+                transactions.add(newTransaction);
                 updateSyncData();
-                return transactions.get(id);
+                return newTransaction;
             }
         });
     }

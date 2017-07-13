@@ -1,8 +1,8 @@
 package stan.mym1y.clean.data.remote.apis;
 
+import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.users.UserSecretData;
-import stan.reactive.single.SingleObservable;
 
 public interface AuthApi
 {
@@ -21,7 +21,7 @@ public interface AuthApi
         int SUCCESS = 200;
     }
 
-    SingleObservable<UserPrivateData> postLogin(UserSecretData data);
-    SingleObservable<UserPrivateData> postRegistration(UserSecretData data);
-    SingleObservable<UserPrivateData> postRefreshToken(String refreshToken);
+    UserPrivateData postLogin(UserSecretData data) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError;
+    UserPrivateData postRegistration(UserSecretData data) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError;
+    UserPrivateData postRefreshToken(String refreshToken) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError;
 }

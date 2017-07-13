@@ -2,11 +2,11 @@ package stan.mym1y.clean.modules.auth.registration;
 
 import java.util.regex.Pattern;
 
+import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.auth.RegistrationContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.users.UserSecretData;
 import stan.mym1y.clean.data.remote.apis.AuthApi;
-import stan.reactive.single.SingleObservable;
 
 class RegistrationModel
     implements RegistrationContract.Model
@@ -39,7 +39,8 @@ class RegistrationModel
             throw  new RegistrationContract.ValidateDataException(RegistrationContract.ValidateDataException.Error.LOGIN_VALID);
         }
     }
-    public SingleObservable<UserPrivateData> login(UserSecretData data)
+    public UserPrivateData registration(UserSecretData data)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
     {
         return authApi.postRegistration(data);
     }

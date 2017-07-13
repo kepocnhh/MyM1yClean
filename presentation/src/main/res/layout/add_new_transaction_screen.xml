@@ -3,10 +3,12 @@
               android:background="@color/white"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-    <LinearLayout android:orientation="vertical"
-                  android:background="@color/white"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent">
+    <LinearLayout
+        android:clickable="true"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
         <LinearLayout
             android:orientation="vertical"
             android:layout_weight="1"

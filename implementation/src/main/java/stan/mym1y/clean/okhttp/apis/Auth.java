@@ -11,168 +11,121 @@ import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.users.UserSecretData;
 import stan.mym1y.clean.data.remote.apis.AuthApi;
 import stan.mym1y.clean.components.JsonConverter;
-import stan.reactive.single.SingleObservable;
-import stan.reactive.single.SingleObserver;
 
 public class Auth
-    implements AuthApi
+        implements AuthApi
 {
     static private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     private final OkHttpClient client;
     private final JsonConverter jsonConverter;
 
-    public Auth(OkHttpClient clnt, JsonConverter jc)
+    public Auth(OkHttpClient c, JsonConverter j)
     {
-        client = clnt;
-        jsonConverter = jc;
+        client = c;
+        jsonConverter = j;
     }
 
-    public SingleObservable<UserPrivateData> postLogin(final UserSecretData data)
+    public UserPrivateData postLogin(final UserSecretData data)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
     {
-        return new SingleObservable<UserPrivateData>()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Post.LOGIN).newBuilder();
+        urlBuilder.addQueryParameter("key", SERVER_KEY);
+        Response response;
+        try
         {
-            public void subscribe(SingleObserver<UserPrivateData> o)
-            {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Post.LOGIN).newBuilder();
-                urlBuilder.addQueryParameter("key", SERVER_KEY);
-                Response response;
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .post(RequestBody.create(JSON, jsonConverter.get(data)))
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
                 try
                 {
-                    response = client.newCall(new Request.Builder()
-                            .url(urlBuilder.build())
-                            .post(RequestBody.create(JSON, jsonConverter.get(data)))
-                            .build()).execute();
+                    return jsonConverter.getUserPrivateData(response.body().string());
                 }
-                catch(Throwable t)
+                catch(Exception e)
                 {
-                    o.error(new ErrorsContract.NetworkException(urlBuilder.build().toString()));
-                    return;
+                    throw new UnknownError();
                 }
-                switch(response.code())
-                {
-                    case Codes.SUCCESS:
-                        try
-                        {
-                            o.success(jsonConverter.getUserPrivateData(response.body().string()));
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
-                        break;
-                    case Codes.UNAUTHORIZED:
-                        try
-                        {
-                            o.error(new ErrorsContract.UnauthorizedException());
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
-                        break;
-                    default:
-                        o.error(new UnknownError());
-                }
-            }
-        };
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new UnknownError();
+        }
     }
-    public SingleObservable<UserPrivateData> postRegistration(final UserSecretData data)
+    public UserPrivateData postRegistration(final UserSecretData data)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
     {
-        return new SingleObservable<UserPrivateData>()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Post.REGISTRATION).newBuilder();
+        urlBuilder.addQueryParameter("key", SERVER_KEY);
+        Response response;
+        try
         {
-            public void subscribe(SingleObserver<UserPrivateData> o)
-            {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Post.REGISTRATION).newBuilder();
-                urlBuilder.addQueryParameter("key", SERVER_KEY);
-                Response response;
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .post(RequestBody.create(JSON, jsonConverter.get(data)))
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
                 try
                 {
-                    response = client.newCall(new Request.Builder()
-                            .url(urlBuilder.build())
-                            .post(RequestBody.create(JSON, jsonConverter.get(data)))
-                            .build()).execute();
+                    return jsonConverter.getUserPrivateData(response.body().string());
                 }
-                catch(Throwable t)
+                catch(Exception e)
                 {
-                    o.error(new ErrorsContract.NetworkException(urlBuilder.build().toString()));
-                    return;
+                    throw new UnknownError();
                 }
-                switch(response.code())
-                {
-                    case Codes.SUCCESS:
-                        try
-                        {
-                            o.success(jsonConverter.getUserPrivateData(response.body().string()));
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
-                        break;
-                    case Codes.UNAUTHORIZED:
-                        try
-                        {
-                            o.error(new ErrorsContract.UnauthorizedException());
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
-                        break;
-                    default:
-                        o.error(new UnknownError());
-                }
-            }
-        };
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new UnknownError();
+        }
     }
-    public SingleObservable<UserPrivateData> postRefreshToken(final String refreshToken)
+    public UserPrivateData postRefreshToken(final String refreshToken)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
     {
-        return new SingleObservable<UserPrivateData>()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Post.REFRESH_TOKEN).newBuilder();
+        urlBuilder.addQueryParameter("key", SERVER_KEY);
+        Response response;
+        try
         {
-            public void subscribe(SingleObserver<UserPrivateData> o)
-            {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Post.REFRESH_TOKEN).newBuilder();
-                urlBuilder.addQueryParameter("key", SERVER_KEY);
-                Response response;
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .post(RequestBody.create(JSON, jsonConverter.getRefreshTokenBody(refreshToken)))
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
                 try
                 {
-                    response = client.newCall(new Request.Builder()
-                            .url(urlBuilder.build())
-                            .post(RequestBody.create(JSON, jsonConverter.getRefreshTokenBody(refreshToken)))
-                            .build()).execute();
+                    return jsonConverter.getUserPrivateDataAfterRefresh(response.body().string());
                 }
-                catch(Throwable t)
+                catch(Exception e)
                 {
-                    o.error(new ErrorsContract.NetworkException(urlBuilder.build().toString()));
-                    return;
+                    throw new UnknownError();
                 }
-                switch(response.code())
-                {
-                    case Codes.SUCCESS:
-                        try
-                        {
-                            o.success(jsonConverter.getUserPrivateDataAfterRefresh(response.body().string()));
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
-                        break;
-                    case Codes.UNAUTHORIZED:
-                        try
-                        {
-                            o.error(new ErrorsContract.UnauthorizedException());
-                        }
-                        catch(Exception e)
-                        {
-                            o.error(new UnknownError());
-                        }
-                        break;
-                    default:
-                        o.error(new UnknownError());
-                }
-            }
-        };
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new UnknownError();
+        }
     }
 }

@@ -14,13 +14,9 @@ import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.data.remote.apis.PrivateDataApi;
-import stan.reactive.functions.Action;
-import stan.reactive.functions.Worker;
-import stan.reactive.notify.NotifyObservable;
-import stan.reactive.single.SingleObservable;
 
 public class PrivateData
-    implements PrivateDataApi
+        implements PrivateDataApi
 {
     static private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -33,221 +29,191 @@ public class PrivateData
         jsonConverter = j;
     }
 
-    public SingleObservable<List<CashAccountRequest>> getTransactions(final UserPrivateData data)
+    public List<CashAccountRequest> getTransactions(final UserPrivateData data)
+            throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, UnknownError
     {
-        return SingleObservable.create(new Worker<List<CashAccountRequest>>()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getCashAccountsUrl(data)).newBuilder();
+        urlBuilder.addQueryParameter("auth", data.userToken());
+        Response response;
+        try
         {
-            public List<CashAccountRequest> work()
-                    throws Throwable
-            {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getCashAccountsUrl(data)).newBuilder();
-                urlBuilder.addQueryParameter("auth", data.userToken());
-                Response response;
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
+                String json;
                 try
                 {
-                    response = client.newCall(new Request.Builder()
-                            .url(urlBuilder.build())
-                            .build()).execute();
+                    json = response.body().string();
                 }
-                catch(Throwable t)
+                catch(Exception e)
                 {
-                    throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+                    throw new UnknownError();
                 }
-                switch(response.code())
+                if(json == null)
                 {
-                    case Codes.SUCCESS:
-                        String json;
-                        try
-                        {
-                            json = response.body().string();
-                        }
-                        catch(Exception e)
-                        {
-                            throw new UnknownError();
-                        }
-                        if(json == null)
-                        {
-                            throw new UnknownError();
-                        }
-                        if(json.equals("null"))
-                        {
-                            throw new ErrorsContract.DataNotExistException();
-                        }
-                        else
-                        {
-                            try
-                            {
-                                return jsonConverter.getCashAccounts(json);
-                            }
-                            catch(Exception e)
-                            {
-                                throw new UnknownError();
-                            }
-                        }
-                    case Codes.UNAUTHORIZED:
-                        throw new ErrorsContract.UnauthorizedException();
-                    default:
+                    throw new UnknownError();
+                }
+                if(json.equals("null"))
+                {
+                    throw new ErrorsContract.DataNotExistException();
+                }
+                else
+                {
+                    try
+                    {
+                        return jsonConverter.getCashAccounts(json);
+                    }
+                    catch(Exception e)
+                    {
                         throw new UnknownError();
+                    }
                 }
-            }
-        });
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new UnknownError();
+        }
     }
-    public SingleObservable<SyncData> getSyncData(final UserPrivateData data)
+    public SyncData getSyncData(final UserPrivateData data)
+            throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, UnknownError
     {
-        return SingleObservable.create(new Worker<SyncData>()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getSyncUrl(data)).newBuilder();
+        urlBuilder.addQueryParameter("auth", data.userToken());
+        Response response;
+        try
         {
-            public SyncData work()
-                    throws Throwable
-            {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getSyncUrl(data)).newBuilder();
-                urlBuilder.addQueryParameter("auth", data.userToken());
-                Response response;
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
+                String json;
                 try
                 {
-                    response = client.newCall(new Request.Builder()
-                            .url(urlBuilder.build())
-                            .build()).execute();
+                    json = response.body().string();
                 }
-                catch(Throwable t)
+                catch(Exception e)
                 {
-                    throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+                    throw new UnknownError();
                 }
-                switch(response.code())
+                if(json == null)
                 {
-                    case Codes.SUCCESS:
-                        String json;
-                        try
-                        {
-                            json = response.body().string();
-                        }
-                        catch(Exception e)
-                        {
-                            throw new UnknownError();
-                        }
-                        if(json == null)
-                        {
-                            throw new UnknownError();
-                        }
-                        if(json.equals("null"))
-                        {
-                            throw new ErrorsContract.DataNotExistException();
-                        }
-                        else
-                        {
-                            try
-                            {
-                                return jsonConverter.getSyncData(json);
-                            }
-                            catch(Exception e)
-                            {
-                                throw new UnknownError();
-                            }
-                        }
-                    case Codes.UNAUTHORIZED:
-                        throw new ErrorsContract.UnauthorizedException();
-                    default:
+                    throw new UnknownError();
+                }
+                if(json.equals("null"))
+                {
+                    throw new ErrorsContract.DataNotExistException();
+                }
+                else
+                {
+                    try
+                    {
+                        return jsonConverter.getSyncData(json);
+                    }
+                    catch(Exception e)
+                    {
                         throw new UnknownError();
+                    }
                 }
-            }
-        });
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new UnknownError();
+        }
     }
-    public NotifyObservable putTransactions(final UserPrivateData data, final CashAccountRequest cashAccountRequest)
+    public void putTransactions(final UserPrivateData data, final CashAccountRequest cashAccountRequest)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
     {
-        return NotifyObservable.create(new Action()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getCashAccountUrl(data, cashAccountRequest.cashAccount())).newBuilder();
+        urlBuilder.addQueryParameter("auth", data.userToken());
+        Response response;
+        try
         {
-            public void run()
-                    throws Throwable
-            {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getCashAccountUrl(data, cashAccountRequest.cashAccount())).newBuilder();
-                urlBuilder.addQueryParameter("auth", data.userToken());
-                Response response;
-                try
-                {
-                    response = client.newCall(new Request.Builder()
-                            .url(urlBuilder.build())
-                            .put(RequestBody.create(JSON, jsonConverter.get(cashAccountRequest)))
-                            .build()).execute();
-                }
-                catch(Throwable t)
-                {
-                    throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
-                }
-                switch(response.code())
-                {
-                    case Codes.SUCCESS:
-                        break;
-                    case Codes.UNAUTHORIZED:
-                        throw new ErrorsContract.UnauthorizedException();
-                    default:
-                        throw new UnknownError();
-                }
-            }
-        });
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .put(RequestBody.create(JSON, jsonConverter.get(cashAccountRequest)))
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
+                break;
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new UnknownError();
+        }
     }
-    public NotifyObservable putTransactions(final UserPrivateData data, final List<CashAccountRequest> cashAccountRequests)
+    public void putTransactions(final UserPrivateData data, final List<CashAccountRequest> cashAccountRequests)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
     {
-        return NotifyObservable.create(new Action()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getCashAccountsUrl(data)).newBuilder();
+        urlBuilder.addQueryParameter("auth", data.userToken());
+        Response response;
+        try
         {
-            public void run()
-                    throws Throwable
-            {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getCashAccountsUrl(data)).newBuilder();
-                urlBuilder.addQueryParameter("auth", data.userToken());
-                Response response;
-                try
-                {
-                    response = client.newCall(new Request.Builder()
-                            .url(urlBuilder.build())
-                            .put(RequestBody.create(JSON, jsonConverter.getCashAccountRequests(cashAccountRequests)))
-                            .build()).execute();
-                }
-                catch(Throwable t)
-                {
-                    throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
-                }
-                switch(response.code())
-                {
-                    case Codes.SUCCESS:
-                        break;
-                    case Codes.UNAUTHORIZED:
-                        throw new ErrorsContract.UnauthorizedException();
-                    default:
-                        throw new UnknownError();
-                }
-            }
-        });
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .put(RequestBody.create(JSON, jsonConverter.getCashAccountRequests(cashAccountRequests)))
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
+                break;
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new UnknownError();
+        }
     }
-    public NotifyObservable putSyncData(final UserPrivateData data, final SyncData syncData)
+    public void putSyncData(final UserPrivateData data, final SyncData syncData)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
     {
-        return NotifyObservable.create(new Action()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getSyncUrl(data)).newBuilder();
+        urlBuilder.addQueryParameter("auth", data.userToken());
+        Response response;
+        try
         {
-            public void run()
-                    throws Throwable
-            {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getSyncUrl(data)).newBuilder();
-                urlBuilder.addQueryParameter("auth", data.userToken());
-                Response response;
-                try
-                {
-                    response = client.newCall(new Request.Builder()
-                            .url(urlBuilder.build())
-                            .put(RequestBody.create(JSON, jsonConverter.get(syncData)))
-                            .build()).execute();
-                }
-                catch(Throwable t)
-                {
-                    throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
-                }
-                switch(response.code())
-                {
-                    case Codes.SUCCESS:
-                        break;
-                    case Codes.UNAUTHORIZED:
-                        throw new ErrorsContract.UnauthorizedException();
-                    default:
-                        throw new UnknownError();
-                }
-            }
-        });
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .put(RequestBody.create(JSON, jsonConverter.get(syncData)))
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
+                break;
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new UnknownError();
+        }
     }
 }

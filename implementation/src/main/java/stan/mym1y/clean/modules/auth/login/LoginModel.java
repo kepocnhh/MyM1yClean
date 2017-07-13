@@ -2,11 +2,11 @@ package stan.mym1y.clean.modules.auth.login;
 
 import java.util.regex.Pattern;
 
+import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.auth.LoginContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.users.UserSecretData;
 import stan.mym1y.clean.data.remote.apis.AuthApi;
-import stan.reactive.single.SingleObservable;
 
 class LoginModel
     implements LoginContract.Model
@@ -39,7 +39,8 @@ class LoginModel
             throw  new LoginContract.ValidateDataException(LoginContract.ValidateDataException.Error.LOGIN_VALID);
         }
     }
-    public SingleObservable<UserPrivateData> login(UserSecretData data)
+    public UserPrivateData login(UserSecretData data)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
     {
         return authApi.postLogin(data);
     }
