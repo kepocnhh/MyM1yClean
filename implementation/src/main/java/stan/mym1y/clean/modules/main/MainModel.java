@@ -106,14 +106,14 @@ class MainModel
             switch(currency.minorUnitType())
             {
                 case TEN:
-                    int t1 = minorCount / 10;
-                    count += t1;
-                    minorCount -= t1;
+                    int t1 = count * 10 + minorCount;
+                    count = t1 / 10;
+                    minorCount = t1 - count * 10;
                     break;
                 case HUNDRED:
-                    int t2 = minorCount / 100;
-                    count += t2;
-                    minorCount -= t2;
+                    int t2 = count * 100 + minorCount;
+                    count = t2 / 100;
+                    minorCount = t2 - count * 100;
                     break;
             }
             list.add(new FullCashAccount(cashAccount, new CashAccountExtra(count, Math.abs(minorCount), currency)));
