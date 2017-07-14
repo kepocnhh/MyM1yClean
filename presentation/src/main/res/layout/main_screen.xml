@@ -21,9 +21,10 @@
                 android:layout_height="wrap_content"/>
             <ImageView
                 android:id="@+id/new_transaction"
-                android:src="@mipmap/ic_add_button"
+                android:src="@mipmap/plus"
                 android:scaleType="centerInside"
                 android:tint="@color/black"
+                android:padding="12dp"
                 android:layout_width="@dimen/container_size"
                 android:layout_height="match_parent"/>
             <ImageView

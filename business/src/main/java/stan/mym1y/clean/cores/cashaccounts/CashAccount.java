@@ -1,5 +1,7 @@
 package stan.mym1y.clean.cores.cashaccounts;
 
+import stan.mym1y.clean.cores.currencies.Currency;
+
 public interface CashAccount
 {
     long id();
@@ -9,6 +11,8 @@ public interface CashAccount
 
     interface Extra
     {
-        int balance();
+        int count();
+        int minorCount();
+        Currency currency();
     }
 }

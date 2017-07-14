@@ -10,6 +10,7 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.MainContract;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.cashaccounts.CashAccountViewModel;
+import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.transactions.Transaction;
@@ -94,12 +95,28 @@ class MainModel
         List<Tuple<CashAccount, CashAccount.Extra>> list = new ArrayList<>(cs.size());
         for(CashAccount cashAccount: cs)
         {
-            int balance = 0;
+            Currency currency = currencies.get(cashAccount.currencyCodeNumber());
+            int count = 0;
+            int minorCount = 0;
             for(Transaction t : transactions.getAllFromCashAccountId(cashAccount.id()))
             {
-                balance += t.count();
+                count += t.count();
+                minorCount = t.count() < 0 ? minorCount - t.minorCount() : minorCount + t.minorCount();
             }
-            list.add(new FullCashAccount(cashAccount, new CashAccountExtra(balance)));
+            switch(currency.minorUnitType())
+            {
+                case TEN:
+                    int t1 = minorCount / 10;
+                    count += t1;
+                    minorCount -= t1;
+                    break;
+                case HUNDRED:
+                    int t2 = minorCount / 100;
+                    count += t2;
+                    minorCount -= t2;
+                    break;
+            }
+            list.add(new FullCashAccount(cashAccount, new CashAccountExtra(count, Math.abs(minorCount), currency)));
         }
         return list;
     }

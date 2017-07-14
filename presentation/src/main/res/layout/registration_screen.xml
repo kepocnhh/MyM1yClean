@@ -66,8 +66,9 @@
         <ImageView
             android:id="@+id/new_transaction"
             android:src="@mipmap/arrow_left"
-            android:scaleType="center"
+            android:scaleType="centerInside"
             android:tint="@color/black"
+            android:padding="12dp"
             android:layout_width="@dimen/container_size"
             android:layout_height="match_parent"/>
         <TextView

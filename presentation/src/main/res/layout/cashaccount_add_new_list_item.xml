@@ -3,7 +3,7 @@
              android:layout_width="@dimen/container_size_large"
               android:layout_height="match_parent">
     <ImageView
-        android:src="@mipmap/ic_add_button"
+        android:src="@mipmap/plus"
         android:layout_gravity="center"
         android:layout_width="24dp"
         android:layout_height="24dp"/>

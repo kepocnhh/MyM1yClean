@@ -12,9 +12,9 @@ import stan.mym1y.clean.units.adapters.Holder;
 class CashAccountHolder
         extends Holder
 {
-//    private final TextView id;
     private final TextView title;
     private final TextView balance;
+    private final TextView currency;
 
     private final int positiveColor;
     private final int neutralColor;
@@ -23,9 +23,9 @@ class CashAccountHolder
     CashAccountHolder(Context context, ViewGroup parent)
     {
         super(context, parent, R.layout.cashaccount_list_item);
-//        id = view(R.id.id);
         title = view(R.id.title);
         balance = view(R.id.balance);
+        currency = view(R.id.currency);
         positiveColor = context.getResources().getColor(R.color.green);
         neutralColor = context.getResources().getColor(R.color.black);
         negativeColor = context.getResources().getColor(R.color.red);
@@ -43,20 +43,25 @@ class CashAccountHolder
     {
 //        id.setText(""+cashAccount.id());
         title.setText(""+cashAccount.title());
-        if(extra.balance() < 0)
-        {
-            balance.setText(String.valueOf(extra.balance()));
-            balance.setTextColor(negativeColor);
-        }
-        else if(extra.balance() > 0)
-        {
-            balance.setText("+" + extra.balance());
-            balance.setTextColor(positiveColor);
-        }
-        else
+        currency.setText(extra.currency().codeName());
+        if(extra.count() == 0 && extra.minorCount() == 0)
         {
             balance.setText("nothing");
             balance.setTextColor(neutralColor);
+            return;
         }
+        switch(extra.currency().minorUnitType())
+        {
+            case NONE:
+                balance.setText((extra.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(extra.count())));
+                break;
+            case TEN:
+                balance.setText((extra.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(extra.count())) + "." + String.valueOf(extra.minorCount()));
+                break;
+            case HUNDRED:
+                balance.setText((extra.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(extra.count())) + "." + (extra.minorCount() < 10 ? "0" + extra.minorCount() : extra.minorCount()));
+                break;
+        }
+        balance.setTextColor(extra.count() > 0 ? positiveColor : negativeColor);
     }
 }
