@@ -14,12 +14,14 @@ public class EnterCountFragment
     static private String MINOR_UNIT_TYPE = "minor_unit_type";
     static private String COUNT = "count";
     static private String MINOR_COUNT = "minor_count";
-    static public UtilFragment newInstance(Listener l, Currency.MinorUnitType minorUnitType, int count, int minorCount)
+    static private String INCOME = "income";
+    static public UtilFragment newInstance(Listener l, Currency.MinorUnitType minorUnitType, boolean income, int count, int minorCount)
     {
         EnterCountFragment fragment = new EnterCountFragment();
         fragment.listener = l;
         Bundle bundle = new Bundle();
         bundle.putString(MINOR_UNIT_TYPE, minorUnitType.name());
+        bundle.putBoolean(INCOME, income);
         bundle.putInt(COUNT, count);
         bundle.putInt(MINOR_COUNT, minorCount);
         fragment.setArguments(bundle);
@@ -83,7 +85,7 @@ public class EnterCountFragment
                 backspace();
                 break;
             case R.id.confirm:
-                listener.confirm(income ? count : -count, minorCount);
+                listener.confirm(income, count, minorCount);
                 break;
             case R.id.cancel:
                 listener.cancel();
@@ -139,7 +141,7 @@ public class EnterCountFragment
         minorUnitType = Currency.MinorUnitType.valueOf(getArguments().getString(MINOR_UNIT_TYPE));
         count = getArguments().getInt(COUNT);
         minorCount = getArguments().getInt(MINOR_COUNT);
-        income = count >= 0;
+        income = getArguments().getBoolean(INCOME);
         if(count < 0)
         {
             count *= -1;
@@ -248,7 +250,7 @@ public class EnterCountFragment
 
     public interface Listener
     {
-        void confirm(int count, int minorCount);
+        void confirm(boolean income, int count, int minorCount);
         void cancel();
     }
 }

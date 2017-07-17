@@ -7,13 +7,15 @@ public class TransactionView
 {
     private final long cashAccountId;
     private final long date;
+    private final boolean income;
     private final int count;
     private final int minorCount;
 
-    public TransactionView(long cai, long d, int c, int mc)
+    public TransactionView(long cai, long d, boolean ic, int c, int mc)
     {
         cashAccountId = cai;
         date = d;
+        income = ic;
         count = c;
         minorCount = mc;
     }
@@ -25,6 +27,10 @@ public class TransactionView
     public long date()
     {
         return date;
+    }
+    public boolean income()
+    {
+        return income;
     }
     public int count()
     {

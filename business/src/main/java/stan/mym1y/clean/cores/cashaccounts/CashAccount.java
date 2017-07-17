@@ -11,6 +11,7 @@ public interface CashAccount
 
     interface Extra
     {
+        boolean income();
         int count();
         int minorCount();
         Currency currency();

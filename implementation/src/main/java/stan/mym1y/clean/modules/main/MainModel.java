@@ -100,8 +100,8 @@ class MainModel
             int minorCount = 0;
             for(Transaction t : transactions.getAllFromCashAccountId(cashAccount.id()))
             {
-                count += t.count();
-                minorCount = t.count() < 0 ? minorCount - t.minorCount() : minorCount + t.minorCount();
+                count = t.income() ? count + t.count() : count - t.count();
+                minorCount = t.income() ? minorCount + t.minorCount() : minorCount - t.minorCount();
             }
             switch(currency.minorUnitType())
             {
@@ -116,7 +116,7 @@ class MainModel
                     minorCount = t2 - count * 100;
                     break;
             }
-            list.add(new FullCashAccount(cashAccount, new CashAccountExtra(count, Math.abs(minorCount), currency)));
+            list.add(new FullCashAccount(cashAccount, new CashAccountExtra(!(count < 0 || minorCount < 0), Math.abs(count), Math.abs(minorCount), currency)));
         }
         return list;
     }
@@ -227,6 +227,33 @@ class MainModel
             }
         });
     }
+    public CashAccount.Extra getBalance(Currency currency)
+    {
+        int count = 0;
+        int minorCount = 0;
+        for(CashAccount cashAccount : cashAccounts.getAllFromCurrencyCodeNumber(currency.codeNumber()))
+        {
+            for(Transaction t : transactions.getAllFromCashAccountId(cashAccount.id()))
+            {
+                count = t.income() ? count + t.count() : count - t.count();
+                minorCount = t.income() ? minorCount + t.minorCount() : minorCount - t.minorCount();
+            }
+        }
+        switch(currency.minorUnitType())
+        {
+            case TEN:
+                int t1 = count * 10 + minorCount;
+                count = t1 / 10;
+                minorCount = t1 - count * 10;
+                break;
+            case HUNDRED:
+                int t2 = count * 100 + minorCount;
+                count = t2 / 100;
+                minorCount = t2 - count * 100;
+                break;
+        }
+        return new CashAccountExtra(!(count < 0 || minorCount < 0), Math.abs(count), Math.abs(minorCount), currency);
+    }
     private CashAccountRequest getCashAccountRequest(CashAccount cashAccount)
     {
         return new CashAccountRequestData(cashAccount, transactions.getAllFromCashAccountId(cashAccount.id()));
@@ -239,15 +266,6 @@ class MainModel
             list.add(getCashAccountRequest(cashAccount));
         }
         return list;
-    }
-    public int getBalance()
-    {
-        int b = 0;
-        for(Transaction t : transactions.getAll())
-        {
-            b += t.count();
-        }
-        return b;
     }
     public void delete(CashAccount cashAccount)
     {
@@ -280,7 +298,12 @@ class MainModel
         {
             public Transaction apply()
             {
-                Transaction newTransaction = new TransactionData(security.newUniqueId(), transactionViewModel.cashAccountId(), transactionViewModel.date(), transactionViewModel.count(), transactionViewModel.minorCount());
+                Transaction newTransaction = new TransactionData(security.newUniqueId(),
+                        transactionViewModel.cashAccountId(),
+                        transactionViewModel.date(),
+                        transactionViewModel.income(),
+                        transactionViewModel.count(),
+                        transactionViewModel.minorCount());
                 transactions.add(newTransaction);
                 updateSyncData();
                 return newTransaction;

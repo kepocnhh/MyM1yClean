@@ -16,6 +16,7 @@ class CashAccountHolder
     private final TextView balance;
     private final TextView currency;
 
+    private final String nothing_label;
     private final int positiveColor;
     private final int neutralColor;
     private final int negativeColor;
@@ -26,6 +27,7 @@ class CashAccountHolder
         title = view(R.id.title);
         balance = view(R.id.balance);
         currency = view(R.id.currency);
+        nothing_label = context.getResources().getString(R.string.nothing_label);
         positiveColor = context.getResources().getColor(R.color.green);
         neutralColor = context.getResources().getColor(R.color.black);
         negativeColor = context.getResources().getColor(R.color.red);
@@ -46,22 +48,22 @@ class CashAccountHolder
         currency.setText(extra.currency().codeName());
         if(extra.count() == 0 && extra.minorCount() == 0)
         {
-            balance.setText("nothing");
+            balance.setText(nothing_label);
             balance.setTextColor(neutralColor);
             return;
         }
+        String left = extra.income() ? "+" : "-";
+        String middle = String.valueOf(Math.abs(extra.count()));
         switch(extra.currency().minorUnitType())
         {
-            case NONE:
-                balance.setText((extra.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(extra.count())));
-                break;
             case TEN:
-                balance.setText((extra.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(extra.count())) + "." + String.valueOf(extra.minorCount()));
+                middle += "." + String.valueOf(extra.minorCount());
                 break;
             case HUNDRED:
-                balance.setText((extra.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(extra.count())) + "." + (extra.minorCount() < 10 ? "0" + extra.minorCount() : extra.minorCount()));
+                middle += "." + (extra.minorCount() < 10 ? "0" + extra.minorCount() : extra.minorCount());
                 break;
         }
-        balance.setTextColor(extra.count() > 0 ? positiveColor : negativeColor);
+        balance.setText(left + middle);
+        balance.setTextColor(extra.income() ? positiveColor : negativeColor);
     }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.cashaccounts.CashAccountViewModel;
+import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.reactive.Tuple;
@@ -19,7 +20,7 @@ public interface MainContract
         NotifyObservable updateAll();
         NotifyObservable sendAllUpdatings();
         NotifyObservable sendUpdatingsCashAccount(long cashAccountId);
-        int getBalance();
+        CashAccount.Extra getBalance(Currency currency);
         void delete(CashAccount cashAccount);
         void delete(Transaction transaction);
         SingleObservable<CashAccount> add(CashAccountViewModel cashAccount);
@@ -34,7 +35,8 @@ public interface MainContract
         void emptyCashAccounts();
         void emptyTransactions(List<Tuple<CashAccount, CashAccount.Extra>> cashAccounts);
         void update(List<Tuple<CashAccount, CashAccount.Extra>> cashAccounts, List<Tuple<Transaction, Transaction.Extra>> transactions);
-        void update(int balance);
+        void update(CashAccount.Extra balance);
+        void update(List<CashAccount.Extra> balance);
     }
     interface Presenter
     {

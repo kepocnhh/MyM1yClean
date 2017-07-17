@@ -30,6 +30,7 @@ public class Transactions
                 map.put("count", data.count());
                 map.put("minorCount", data.minorCount());
                 map.put("date", data.date());
+                map.put("income", data.income());
                 return map;
             }
             public Transaction read(Map map)
@@ -37,6 +38,7 @@ public class Transactions
                 return new TransactionData((Long)map.get("id"),
                         (Long)map.get("cashAccountId"),
                         (Long)map.get("date"),
+                        (Boolean)map.get("income"),
                         ((Long)map.get("count")).intValue(),
                         ((Long)map.get("minorCount")).intValue());
             }

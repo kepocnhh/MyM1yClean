@@ -7,6 +7,7 @@ public interface Transaction
     long id();
     long cashAccountId();
     long date();
+    boolean income();
     int count();
     int minorCount();
 

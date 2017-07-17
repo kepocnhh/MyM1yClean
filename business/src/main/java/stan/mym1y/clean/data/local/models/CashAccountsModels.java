@@ -9,6 +9,7 @@ public interface CashAccountsModels
     interface CashAccounts
     {
         List<CashAccount> getAll();
+        List<CashAccount> getAllFromCurrencyCodeNumber(String codeNumber);
         CashAccount get(long id);
         void remove(long id);
         void add(CashAccount cashAccount);

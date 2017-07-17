@@ -48,7 +48,7 @@ public class AddNewTransactionFragment
         }
         public void updateTransaction(TransactionViewModel transactionViewModel, Currency currency)
         {
-            setCounts(currency, transactionViewModel.count(), transactionViewModel.minorCount());
+            setCounts(currency, transactionViewModel);
         }
         public void error(AddNewTransactionContract.ValidateDataException exception)
         {
@@ -63,9 +63,9 @@ public class AddNewTransactionFragment
     private CashAccountsAdapter cashAccountsAdapter;
     private final EnterCountFragment.Listener enterCountListener = new EnterCountFragment.Listener()
     {
-        public void confirm(int count, int minorCount)
+        public void confirm(boolean income, int count, int minorCount)
         {
-            presenter.setCount(count, minorCount);
+            presenter.setCount(income, count, minorCount);
             clear(R.id.enter_count_subscreen);
             setSystemUiVisibilityLight(true);
             setStatusBarColor(getActivity().getResources().getColor(R.color.white));
@@ -77,6 +77,7 @@ public class AddNewTransactionFragment
             setStatusBarColor(getActivity().getResources().getColor(R.color.white));
         }
     };
+    private String nothing_label;
     private int positiveColor;
     private int negativeColor;
     private int neutralColor;
@@ -96,7 +97,11 @@ public class AddNewTransactionFragment
                 {
                     public void success(Tuple<TransactionViewModel, Currency> tuple)
                     {
-                        replace(R.id.enter_count_subscreen, EnterCountFragment.newInstance(enterCountListener, tuple.second().minorUnitType(), tuple.first().count(), tuple.first().minorCount()));
+                        replace(R.id.enter_count_subscreen, EnterCountFragment.newInstance(enterCountListener,
+                                tuple.second().minorUnitType(),
+                                tuple.first().income(),
+                                tuple.first().count(),
+                                tuple.first().minorCount()));
                         setSystemUiVisibilityLight(false);
                     }
                 });
@@ -130,34 +135,34 @@ public class AddNewTransactionFragment
                 App.component().dataLocal().currenciesAccess().currencies()));
         presenter.update();
         presenter.setDate(System.currentTimeMillis());
+        nothing_label = getActivity().getResources().getString(R.string.nothing_label);
         positiveColor = getActivity().getResources().getColor(R.color.green);
         negativeColor = getActivity().getResources().getColor(R.color.red);
         neutralColor = getActivity().getResources().getColor(R.color.graydark);
     }
 
 
-    private void setCounts(Currency currency, int count, int minorCount)
+    private void setCounts(Currency currency, TransactionViewModel transaction)
     {
-        if(count == 0 && minorCount == 0)
+        if(transaction.count() == 0 && transaction.minorCount() == 0)
         {
-            count_text.setText("nothing");
+            count_text.setText(nothing_label);
             count_text.setTextColor(neutralColor);
+            return;
         }
-        else
+        String left = transaction.income() ? "+" : "-";
+        String middle = String.valueOf(Math.abs(transaction.count()));
+        String right = currency.codeName();
+        switch(currency.minorUnitType())
         {
-            switch(currency.minorUnitType())
-            {
-                case NONE:
-                    count_text.setText((count > 0 ? "+" : "-") + String.valueOf(Math.abs(count)) + " " + currency.codeName());
-                    break;
-                case TEN:
-                    count_text.setText((count > 0 ? "+" : "-") + String.valueOf(Math.abs(count)) + "." + String.valueOf(minorCount) + " " + currency.codeName());
-                    break;
-                case HUNDRED:
-                    count_text.setText((count > 0 ? "+" : "-") + String.valueOf(Math.abs(count)) + "." + (minorCount < 10 ? "0" + minorCount : minorCount) + " " + currency.codeName());
-                    break;
-            }
-            count_text.setTextColor(count > 0 ? positiveColor : negativeColor);
+            case TEN:
+                middle += "." + String.valueOf(transaction.minorCount());
+                break;
+            case HUNDRED:
+                middle += "." + (transaction.minorCount() < 10 ? "0" + transaction.minorCount() : transaction.minorCount());
+                break;
         }
+        count_text.setText(left + middle + " " + right);
+        count_text.setTextColor(transaction.income() ? positiveColor : negativeColor);
     }
 }

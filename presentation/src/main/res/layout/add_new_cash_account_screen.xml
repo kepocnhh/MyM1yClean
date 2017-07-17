@@ -21,7 +21,7 @@
         <stan.mym1y.clean.units.views.LostFocusEditText
             android:id="@+id/title"
             android:lines="1"
-            android:inputType="textEmailAddress"
+            android:inputType="text"
             android:maxLines="1"
             android:maxLength="25"
             android:textSize="@dimen/text_size_big"

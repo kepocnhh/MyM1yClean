@@ -4,6 +4,7 @@ public interface TransactionViewModel
 {
     long cashAccountId();
     long date();
+    boolean income();
     int count();
     int minorCount();
 }

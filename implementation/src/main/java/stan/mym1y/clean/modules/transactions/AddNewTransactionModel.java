@@ -21,7 +21,7 @@ class AddNewTransactionModel
     {
         cashAccounts = cas;
         currencies = cus;
-        transactionViewModel = new TransactionView(-1, -1, 0, 0);
+        transactionViewModel = new TransactionView(-1, -1, true, 0, 0);
     }
 
     public List<CashAccount> getCashAccounts()
@@ -30,16 +30,28 @@ class AddNewTransactionModel
     }
     public void setCashAccount(CashAccount cashAccount)
     {
-        transactionViewModel = new TransactionView(cashAccount.id(), transactionViewModel.date(), transactionViewModel.count(), transactionViewModel.minorCount());
+        transactionViewModel = new TransactionView(cashAccount.id(),
+                transactionViewModel.date(),
+                transactionViewModel.income(),
+                transactionViewModel.count(),
+                transactionViewModel.minorCount());
         currency = currencies.get(cashAccount.currencyCodeNumber());
     }
-    public void setCount(int count, int minorCount)
+    public void setCount(boolean income, int count, int minorCount)
     {
-        transactionViewModel = new TransactionView(transactionViewModel.cashAccountId(), transactionViewModel.date(), count, minorCount);
+        transactionViewModel = new TransactionView(transactionViewModel.cashAccountId(),
+                transactionViewModel.date(),
+                income,
+                count,
+                minorCount);
     }
     public void setDate(long date)
     {
-        transactionViewModel = new TransactionView(transactionViewModel.cashAccountId(), date, transactionViewModel.count(), transactionViewModel.minorCount());
+        transactionViewModel = new TransactionView(transactionViewModel.cashAccountId(),
+                date,
+                transactionViewModel.income(),
+                transactionViewModel.count(),
+                transactionViewModel.minorCount());
     }
     public void checkNewTransaction()
             throws AddNewTransactionContract.ValidateDataException

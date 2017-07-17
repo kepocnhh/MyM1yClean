@@ -35,13 +35,13 @@ class AddNewTransactionPresenter
         if(cashAccount.id() != model().getNewTransaction().cashAccountId())
         {
             model().setCashAccount(cashAccount);
-            model().setCount(0, 0);
+            model().setCount(true, 0, 0);
             view().updateTransaction(model().getNewTransaction(), model().getCurrency());
         }
     }
-    public void setCount(int count, int minorCount)
+    public void setCount(boolean income, int count, int minorCount)
     {
-        model().setCount(count, minorCount);
+        model().setCount(income ,count, minorCount);
         view().updateTransaction(model().getNewTransaction(), model().getCurrency());
     }
     public void setDate(long date)

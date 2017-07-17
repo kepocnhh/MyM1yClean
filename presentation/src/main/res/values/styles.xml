@@ -7,4 +7,12 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
+    <style name="BalanceSpinner">
+        <item name="android:dropDownListViewStyle">@style/BalanceSpinnerStyle</item>
+    </style>
+    <style name="BalanceSpinnerStyle" parent="android:Widget.ListView.DropDown">
+        <item name="android:divider">#00000000</item>
+        <item name="android:dividerHeight">0px</item>
+    </style>
+
 </resources>

@@ -37,25 +37,26 @@ class TransactionHolder
     }
     void render(Transaction transaction, Transaction.Extra extra)
     {
+        String left = transaction.income() ? "+" : "-";
+        String middle = String.valueOf(Math.abs(transaction.count()));
+        String right = extra.currency().codeName();
         switch(extra.currency().minorUnitType())
         {
-            case NONE:
-                count.setText((transaction.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(transaction.count())) + " " + extra.currency().codeName());
-                break;
             case TEN:
-                count.setText((transaction.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(transaction.count())) + "." + String.valueOf(transaction.minorCount()) + " " + extra.currency().codeName());
+                middle += "." + String.valueOf(transaction.minorCount());
                 break;
             case HUNDRED:
-                count.setText((transaction.count() > 0 ? "+" : "-") + String.valueOf(Math.abs(transaction.count())) + "." + (transaction.minorCount() < 10 ? "0" + transaction.minorCount() : transaction.minorCount()) + " " + extra.currency().codeName());
+                middle += "." + (transaction.minorCount() < 10 ? "0" + transaction.minorCount() : transaction.minorCount());
                 break;
         }
-        count.setTextColor(transaction.count() > 0 ? positiveColor : negativeColor);
+        count.setText(left + middle + " " + right);
+        count.setTextColor(transaction.income() ? positiveColor : negativeColor);
         Date dt = new Date(transaction.date());
         date.setText(proxy((dt.getYear()-100)) + "." + proxy((dt.getMonth()+1)) + "." + proxy(dt.getDate()) + " " + proxy(dt.getHours()) + ":" + proxy(dt.getMinutes()) + ":" + proxy(dt.getSeconds()));
         cash_account.setText(extra.cashAccountTitle());
     }
     private String proxy(int num)
     {
-        return num < 10 ? "0"+num : ""+num;
+        return (num < 10 ? "0" : "") + num;
     }
 }

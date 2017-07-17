@@ -14,7 +14,7 @@ public interface AddNewTransactionContract
     {
         List<CashAccount> getCashAccounts();
         void setCashAccount(CashAccount cashAccount);
-        void setCount(int count, int minorCount);
+        void setCount(boolean income, int count, int minorCount);
         void setDate(long date);
         void checkNewTransaction() throws ValidateDataException;
         TransactionViewModel getNewTransaction();
@@ -32,7 +32,7 @@ public interface AddNewTransactionContract
         void update();
         SingleObservable<Tuple<TransactionViewModel, Currency>> updateTransaction();
         void setCashAccount(CashAccount cashAccount);
-        void setCount(int count, int minorCount);
+        void setCount(boolean income, int count, int minorCount);
         void setDate(long date);
         void addNewTransaction();
     }

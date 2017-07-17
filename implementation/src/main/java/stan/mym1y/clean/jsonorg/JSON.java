@@ -79,6 +79,7 @@ public class JSON
     {
         return new JSONObject().put("id", transaction.id())
 //                               .put("cashAccountId", transaction.cashAccountId())
+                               .put("income", transaction.income())
                                .put("count", transaction.count())
                                .put("minorCount", transaction.minorCount())
                                .put("date", transaction.date());
@@ -239,6 +240,7 @@ public class JSON
 //                object.getLong("cashAccountId"),
                 cashAccountId,
                 object.getLong("date"),
+                object.getBoolean("income"),
                 object.getInt("count"),
                 object.getInt("minorCount"));
     }

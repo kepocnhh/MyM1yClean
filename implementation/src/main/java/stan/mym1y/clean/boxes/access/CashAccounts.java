@@ -22,6 +22,16 @@ public class CashAccounts
         {
             return cashAccountsBox.getAll();
         }
+        public List<CashAccount> getAllFromCurrencyCodeNumber(final String codeNumber)
+        {
+            return cashAccountsBox.get(new Query<CashAccount>()
+            {
+                public boolean query(CashAccount cashAccount)
+                {
+                    return cashAccount.currencyCodeNumber().equals(codeNumber);
+                }
+            });
+        }
         public CashAccount get(final long id)
         {
             List<CashAccount> transactions = cashAccountsBox.get(new Query<CashAccount>()
