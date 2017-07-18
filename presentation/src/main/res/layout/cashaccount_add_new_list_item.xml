@@ -3,6 +3,7 @@
              android:layout_width="@dimen/container_size_large"
               android:layout_height="match_parent">
     <ImageView
+        android:id="@+id/add_new_cash_account"
         android:src="@mipmap/plus"
         android:layout_gravity="center"
         android:layout_width="24dp"

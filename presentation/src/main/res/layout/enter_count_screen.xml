@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:clickable="true"
+              android:id="@+id/background"
               android:background="@color/white"
+              android:clickable="true"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -160,18 +161,14 @@
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"/>
-            <FrameLayout
+            <ImageView
                 android:id="@+id/backspace"
+                android:src="@mipmap/backspace"
+                android:tint="@color/black"
+                android:padding="24dp"
                 android:layout_weight="1"
                 android:layout_width="0dp"
-                android:layout_height="match_parent">
-                <ImageView
-                    android:src="@mipmap/backspace"
-                    android:tint="@color/black"
-                    android:layout_gravity="center"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"/>
-            </FrameLayout>
+                android:layout_height="match_parent"/>
         </LinearLayout>
     </LinearLayout>
     <LinearLayout

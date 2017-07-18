@@ -7,22 +7,21 @@ import android.widget.TextView;
 
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.cores.currencies.Currency;
+import stan.mym1y.clean.cores.ui.Theme;
 import stan.mym1y.clean.units.adapters.Holder;
 
 class CurrencyHolder
         extends Holder
 {
+    private final Theme theme;
+
     private final TextView code_name;
 
-    private final int selectColor;
-    private final int normalColor;
-
-    CurrencyHolder(Context context, ViewGroup parent)
+    CurrencyHolder(Context context, ViewGroup parent, Theme t)
     {
         super(context, parent, R.layout.currency_select_list_item);
+        theme = t;
         code_name = view(R.id.code_name);
-        selectColor = context.getResources().getColor(R.color.colorPrimary);
-        normalColor = context.getResources().getColor(R.color.black);
     }
 
     void setClick(View.OnClickListener listener)
@@ -32,6 +31,6 @@ class CurrencyHolder
     void render(Currency cashAccount, boolean select)
     {
         code_name.setText(cashAccount.codeName());
-        code_name.setTextColor(select ? selectColor : normalColor);
+        code_name.setTextColor(select ? theme.colors().accent() : theme.colors().foreground());
     }
 }

@@ -9,26 +9,34 @@ import java.util.Date;
 
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.cores.transactions.Transaction;
+import stan.mym1y.clean.cores.ui.Theme;
 import stan.mym1y.clean.units.adapters.Holder;
 
 class TransactionHolder
     extends Holder
 {
+    private final Theme theme;
+
     private final TextView count;
     private final TextView cash_account;
     private final TextView date;
+    private final View divider;
 
-    private final int positiveColor;
-    private final int negativeColor;
-
-    TransactionHolder(Context context, ViewGroup parent)
+    TransactionHolder(Context context, ViewGroup parent, Theme t)
     {
         super(context, parent, R.layout.transaction_list_item);
+        theme = t;
         count = view(R.id.count);
         cash_account = view(R.id.cash_account);
         date = view(R.id.date);
-        positiveColor = context.getResources().getColor(R.color.green);
-        negativeColor = context.getResources().getColor(R.color.red);
+        divider = view(R.id.divider);
+        setTheme();
+    }
+    private void setTheme()
+    {
+        cash_account.setTextColor(theme.colors().foreground());
+        date.setTextColor(theme.colors().foreground());
+        divider.setBackgroundColor(theme.colors().foreground());
     }
 
     void setLongClick(View.OnLongClickListener listener)
@@ -50,7 +58,7 @@ class TransactionHolder
                 break;
         }
         count.setText(left + middle + " " + right);
-        count.setTextColor(transaction.income() ? positiveColor : negativeColor);
+        count.setTextColor(transaction.income() ? theme.colors().positive() : theme.colors().negative());
         Date dt = new Date(transaction.date());
         date.setText(proxy((dt.getYear()-100)) + "." + proxy((dt.getMonth()+1)) + "." + proxy(dt.getDate()) + " " + proxy(dt.getHours()) + ":" + proxy(dt.getMinutes()) + ":" + proxy(dt.getSeconds()));
         cash_account.setText(extra.cashAccountTitle());

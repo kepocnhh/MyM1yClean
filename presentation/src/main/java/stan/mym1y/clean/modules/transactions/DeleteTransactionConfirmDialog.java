@@ -3,8 +3,11 @@ package stan.mym1y.clean.modules.transactions;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
+import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
+import stan.mym1y.clean.cores.ui.Theme;
 import stan.mym1y.clean.units.dialogs.UtilDialog;
 
 public class DeleteTransactionConfirmDialog
@@ -16,6 +19,12 @@ public class DeleteTransactionConfirmDialog
         fragment.listener = l;
         return fragment;
     }
+
+    private View background;
+    private TextView title_text;
+    private TextView message_text;
+    private TextView cancel;
+    private TextView confirm;
 
     private Listener listener;
 
@@ -43,10 +52,24 @@ public class DeleteTransactionConfirmDialog
     }
     protected void initViews(View v)
     {
-        setClickListener(findView(R.id.confirm), findView(R.id.cancel));
+        background = findView(R.id.background);
+        title_text = findView(R.id.title_text);
+        message_text = findView(R.id.message_text);
+        cancel = findView(R.id.cancel);
+        confirm = findView(R.id.confirm);
+        setClickListener(cancel, confirm);
     }
     protected void init()
     {
+        setTheme(App.component().themeSwitcher().theme());
+    }
+    private void setTheme(Theme theme)
+    {
+        background.setBackgroundColor(theme.colors().background());
+        title_text.setTextColor(theme.colors().foreground());
+        message_text.setTextColor(theme.colors().foreground());
+        cancel.setTextColor(theme.colors().foreground());
+        confirm.setTextColor(theme.colors().alert());
     }
 
     public interface Listener

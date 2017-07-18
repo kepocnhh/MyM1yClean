@@ -7,30 +7,34 @@ import android.widget.TextView;
 
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
+import stan.mym1y.clean.cores.ui.Theme;
 import stan.mym1y.clean.units.adapters.Holder;
 
 class CashAccountHolder
         extends Holder
 {
+    private final Theme theme;
+
     private final TextView title;
     private final TextView balance;
     private final TextView currency;
 
     private final String nothing_label;
-    private final int positiveColor;
-    private final int neutralColor;
-    private final int negativeColor;
 
-    CashAccountHolder(Context context, ViewGroup parent)
+    CashAccountHolder(Context context, ViewGroup parent, Theme t)
     {
         super(context, parent, R.layout.cashaccount_list_item);
+        theme = t;
         title = view(R.id.title);
         balance = view(R.id.balance);
         currency = view(R.id.currency);
         nothing_label = context.getResources().getString(R.string.nothing_label);
-        positiveColor = context.getResources().getColor(R.color.green);
-        neutralColor = context.getResources().getColor(R.color.black);
-        negativeColor = context.getResources().getColor(R.color.red);
+        setTheme();
+    }
+    private void setTheme()
+    {
+        title.setTextColor(theme.colors().foreground());
+        currency.setTextColor(theme.colors().foreground());
     }
 
     void setClick(View.OnClickListener listener)
@@ -49,7 +53,7 @@ class CashAccountHolder
         if(extra.count() == 0 && extra.minorCount() == 0)
         {
             balance.setText(nothing_label);
-            balance.setTextColor(neutralColor);
+            balance.setTextColor(theme.colors().neutral());
             return;
         }
         String left = extra.income() ? "+" : "-";
@@ -64,6 +68,6 @@ class CashAccountHolder
                 break;
         }
         balance.setText(left + middle);
-        balance.setTextColor(extra.income() ? positiveColor : negativeColor);
+        balance.setTextColor(extra.income() ? theme.colors().positive() : theme.colors().negative());
     }
 }

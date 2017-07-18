@@ -7,9 +7,12 @@ import stan.boxes.Case;
 import stan.boxes.ORM;
 import stan.mym1y.clean.components.Settings;
 import stan.mym1y.clean.cores.sync.SyncData;
+import stan.mym1y.clean.cores.ui.Theme;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.versions.Versions;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
+import stan.mym1y.clean.modules.ui.ColorsData;
+import stan.mym1y.clean.modules.ui.ThemeData;
 import stan.mym1y.clean.modules.users.UserData;
 import stan.mym1y.clean.modules.versions.VersionsData;
 
@@ -19,9 +22,15 @@ public class Cases
     private final Case<Versions> versionsCase;
     private final Case<UserPrivateData> userPrivateDataCase;
     private final Case<SyncData> syncDataCase;
+    private final Case<Theme> themeCase;
 
-    public Cases(String path)
+    private final Theme darkTheme;
+    private final Theme lightTheme;
+
+    public Cases(String path, Theme dt, Theme lt)
     {
+        darkTheme = dt;
+        lightTheme = lt;
         userPrivateDataCase = new Case<>(new UserData(null, null, null), new ORM<UserPrivateData>()
         {
             public Map write(UserPrivateData data)
@@ -67,7 +76,34 @@ public class Cases
                         (Long)map.get("version"),
                         (Long)map.get("currencies"));
             }
-        }, path + "versionsCase");
+        }, path + "/versionsCase");
+        themeCase = new Case<>(lightTheme, new ORM<Theme>()
+        {
+            public Map write(Theme theme)
+            {
+                Map map = new HashMap();
+                map.put("color_background", theme.colors().background());
+                map.put("color_foreground", theme.colors().foreground());
+                map.put("color_accent", theme.colors().accent());
+                map.put("color_positive", theme.colors().positive());
+                map.put("color_neutral", theme.colors().neutral());
+                map.put("color_negative", theme.colors().negative());
+                map.put("color_alert", theme.colors().alert());
+                map.put("color_confirm", theme.colors().confirm());
+                return map;
+            }
+            public Theme read(Map map)
+            {
+                return new ThemeData(new ColorsData(((Long)map.get("color_background")).intValue(),
+                        ((Long)map.get("color_foreground")).intValue(),
+                        ((Long)map.get("color_accent")).intValue(),
+                        ((Long)map.get("color_positive")).intValue(),
+                        ((Long)map.get("color_neutral")).intValue(),
+                        ((Long)map.get("color_negative")).intValue(),
+                        ((Long)map.get("color_alert")).intValue(),
+                        ((Long)map.get("color_confirm")).intValue()));
+            }
+        }, path + "/themeCase");
     }
 
     public Versions getVersions()
@@ -100,5 +136,18 @@ public class Cases
     public void setSyncData(SyncData data)
     {
         syncDataCase.save(data);
+    }
+
+    public Theme getCurrentTheme()
+    {
+        return themeCase.get();
+    }
+    public void setDarkTheme()
+    {
+        themeCase.save(darkTheme);
+    }
+    public void setLightTheme()
+    {
+        themeCase.save(lightTheme);
     }
 }

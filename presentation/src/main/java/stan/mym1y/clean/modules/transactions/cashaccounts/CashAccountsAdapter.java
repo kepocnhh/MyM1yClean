@@ -10,19 +10,22 @@ import java.util.List;
 
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
+import stan.mym1y.clean.cores.ui.Theme;
 import stan.mym1y.clean.units.adapters.Holder;
 
-public class CashAccountsAdapter
+class CashAccountsAdapter
         extends RecyclerView.Adapter<CashAccountsAdapter.CashAccountHolder>
 {
     private final Context context;
-    private final Listener listener;
+    private final Theme theme;
+    private final CashAccountsList.Listener listener;
     private List<CashAccount> data;
     private long selectId;
 
-    public CashAccountsAdapter(Context c, Listener l)
+    CashAccountsAdapter(Context c, Theme t, CashAccountsList.Listener l)
     {
         context = c;
+        theme = t;
         listener = l;
     }
 
@@ -66,11 +69,6 @@ public class CashAccountsAdapter
         }
     }
 
-    public interface Listener
-    {
-        void cashAccount(CashAccount cashAccount);
-    }
-
     class CashAccountHolder
         extends Holder
     {
@@ -89,7 +87,7 @@ public class CashAccountsAdapter
         void render(CashAccount cashAccount, boolean select)
         {
             title.setText(cashAccount.title());
-            title.setTextColor(select ? context.getResources().getColor(R.color.colorPrimary) : context.getResources().getColor(R.color.black));
+            title.setTextColor(select ? theme.colors().accent() : theme.colors().foreground());
         }
     }
 }

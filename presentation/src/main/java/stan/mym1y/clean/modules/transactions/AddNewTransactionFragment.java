@@ -1,6 +1,5 @@
 package stan.mym1y.clean.modules.transactions;
 
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
@@ -13,7 +12,8 @@ import stan.mym1y.clean.contracts.transactions.AddNewTransactionContract;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
-import stan.mym1y.clean.modules.transactions.cashaccounts.CashAccountsAdapter;
+import stan.mym1y.clean.cores.ui.Theme;
+import stan.mym1y.clean.modules.transactions.cashaccounts.CashAccountsList;
 import stan.mym1y.clean.units.fragments.UtilFragment;
 import stan.reactive.Tuple;
 import stan.reactive.single.SingleObserver;
@@ -37,8 +37,7 @@ public class AddNewTransactionFragment
             {
                 public void run()
                 {
-                    cashAccountsAdapter.swapData(cashAccounts);
-                    cashAccountsAdapter.notifyDataSetChanged();
+                    cashAccountsList.swapData(cashAccounts);
                 }
             });
         }
@@ -57,10 +56,15 @@ public class AddNewTransactionFragment
     };
     private AddNewTransactionContract.Behaviour behaviour;
 
-    private RecyclerView cash_accounts;
-    private TextView count_text;
+    private CashAccountsList cashAccountsList;
 
-    private CashAccountsAdapter cashAccountsAdapter;
+    private View background;
+    private TextView set_cash_account_text;
+    private TextView enter_count_text;
+    private TextView count_text;
+    private TextView add;
+    private TextView cancel;
+
     private final EnterCountFragment.Listener enterCountListener = new EnterCountFragment.Listener()
     {
         public void confirm(boolean income, int count, int minorCount)
@@ -68,19 +72,17 @@ public class AddNewTransactionFragment
             presenter.setCount(income, count, minorCount);
             clear(R.id.enter_count_subscreen);
             setSystemUiVisibilityLight(true);
-            setStatusBarColor(getActivity().getResources().getColor(R.color.white));
+            setStatusBarColor(currentTheme.colors().background());
         }
         public void cancel()
         {
             clear(R.id.enter_count_subscreen);
             setSystemUiVisibilityLight(true);
-            setStatusBarColor(getActivity().getResources().getColor(R.color.white));
+            setStatusBarColor(currentTheme.colors().background());
         }
     };
     private String nothing_label;
-    private int positiveColor;
-    private int negativeColor;
-    private int neutralColor;
+    private Theme currentTheme;
 
     protected void onClickView(int id)
     {
@@ -114,40 +116,46 @@ public class AddNewTransactionFragment
     }
     protected void initViews(View v)
     {
-        cash_accounts = findView(R.id.cash_accounts);
+        background = findView(R.id.background);
+        set_cash_account_text = findView(R.id.set_cash_account_text);
+        enter_count_text = findView(R.id.enter_count_text);
         count_text = findView(R.id.count_text);
-        setClickListener(findView(R.id.add), findView(R.id.cancel), count_text);
+        add = findView(R.id.add);
+        cancel = findView(R.id.cancel);
+        setClickListener(add, cancel, count_text);
     }
     protected void init()
     {
-        LinearLayoutManager cashAccountsLinearLayoutManager = new LinearLayoutManager(getActivity());
-        cashAccountsLinearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        cash_accounts.setLayoutManager(cashAccountsLinearLayoutManager);
-        cashAccountsAdapter = new CashAccountsAdapter(getActivity(), new CashAccountsAdapter.Listener()
+        nothing_label = getActivity().getResources().getString(R.string.nothing_label);
+        cashAccountsList = new CashAccountsList(getActivity(), (RecyclerView)findView(R.id.cash_accounts), App.component().themeSwitcher().theme(), new CashAccountsList.Listener()
         {
             public void cashAccount(CashAccount cashAccount)
             {
                 presenter.setCashAccount(cashAccount);
             }
         });
-        cash_accounts.setAdapter(cashAccountsAdapter);
         presenter = new AddNewTransactionPresenter(view, new AddNewTransactionModel(App.component().dataLocal().cashAccountsAccess().cashAccounts(),
                 App.component().dataLocal().currenciesAccess().currencies()));
+        setTheme(App.component().themeSwitcher().theme());
         presenter.update();
         presenter.setDate(System.currentTimeMillis());
-        nothing_label = getActivity().getResources().getString(R.string.nothing_label);
-        positiveColor = getActivity().getResources().getColor(R.color.green);
-        negativeColor = getActivity().getResources().getColor(R.color.red);
-        neutralColor = getActivity().getResources().getColor(R.color.graydark);
     }
-
+    private void setTheme(Theme theme)
+    {
+        currentTheme = theme;
+        background.setBackgroundColor(currentTheme.colors().background());
+        set_cash_account_text.setTextColor(currentTheme.colors().foreground());
+        enter_count_text.setTextColor(currentTheme.colors().foreground());
+        add.setTextColor(currentTheme.colors().accent());
+        cancel.setTextColor(currentTheme.colors().foreground());
+    }
 
     private void setCounts(Currency currency, TransactionViewModel transaction)
     {
         if(transaction.count() == 0 && transaction.minorCount() == 0)
         {
             count_text.setText(nothing_label);
-            count_text.setTextColor(neutralColor);
+            count_text.setTextColor(currentTheme.colors().neutral());
             return;
         }
         String left = transaction.income() ? "+" : "-";
@@ -163,6 +171,6 @@ public class AddNewTransactionFragment
                 break;
         }
         count_text.setText(left + middle + " " + right);
-        count_text.setTextColor(transaction.income() ? positiveColor : negativeColor);
+        count_text.setTextColor(transaction.income() ? currentTheme.colors().positive() : currentTheme.colors().negative());
     }
 }

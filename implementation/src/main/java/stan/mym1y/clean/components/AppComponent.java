@@ -11,4 +11,5 @@ public interface AppComponent
     FoldersAccess foldersAccess();
     Settings settings();
     Security security();
+    ThemeSwitcher themeSwitcher();
 }

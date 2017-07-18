@@ -78,6 +78,7 @@ public class AuthFragment
     }
     protected void init()
     {
+        setStatusBarColor(getActivity().getResources().getColor(R.color.white));
         presenter = new AuthPresenter(view, router);
         presenter.toLogin();
     }

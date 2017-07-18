@@ -2,10 +2,13 @@ package stan.mym1y.clean.modules.transactions;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.cores.currencies.Currency;
+import stan.mym1y.clean.cores.ui.Theme;
 import stan.mym1y.clean.units.fragments.UtilFragment;
 
 public class EnterCountFragment
@@ -31,15 +34,32 @@ public class EnterCountFragment
     private Currency.MinorUnitType minorUnitType;
     private int count = 0;
     private int minorCount = 0;
-    private boolean income;
+    private boolean incomeState;
     private boolean toMinor;
 
+    private View background;
+    private TextView income;
+    private TextView outcome;
     private TextView count_value;
-    private View to_minor;
+
+    private TextView value_0;
+    private TextView value_1;
+    private TextView value_2;
+    private TextView value_3;
+    private TextView value_4;
+    private TextView value_5;
+    private TextView value_6;
+    private TextView value_7;
+    private TextView value_8;
+    private TextView value_9;
+    private TextView to_minor;
+    private ImageView backspace;
+    private ImageView cancel;
+    private ImageView confirm;
+
 
     private Listener listener;
-    private int positiveColor;
-    private int negativeColor;
+    private Theme currentTheme;
 
     protected void onClickView(int id)
     {
@@ -85,23 +105,23 @@ public class EnterCountFragment
                 backspace();
                 break;
             case R.id.confirm:
-                listener.confirm(income, count, minorCount);
+                listener.confirm(incomeState, count, minorCount);
                 break;
             case R.id.cancel:
                 listener.cancel();
                 break;
             case R.id.income:
-                if(!income)
+                if(!incomeState)
                 {
-                    income = true;
+                    incomeState = true;
                     updateCountColor();
                     updateCountText();
                 }
                 break;
             case R.id.outcome:
-                if(income)
+                if(incomeState)
                 {
-                    income = false;
+                    incomeState = false;
                     updateCountColor();
                     updateCountText();
                 }
@@ -114,42 +134,79 @@ public class EnterCountFragment
     }
     protected void initViews(View v)
     {
+        background = findView(R.id.background);
+        income = findView(R.id.income);
+        outcome = findView(R.id.outcome);
         count_value = findView(R.id.count_value);
-        to_minor = findView(R.id.to_minor);
-        setClickListener(findView(R.id.value_0),
-                findView(R.id.value_1),
-                findView(R.id.value_2),
-                findView(R.id.value_3),
-                findView(R.id.value_4),
-                findView(R.id.value_5),
-                findView(R.id.value_6),
-                findView(R.id.value_7),
-                findView(R.id.value_8),
-                findView(R.id.value_9),
+        cancel = findView(R.id.cancel);
+        confirm = findView(R.id.confirm);
+        initKeyboard();
+        setClickListener(value_0,
+                value_1, value_2, value_3,
+                value_4, value_5, value_6,
+                value_7, value_8, value_9,
                 to_minor,
-                findView(R.id.backspace),
-                findView(R.id.outcome),
-                findView(R.id.income),
-                findView(R.id.backspace),
-                findView(R.id.cancel),
-                findView(R.id.confirm));
+                backspace,
+                outcome,
+                income,
+                cancel,
+                confirm);
+    }
+    private void initKeyboard()
+    {
+        value_0 = findView(R.id.value_0);
+        value_1 = findView(R.id.value_1);
+        value_2 = findView(R.id.value_2);
+        value_3 = findView(R.id.value_3);
+        value_4 = findView(R.id.value_4);
+        value_5 = findView(R.id.value_5);
+        value_6 = findView(R.id.value_6);
+        value_7 = findView(R.id.value_7);
+        value_8 = findView(R.id.value_8);
+        value_9 = findView(R.id.value_9);
+        to_minor = findView(R.id.to_minor);
+        backspace = findView(R.id.backspace);
     }
     protected void init()
     {
-        positiveColor = getActivity().getResources().getColor(R.color.green);
-        negativeColor = getActivity().getResources().getColor(R.color.red);
         minorUnitType = Currency.MinorUnitType.valueOf(getArguments().getString(MINOR_UNIT_TYPE));
         count = getArguments().getInt(COUNT);
         minorCount = getArguments().getInt(MINOR_COUNT);
-        income = getArguments().getBoolean(INCOME);
+        incomeState = getArguments().getBoolean(INCOME);
         if(count < 0)
         {
             count *= -1;
         }
         to_minor.setVisibility(minorUnitType == Currency.MinorUnitType.NONE ? View.INVISIBLE : View.VISIBLE);
         toMinor = false;
+        setTheme(App.component().themeSwitcher().theme());
         updateCountColor();
         updateCountText();
+    }
+    private void setTheme(Theme theme)
+    {
+        currentTheme = theme;
+        background.setBackgroundColor(currentTheme.colors().background());
+        income.setTextColor(currentTheme.colors().positive());
+        outcome.setTextColor(currentTheme.colors().negative());
+        setForeground(currentTheme.colors().foreground());
+    }
+    private void setForeground(int foregroundColor)
+    {
+        value_0.setTextColor(foregroundColor);
+        value_1.setTextColor(foregroundColor);
+        value_2.setTextColor(foregroundColor);
+        value_3.setTextColor(foregroundColor);
+        value_4.setTextColor(foregroundColor);
+        value_5.setTextColor(foregroundColor);
+        value_6.setTextColor(foregroundColor);
+        value_7.setTextColor(foregroundColor);
+        value_8.setTextColor(foregroundColor);
+        value_9.setTextColor(foregroundColor);
+        to_minor.setTextColor(foregroundColor);
+        backspace.setColorFilter(foregroundColor);
+        confirm.setColorFilter(foregroundColor);
+        cancel.setColorFilter(foregroundColor);
     }
 
     private void updateCount(int c)
@@ -204,20 +261,20 @@ public class EnterCountFragment
         switch(minorUnitType)
         {
             case NONE:
-                count_value.setText((income ? "+" : "-") + count);
+                count_value.setText((incomeState ? "+" : "-") + count);
                 break;
             case TEN:
-                count_value.setText((income ? "+" : "-") + count + "." + minorCount);
+                count_value.setText((incomeState ? "+" : "-") + count + "." + minorCount);
                 break;
             case HUNDRED:
-                count_value.setText((income ? "+" : "-") + count + "." + (minorCount < 10 ? "0" + minorCount : minorCount));
+                count_value.setText((incomeState ? "+" : "-") + count + "." + (minorCount < 10 ? "0" + minorCount : minorCount));
                 break;
         }
     }
     private void updateCountColor()
     {
-        count_value.setBackgroundColor(income ? positiveColor : negativeColor);
-        setStatusBarColor(income ? positiveColor : negativeColor);
+        count_value.setBackgroundColor(incomeState ? currentTheme.colors().positive() : currentTheme.colors().negative());
+        setStatusBarColor(incomeState ? currentTheme.colors().positive() : currentTheme.colors().negative());
     }
     private void toMinor()
     {

@@ -5,10 +5,15 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="white">#ffffff</color>
-    <color name="graydark">#424242</color>
+    <color name="graylight">#9E9E9E</color>
+    <color name="graydark">#212121</color>
     <color name="black">#000000</color>
 
     <color name="red">#F44336</color>
     <color name="green">#4CAF50</color>
     <color name="blue">#2196F3</color>
+    <color name="purple">#9C27B0</color>
+    <color name="indigo">#3F51B5</color>
+    <color name="yellow">#FFEB3B</color>
+    <color name="orange">#FF9800</color>
 </resources>

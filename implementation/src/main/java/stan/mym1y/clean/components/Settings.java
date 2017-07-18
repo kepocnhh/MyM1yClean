@@ -1,6 +1,7 @@
 package stan.mym1y.clean.components;
 
 import stan.mym1y.clean.cores.sync.SyncData;
+import stan.mym1y.clean.cores.ui.Theme;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.versions.Versions;
 
@@ -15,4 +16,8 @@ public interface Settings
 
     SyncData getSyncData();
     void setSyncData(SyncData data);
+
+    Theme getCurrentTheme();
+    void setDarkTheme();
+    void setLightTheme();
 }

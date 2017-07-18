@@ -8,24 +8,27 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import stan.mym1y.clean.cores.currencies.Currency;
+import stan.mym1y.clean.cores.ui.Theme;
 
-public class CurrenciesAdapter
+class CurrenciesAdapter
         extends RecyclerView.Adapter<CurrencyHolder>
 {
     private final Context context;
-    private final Listener listener;
+    private final Theme theme;
+    private final CurrenciesList.Listener listener;
     private List<Currency> data;
     private String selectCodeNumber;
 
-    public CurrenciesAdapter(Context c, Listener l)
+    CurrenciesAdapter(Context c, Theme t, CurrenciesList.Listener l)
     {
         context = c;
+        theme = t;
         listener = l;
     }
 
     public CurrencyHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        return new CurrencyHolder(context, parent);
+        return new CurrencyHolder(context, parent, theme);
     }
     public void onBindViewHolder(CurrencyHolder holder, int position)
     {
@@ -49,7 +52,7 @@ public class CurrenciesAdapter
         }
         return data.size();
     }
-    public void swapData(List<Currency> d)
+    void swapData(List<Currency> d)
     {
         if(data != null)
         {
@@ -61,10 +64,5 @@ public class CurrenciesAdapter
             selectCodeNumber = data.get(0).codeNumber();
             listener.currency(data.get(0));
         }
-    }
-
-    public interface Listener
-    {
-        void currency(Currency currency);
     }
 }

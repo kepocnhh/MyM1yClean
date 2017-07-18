@@ -8,18 +8,21 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
+import stan.mym1y.clean.cores.ui.Theme;
 import stan.reactive.Tuple;
 
-public class CashAccountsAdapter
+class CashAccountsAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 {
     private final Context context;
-    private final Listener listener;
+    private final Theme theme;
+    private final CashAccountsList.Listener listener;
     private List<Tuple<CashAccount, CashAccount.Extra>> data;
 
-    public CashAccountsAdapter(Context c, Listener l)
+    CashAccountsAdapter(Context c, Theme t, CashAccountsList.Listener l)
     {
         context = c;
+        theme = t;
         listener = l;
     }
 
@@ -28,9 +31,9 @@ public class CashAccountsAdapter
         switch(viewType)
         {
             case ViewTypes.ADD_NEW:
-                return new AddNewCashAccountHolder(context, parent);
+                return new AddNewCashAccountHolder(context, parent, theme);
             case ViewTypes.NORMAL:
-                return new CashAccountHolder(context, parent);
+                return new CashAccountHolder(context, parent, theme);
         }
         throw new RuntimeException("view type " + viewType + " not recognized!");
     }
@@ -95,7 +98,7 @@ public class CashAccountsAdapter
             return ViewTypes.NORMAL;
         }
     }
-    public void swapData(List<Tuple<CashAccount, CashAccount.Extra>> d)
+    void swapData(List<Tuple<CashAccount, CashAccount.Extra>> d)
     {
         if(data != null)
         {
@@ -108,12 +111,5 @@ public class CashAccountsAdapter
     {
         int ADD_NEW = 1;
         int NORMAL = 2;
-    }
-
-    public interface Listener
-    {
-        void delete(CashAccount cashAccount);
-        void cashAccount(CashAccount cashAccount);
-        void addNewCashAccount();
     }
 }

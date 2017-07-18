@@ -12,8 +12,9 @@ public class MainComponent
     private final FoldersAccess foldersAccess;
     private final Settings settings;
     private final Security security;
+    private final ThemeSwitcher themeSwitcher;
 
-    public MainComponent(DAO d, Connection c, JsonConverter j, FoldersAccess f, Settings ss, Security scr)
+    public MainComponent(DAO d, Connection c, JsonConverter j, FoldersAccess f, Settings ss, Security scr, ThemeSwitcher ts)
     {
         dataAccess = d;
         connection = c;
@@ -21,6 +22,7 @@ public class MainComponent
         foldersAccess = f;
         settings = ss;
         security = scr;
+        themeSwitcher = ts;
     }
 
     public DAO dataLocal()
@@ -46,5 +48,9 @@ public class MainComponent
     public Security security()
     {
         return security;
+    }
+    public ThemeSwitcher themeSwitcher()
+    {
+        return themeSwitcher;
     }
 }
