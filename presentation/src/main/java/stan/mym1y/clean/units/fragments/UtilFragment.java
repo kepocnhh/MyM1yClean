@@ -25,12 +25,14 @@ public abstract class UtilFragment
     private View mainView;
     private String tag;
     private InputMethodManager inputMethodManager;
+    private float density;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle)
     {
         if(mainView == null)
         {
             tag = "[" + getClass().getName().replace(getClass().getPackage().getName() + ".", "") + "]";
+            density = getActivity().getResources().getDisplayMetrics().density;
             mainView = inflater.inflate(getContentView(), container, false);
             new FontChangeCrawler(getActivity().getAssets(), "fonts/main.otf").replaceFonts(mainView);
             clickListener = new View.OnClickListener()
@@ -156,6 +158,14 @@ public abstract class UtilFragment
             window.setStatusBarColor(color);
         }
     }
+    final protected void setNavigationBarColor(final int color)
+    {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            Window window = getActivity().getWindow();
+            window.setNavigationBarColor(color);
+        }
+    }
 
     final protected void replace(final int id, final Fragment fragment)
     {
@@ -163,6 +173,7 @@ public abstract class UtilFragment
         {
             public void run()
             {
+                hideKeyBoard();
                 getFragmentManager().beginTransaction()
                                     .replace(id, fragment)
                                     .commit();
@@ -175,11 +186,21 @@ public abstract class UtilFragment
         {
             public void run()
             {
+                hideKeyBoard();
                 getFragmentManager().beginTransaction()
                                     .remove(getFragmentManager().findFragmentById(id))
                                     .commit();
             }
         });
+    }
+
+    final protected int px(float dp)
+    {
+        if(dp < 0)
+        {
+            return 0;
+        }
+        return (int)Math.ceil(density * dp);
     }
 
     abstract protected int getContentView();

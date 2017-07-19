@@ -71,13 +71,13 @@ public class AddNewTransactionFragment
         {
             presenter.setCount(income, count, minorCount);
             clear(R.id.enter_count_subscreen);
-            setSystemUiVisibilityLight(true);
+            setSystemUiVisibilityLight(!currentTheme.isDarkTheme());
             setStatusBarColor(currentTheme.colors().background());
         }
         public void cancel()
         {
             clear(R.id.enter_count_subscreen);
-            setSystemUiVisibilityLight(true);
+            setSystemUiVisibilityLight(!currentTheme.isDarkTheme());
             setStatusBarColor(currentTheme.colors().background());
         }
     };
@@ -104,7 +104,6 @@ public class AddNewTransactionFragment
                                 tuple.first().income(),
                                 tuple.first().count(),
                                 tuple.first().minorCount()));
-                        setSystemUiVisibilityLight(false);
                     }
                 });
                 break;

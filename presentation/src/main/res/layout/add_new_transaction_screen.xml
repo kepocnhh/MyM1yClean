@@ -39,7 +39,6 @@
                 android:layout_height="28dp"/>
             <TextView
                 android:id="@+id/count_text"
-                android:text="asdasd"
                 android:textSize="24dp"
                 android:paddingLeft="12dp"
                 android:gravity="center_vertical"

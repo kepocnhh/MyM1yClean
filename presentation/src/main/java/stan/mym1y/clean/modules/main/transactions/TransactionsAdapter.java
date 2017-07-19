@@ -12,7 +12,7 @@ import stan.mym1y.clean.cores.ui.Theme;
 import stan.reactive.Tuple;
 
 class TransactionsAdapter
-        extends RecyclerView.Adapter<TransactionHolder>
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 {
     private final Context context;
     private final Theme theme;
@@ -26,12 +26,29 @@ class TransactionsAdapter
         listener = l;
     }
 
-    public TransactionHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        return new TransactionHolder(context, parent, theme);
+        switch(viewType)
+        {
+            case ViewTypes.FOOTER:
+                return new FooterHolder(context, parent);
+            case ViewTypes.NORMAL:
+                return new TransactionHolder(context, parent, theme);
+        }
+        throw new RuntimeException("view type " + viewType + " not recognized!");
     }
-
-    public void onBindViewHolder(TransactionHolder holder, int position)
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position)
+    {
+        switch(getItemViewType(position))
+        {
+            case ViewTypes.FOOTER:
+                break;
+            case ViewTypes.NORMAL:
+                onBindViewHolder((TransactionHolder)holder, position);
+                break;
+        }
+    }
+    private void onBindViewHolder(TransactionHolder holder, int position)
     {
         final Transaction transaction = data.get(position).first();
         final Transaction.Extra extra = data.get(position).second();
@@ -45,14 +62,24 @@ class TransactionsAdapter
             }
         });
     }
-
     public int getItemCount()
     {
         if(data == null)
         {
             return 0;
         }
-        return data.size();
+        return data.size() + 1;
+    }
+    public int getItemViewType(int position)
+    {
+        if(position == getItemCount()-1)
+        {
+            return ViewTypes.FOOTER;
+        }
+        else
+        {
+            return ViewTypes.NORMAL;
+        }
     }
     void swapData(List<Tuple<Transaction, Transaction.Extra>> d)
     {
@@ -61,5 +88,11 @@ class TransactionsAdapter
             data.clear();
         }
         data = d;
+    }
+
+    private interface ViewTypes
+    {
+        int FOOTER = 1;
+        int NORMAL = 2;
     }
 }

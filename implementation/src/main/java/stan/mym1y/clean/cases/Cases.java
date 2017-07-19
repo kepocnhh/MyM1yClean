@@ -82,6 +82,7 @@ public class Cases
             public Map write(Theme theme)
             {
                 Map map = new HashMap();
+                map.put("dark_state", theme.isDarkTheme());
                 map.put("color_background", theme.colors().background());
                 map.put("color_foreground", theme.colors().foreground());
                 map.put("color_accent", theme.colors().accent());
@@ -94,7 +95,7 @@ public class Cases
             }
             public Theme read(Map map)
             {
-                return new ThemeData(new ColorsData(((Long)map.get("color_background")).intValue(),
+                return new ThemeData((Boolean)map.get("dark_state"), new ColorsData(((Long)map.get("color_background")).intValue(),
                         ((Long)map.get("color_foreground")).intValue(),
                         ((Long)map.get("color_accent")).intValue(),
                         ((Long)map.get("color_positive")).intValue(),

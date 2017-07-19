@@ -11,30 +11,39 @@
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="0dp">
-        <TextView
-            android:id="@+id/enter_title_text"
-            android:text="@string/enter_title_text"
-            android:textSize="14dp"
-            android:textColor="@color/black"
-            android:gravity="center_vertical"
-            android:paddingLeft="12dp"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"/>
-        <stan.mym1y.clean.units.views.LostFocusEditText
-            android:id="@+id/title"
-            android:lines="1"
-            android:inputType="text"
-            android:maxLines="1"
-            android:maxLength="25"
-            android:textSize="@dimen/text_size_big"
-            android:textCursorDrawable="@drawable/edit_cursor_black"
-            android:background="@drawable/edit_bottom_black"
-            android:textColor="@color/black"
-            android:paddingLeft="12dp"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/container_size_less"/>
+            android:layout_height="84dp">
+            <TextView
+                android:id="@+id/enter_title_text"
+                android:text="@string/enter_title_text"
+                android:textSize="@dimen/text_size_medium"
+                android:textColor="@color/black"
+                android:gravity="center_vertical"
+                android:paddingLeft="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/container_size_less"/>
+            <stan.mym1y.clean.units.views.LostFocusEditText
+                android:id="@+id/title"
+                android:lines="1"
+                android:inputType="text"
+                android:maxLines="1"
+                android:maxLength="25"
+                android:textSize="@dimen/text_size_big"
+                android:textCursorDrawable="@null"
+                android:background="@null"
+                android:paddingLeft="12dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_gravity="bottom"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/container_size_less"/>
+            <View
+                android:id="@+id/title_bottom"
+                android:layout_gravity="bottom"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"/>
+        </FrameLayout>
         <TextView
             android:id="@+id/set_currency_text"
             android:text="@string/set_currency_text"

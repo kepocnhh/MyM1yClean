@@ -31,12 +31,12 @@ public class App
         super.onCreate();
         JsonConverter jsonConverter = new JSON();
         FoldersAccess foldersAccess = new FoldersManager(getApplicationContext().getFilesDir().getAbsolutePath());
-        Theme lightTheme = new ThemeData(new ColorsData(color(R.color.white),
-                color(R.color.black),
+        Theme lightTheme = new ThemeData(false, new ColorsData(color(R.color.white),
+                color(R.color.graydark),
                 color(R.color.blue),
                 color(R.color.green),
                 color(R.color.red),
-                color(R.color.black),
+                color(R.color.gray),
                 color(R.color.red),
                 color(R.color.blue)));
 //        Theme lightTheme = new ThemeData(new ColorsData(color(R.color.yellow),
@@ -47,7 +47,7 @@ public class App
 //                color(R.color.graydark),
 //                color(R.color.red),
 //                color(R.color.green)));
-        Theme darkTheme = new ThemeData(new ColorsData(color(R.color.graydark),
+        Theme darkTheme = new ThemeData(true, new ColorsData(color(R.color.graydark),
                 color(R.color.white),
                 color(R.color.blue),
                 color(R.color.green),

@@ -157,6 +157,10 @@ public class MainFragment
     private View background;
     private View toolbar_divider;
     private View cash_accounts_divider;
+    private View divider_bottom;
+    private TextView empty_transactions_text;
+    private TextView empty_cash_accounts_text;
+    private TextView add_new_cash_account;
 
     private View cash_accounts_container;
     private View empty_cash_accounts;
@@ -223,6 +227,10 @@ public class MainFragment
         background = findView(R.id.background);
         toolbar_divider = findView(R.id.toolbar_divider);
         cash_accounts_divider = findView(R.id.cash_accounts_divider);
+        divider_bottom = findView(R.id.divider_bottom);
+        empty_transactions_text = findView(R.id.empty_transactions_text);
+        empty_cash_accounts_text = findView(R.id.empty_cash_accounts_text);
+        add_new_cash_account = findView(R.id.add_new_cash_account);
         //
         cash_accounts_container = findView(R.id.cash_accounts_container);
         empty_cash_accounts = findView(R.id.empty_cash_accounts);
@@ -231,7 +239,7 @@ public class MainFragment
         new_transaction = findView(R.id.new_transaction);
         logout = findView(R.id.logout);
         balance_value = findView(R.id.balance_value);
-        setClickListener(logout, new_transaction, findView(R.id.add_new_cash_account));
+        setClickListener(logout, new_transaction, add_new_cash_account);
     }
     protected void init()
     {
@@ -283,9 +291,23 @@ public class MainFragment
     {
         currentTheme = theme;
         setStatusBarColor(theme.colors().background());
+        setSystemUiVisibilityLight(!theme.isDarkTheme());
+        setNavigationBarColor(theme.isDarkTheme() ? theme.colors().background() : theme.colors().foreground());
         background.setBackgroundColor(theme.colors().background());
         toolbar_divider.setBackgroundColor(theme.colors().foreground());
         cash_accounts_divider.setBackgroundColor(theme.colors().foreground());
+        if(theme.isDarkTheme())
+        {
+            divider_bottom.setVisibility(View.VISIBLE);
+            divider_bottom.setBackgroundColor(theme.colors().foreground());
+        }
+        else
+        {
+            divider_bottom.setVisibility(View.GONE);
+        }
+        empty_transactions_text.setTextColor(theme.colors().foreground());
+        empty_cash_accounts_text.setTextColor(theme.colors().foreground());
+        add_new_cash_account.setTextColor(theme.colors().accent());
         balance_text.setTextColor(theme.colors().foreground());
         new_transaction.setColorFilter(theme.colors().foreground());
         logout.setColorFilter(theme.colors().foreground());

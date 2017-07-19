@@ -179,6 +179,7 @@ public class EnterCountFragment
         }
         to_minor.setVisibility(minorUnitType == Currency.MinorUnitType.NONE ? View.INVISIBLE : View.VISIBLE);
         toMinor = false;
+        setSystemUiVisibilityLight(false);
         setTheme(App.component().themeSwitcher().theme());
         updateCountColor();
         updateCountText();

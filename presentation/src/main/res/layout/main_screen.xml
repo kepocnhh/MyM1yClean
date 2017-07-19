@@ -43,14 +43,6 @@
                 android:layout_width="0dp"
                 android:layout_height="0px"/>
             <ImageView
-                android:id="@+id/new_transaction"
-                android:src="@mipmap/plus"
-                android:scaleType="centerInside"
-                android:tint="@color/black"
-                android:padding="12dp"
-                android:layout_width="@dimen/container_size"
-                android:layout_height="match_parent"/>
-            <ImageView
                 android:id="@+id/logout"
                 android:src="@mipmap/user_remove"
                 android:scaleType="centerInside"
@@ -92,6 +84,16 @@
                         android:id="@+id/transactions"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"/>
+                    <ImageView
+                        android:id="@+id/new_transaction"
+                        android:src="@mipmap/plus"
+                        android:scaleType="centerInside"
+                        android:tint="@color/black"
+                        android:padding="12dp"
+                        android:layout_gravity="bottom|end"
+                        android:layout_margin="12dp"
+                        android:layout_width="@dimen/container_size"
+                        android:layout_height="@dimen/container_size"/>
                     <LinearLayout
                         android:id="@+id/empty_transactions"
                         android:orientation="vertical"
@@ -99,6 +101,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
                         <TextView
+                            android:id="@+id/empty_transactions_text"
                             android:text="@string/empty_transactions_text"
                             android:textSize="@dimen/text_size_medium"
                             android:textColor="@color/black"
@@ -114,6 +117,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <TextView
+                    android:id="@+id/empty_cash_accounts_text"
                     android:text="@string/empty_cash_accounts_text"
                     android:textSize="@dimen/text_size_medium"
                     android:textColor="@color/black"
@@ -137,4 +141,11 @@
         android:id="@+id/add_subscreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    <View
+        android:id="@+id/divider_bottom"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
 </FrameLayout>
