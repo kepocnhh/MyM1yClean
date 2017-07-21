@@ -19,7 +19,7 @@ public class TransactionsList
     public TransactionsList(Context context, RecyclerView ts, Theme theme, Listener listener)
     {
         transactions = ts;
-        transactions.setLayoutManager(new LinearLayoutManager(context));
+        transactions.setLayoutManager(new TransactionsLayoutManager(context));
         transactionsAdapter = new TransactionsAdapter(context, theme, listener);
         transactions.setAdapter(transactionsAdapter);
     }
@@ -38,5 +38,19 @@ public class TransactionsList
     public interface Listener
     {
         void delete(Transaction transaction);
+    }
+
+    private class TransactionsLayoutManager
+        extends LinearLayoutManager
+    {
+        TransactionsLayoutManager(Context context)
+        {
+            super(context);
+        }
+
+        public boolean canScrollHorizontally()
+        {
+            return false;
+        }
     }
 }

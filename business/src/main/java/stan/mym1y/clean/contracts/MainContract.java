@@ -49,6 +49,6 @@ public interface MainContract
 
     interface Behaviour
     {
-        void logout();
+        void unauthorized();
     }
 }

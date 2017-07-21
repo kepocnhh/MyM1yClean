@@ -64,7 +64,7 @@ class GeneralPresenter
                     router().toAuth();
                     return;
                 }
-                router().toMain();
+                router().toWork();
             }
         });
     }
@@ -76,7 +76,7 @@ class GeneralPresenter
             public void run()
             {
                 model().login(data);
-                router().toMain();
+                router().toWork();
             }
         });
     }

@@ -22,7 +22,7 @@ public interface GeneralContract
     {
         void toStart();
         void toAuth();
-        void toMain();
+        void toWork();
     }
     interface Presenter
     {

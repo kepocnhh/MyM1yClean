@@ -79,6 +79,8 @@ public class AuthFragment
     protected void init()
     {
         setStatusBarColor(getActivity().getResources().getColor(R.color.white));
+        setSystemUiVisibilityLight(true);
+        setNavigationBarColor(getActivity().getResources().getColor(R.color.black));
         presenter = new AuthPresenter(view, router);
         presenter.toLogin();
     }

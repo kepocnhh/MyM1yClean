@@ -78,7 +78,6 @@ public class ValueAnimator
             factor = f;
         }
 
-        @Override
         public Double interpolate(long time, long timePassed, Double begin, Double end)
         {
             return begin + (end - begin)*Math.pow(timePassed*(end - begin)/time, factor);
@@ -94,7 +93,6 @@ public class ValueAnimator
             factor = f;
         }
 
-        @Override
         public Double interpolate(long time, long timePassed, Double begin, Double end)
         {
             return begin + (end - begin)*(1-Math.pow((1-Math.abs(timePassed*(end - begin))/time), factor));
@@ -110,7 +108,6 @@ public class ValueAnimator
             factor = f;
         }
 
-        @Override
         public Double interpolate(long time, long timePassed, Double begin, Double end)
         {
             return begin + (end - begin)*Math.pow(Math.sin(Math.PI*(timePassed/(double)time)-Math.PI/2)/2+0.5, factor);
@@ -119,7 +116,6 @@ public class ValueAnimator
     static public class BounceDoubleInterpolator
             implements Interpolator<Double>
     {
-        @Override
         public Double interpolate(long time, long timePassed, Double begin, Double end)
         {
             double l = end - begin;

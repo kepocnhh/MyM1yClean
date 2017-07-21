@@ -49,7 +49,7 @@ public class MainFragment
         public void error(ErrorsContract.UnauthorizedException e)
         {
 //            showToast("UnauthorizedException");
-            behaviour.logout();
+            behaviour.unauthorized();
         }
         public void error()
         {
@@ -154,7 +154,6 @@ public class MainFragment
     };
     private MainContract.Behaviour behaviour;
 
-    private View background;
     private View toolbar_divider;
     private View cash_accounts_divider;
     private View divider_bottom;
@@ -167,7 +166,6 @@ public class MainFragment
     private View empty_transactions;
     private TextView balance_text;
     private ImageView new_transaction;
-    private ImageView logout;
     private TextView balance_value;
 
     private CashAccountsList cashAccountsList;
@@ -206,9 +204,6 @@ public class MainFragment
     {
         switch(id)
         {
-            case R.id.logout:
-                behaviour.logout();
-                break;
             case R.id.new_transaction:
                 newTransaction();
                 break;
@@ -224,7 +219,6 @@ public class MainFragment
     }
     protected void initViews(View v)
     {
-        background = findView(R.id.background);
         toolbar_divider = findView(R.id.toolbar_divider);
         cash_accounts_divider = findView(R.id.cash_accounts_divider);
         divider_bottom = findView(R.id.divider_bottom);
@@ -237,9 +231,8 @@ public class MainFragment
         empty_transactions = findView(R.id.empty_transactions);
         balance_text = findView(R.id.balance_text);
         new_transaction = findView(R.id.new_transaction);
-        logout = findView(R.id.logout);
         balance_value = findView(R.id.balance_value);
-        setClickListener(logout, new_transaction, add_new_cash_account);
+        setClickListener(new_transaction, add_new_cash_account);
     }
     protected void init()
     {
@@ -292,8 +285,6 @@ public class MainFragment
         currentTheme = theme;
         setStatusBarColor(theme.colors().background());
         setSystemUiVisibilityLight(!theme.isDarkTheme());
-        setNavigationBarColor(theme.isDarkTheme() ? theme.colors().background() : theme.colors().foreground());
-        background.setBackgroundColor(theme.colors().background());
         toolbar_divider.setBackgroundColor(theme.colors().foreground());
         cash_accounts_divider.setBackgroundColor(theme.colors().foreground());
         if(theme.isDarkTheme())
@@ -310,7 +301,6 @@ public class MainFragment
         add_new_cash_account.setTextColor(theme.colors().accent());
         balance_text.setTextColor(theme.colors().foreground());
         new_transaction.setColorFilter(theme.colors().foreground());
-        logout.setColorFilter(theme.colors().foreground());
     }
 
     private void newCashAccount()

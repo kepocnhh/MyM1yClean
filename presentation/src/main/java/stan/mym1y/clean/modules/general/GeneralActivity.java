@@ -1,18 +1,15 @@
 package stan.mym1y.clean.modules.general;
 
-import android.os.Build;
-import android.view.View;
-
 import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.GeneralContract;
-import stan.mym1y.clean.contracts.MainContract;
 import stan.mym1y.clean.contracts.StartContract;
+import stan.mym1y.clean.contracts.WorkContract;
 import stan.mym1y.clean.contracts.auth.AuthContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.modules.auth.AuthFragment;
-import stan.mym1y.clean.modules.main.MainFragment;
 import stan.mym1y.clean.modules.start.StartFragment;
+import stan.mym1y.clean.modules.work.WorkFragment;
 import stan.mym1y.clean.units.activities.UtilActivity;
 
 public class GeneralActivity
@@ -34,10 +31,10 @@ public class GeneralActivity
             log("to -> auth");
             replace(R.id.subscreen, AuthFragment.newInstance(authBehaviour));
         }
-        public void toMain()
+        public void toWork()
         {
-            log("to -> main");
-            replace(R.id.subscreen, MainFragment.newInstance(mainBehaviour));
+            log("to -> work");
+            replace(R.id.subscreen, WorkFragment.newInstance(workBehaviour));
         }
     };
     private final StartContract.Behaviour startBehaviour = new StartContract.Behaviour()
@@ -54,7 +51,7 @@ public class GeneralActivity
             presenter.enter(data);
         }
     };
-    private final MainContract.Behaviour mainBehaviour = new MainContract.Behaviour()
+    private final WorkContract.Behaviour workBehaviour = new WorkContract.Behaviour()
     {
         public void logout()
         {
