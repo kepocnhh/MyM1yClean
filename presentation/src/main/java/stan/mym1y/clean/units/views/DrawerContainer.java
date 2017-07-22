@@ -32,6 +32,8 @@ public class DrawerContainer
     private float speedFactor = 1;
     private float iosOffset = 2;
     private float tweaking = 2;
+    private int dividerColor = 0;
+    private int dividerWidth = 10;
     private int scrimColor = 0;
     private float scrimFactor = 1;
 
@@ -51,12 +53,14 @@ public class DrawerContainer
     private ValueAnimator.Animator currentAnimator;
 
     private Paint scrimPaint = new Paint();
+    private Paint dividerPaint = new Paint();
 
     public DrawerContainer(Context context, AttributeSet attrs)
     {
         super(context, attrs);
         density = context.getResources().getDisplayMetrics().density;
         scrimColor = Color.BLACK;
+        dividerColor = Color.BLACK;
         post(new Runnable()
         {
             public void run()
@@ -553,6 +557,7 @@ public class DrawerContainer
         float dpos = drawerPosition + drawerWidth;
         float scrimOpacity = dpos / drawerWidth;
         scrimPaint.setColor(adjustAlpha(scrimColor, scrimOpacity/scrimFactor));
+        dividerPaint.setColor(dividerColor);
         if(scaleStyle)
         {
             float scalingFactor = 1 - ((drawerPosition + drawerWidth)/drawerWidth)/2;
@@ -561,6 +566,7 @@ public class DrawerContainer
         else
         {
             canvas.drawRect(dpos, 0, getWidth(), getHeight(), scrimPaint);
+            canvas.drawRect(dpos, px(16), dpos - dividerWidth, getHeight() - px(16), dividerPaint);
         }
         if(!iosStyle)
         {
@@ -636,6 +642,14 @@ public class DrawerContainer
     {
         scrimColor = color;
     }
+    public void setDividerColor(int color)
+    {
+        dividerColor = color;
+    }
+    public void setDividerWidth(int width)
+    {
+        dividerWidth = width;
+    }
     public void setScrimFactor(float factor)
     {
         if(factor < 1)
@@ -692,6 +706,15 @@ public class DrawerContainer
         {
             tweaking = 10;
         }
+    }
+
+    final protected int px(float dp)
+    {
+        if(dp < 0)
+        {
+            return 0;
+        }
+        return (int)Math.ceil(density * dp);
     }
 
     private interface AnimationEndListener

@@ -7,8 +7,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -140,6 +143,10 @@ public abstract class UtilFragment
     final protected void hideKeyBoard()
     {
         inputMethodManager.hideSoftInputFromWindow(mainView.getWindowToken(), 0);
+    }
+    final protected boolean hasNavigationBar()
+    {
+        return !ViewConfiguration.get(getActivity()).hasPermanentMenuKey() && !KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
     }
     final protected void setSystemUiVisibilityLight(final boolean light)
     {

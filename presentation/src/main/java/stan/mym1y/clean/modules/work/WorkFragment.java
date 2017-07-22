@@ -48,6 +48,7 @@ public class WorkFragment
         drawer_container.setTweaking(5);
         drawer_container.setScaleStyle(false);
         drawer_container.setScrimFactor(1.5f);
+        drawer_container.setDividerWidth(px(1));
         replace(R.id.main_frame, MainFragment.newInstance(new MainContract.Behaviour()
         {
             public void unauthorized()
@@ -71,6 +72,7 @@ public class WorkFragment
         setSystemUiVisibilityLight(!theme.isDarkTheme());
         setNavigationBarColor(theme.isDarkTheme() ? theme.colors().background() : theme.colors().foreground());
         drawer_container.setScrimColor(theme.colors().background());
+        drawer_container.setDividerColor(theme.colors().foreground());
 //        drawer_container.setScrimColor(theme.colors().accent());
         drawer_container.setBackgroundColor(theme.colors().background());
     }

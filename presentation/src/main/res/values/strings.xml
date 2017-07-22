@@ -24,4 +24,5 @@
     <string name="set_cash_account_text">Set cash account</string>
     <string name="enter_count_text">Enter count</string>
     <string name="nothing_label">nothing</string>
+    <string name="logout">Logout</string>
 </resources>

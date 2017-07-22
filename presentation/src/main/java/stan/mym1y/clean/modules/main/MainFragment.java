@@ -1,5 +1,6 @@
 package stan.mym1y.clean.modules.main;
 
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -154,6 +155,7 @@ public class MainFragment
     };
     private MainContract.Behaviour behaviour;
 
+    private View background;
     private View toolbar_divider;
     private View cash_accounts_divider;
     private View divider_bottom;
@@ -219,6 +221,7 @@ public class MainFragment
     }
     protected void initViews(View v)
     {
+        background = findView(R.id.background);
         toolbar_divider = findView(R.id.toolbar_divider);
         cash_accounts_divider = findView(R.id.cash_accounts_divider);
         divider_bottom = findView(R.id.divider_bottom);
@@ -285,12 +288,21 @@ public class MainFragment
         currentTheme = theme;
         setStatusBarColor(theme.colors().background());
         setSystemUiVisibilityLight(!theme.isDarkTheme());
+        background.setBackgroundColor(theme.colors().background());
         toolbar_divider.setBackgroundColor(theme.colors().foreground());
         cash_accounts_divider.setBackgroundColor(theme.colors().foreground());
-        if(theme.isDarkTheme())
+        //TODO check navigationbar visibility
+        if(hasNavigationBar())
         {
-            divider_bottom.setVisibility(View.VISIBLE);
-            divider_bottom.setBackgroundColor(theme.colors().foreground());
+            if(theme.isDarkTheme() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            {
+                divider_bottom.setVisibility(View.VISIBLE);
+                divider_bottom.setBackgroundColor(theme.colors().foreground());
+            }
+            else
+            {
+                divider_bottom.setVisibility(View.GONE);
+            }
         }
         else
         {
