@@ -1,5 +1,6 @@
 package stan.mym1y.clean.units.dialogs;
 
+import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import stan.mym1y.clean.R;
 import stan.mym1y.clean.utils.FontChangeCrawler;
 
 public abstract class UtilDialog
@@ -19,12 +21,18 @@ public abstract class UtilDialog
     private View mainView;
     private String tag;
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
+    private float density;
 
+    public Dialog onCreateDialog(Bundle savedInstanceState)
+    {
+        return new Dialog(getActivity(), R.style.Dialog);
+    }
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle)
     {
         if(mainView == null)
         {
             tag = "[" + getClass().getName().replace(getClass().getPackage().getName() + ".", "") + "]";
+            density = getActivity().getResources().getDisplayMetrics().density;
             mainView = inflater.inflate(getContentView(), container, false);
             new FontChangeCrawler(getActivity().getAssets(), "fonts/main.otf").replaceFonts(mainView);
             clickListener = new View.OnClickListener()
@@ -61,6 +69,10 @@ public abstract class UtilDialog
     protected void onClickView(int id)
     {
     }
+    final protected View mainView()
+    {
+        return mainView;
+    }
     final protected void log(String message)
     {
         Log.e(tag, message);
@@ -78,6 +90,15 @@ public abstract class UtilDialog
                 Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    final protected int px(float dp)
+    {
+        if(dp < 0)
+        {
+            return 0;
+        }
+        return (int)Math.ceil(density * dp);
     }
 
     abstract protected int getContentView();

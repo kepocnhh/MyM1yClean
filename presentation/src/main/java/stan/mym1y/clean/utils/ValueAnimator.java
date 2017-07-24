@@ -113,6 +113,21 @@ public class ValueAnimator
             return begin + (end - begin)*Math.pow(Math.sin(Math.PI*(timePassed/(double)time)-Math.PI/2)/2+0.5, factor);
         }
     }
+    static public class AccelerateDecelerateFloatInterpolator
+            implements Interpolator<Float>
+    {
+        private double factor;
+
+        public AccelerateDecelerateFloatInterpolator(double f)
+        {
+            factor = f;
+        }
+
+        public Float interpolate(long time, long timePassed, Float begin, Float end)
+        {
+            return (float)(begin + (end - begin)*Math.pow(Math.sin(Math.PI*(timePassed/(double)time)-Math.PI/2)/2+0.5, factor));
+        }
+    }
     static public class BounceDoubleInterpolator
             implements Interpolator<Double>
     {

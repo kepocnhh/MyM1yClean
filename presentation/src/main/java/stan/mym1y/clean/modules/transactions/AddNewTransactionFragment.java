@@ -15,6 +15,7 @@ import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.cores.ui.Theme;
 import stan.mym1y.clean.modules.transactions.cashaccounts.CashAccountsList;
 import stan.mym1y.clean.units.fragments.UtilFragment;
+import stan.mym1y.clean.utils.ValueAnimator;
 import stan.reactive.Tuple;
 import stan.reactive.single.SingleObserver;
 
@@ -59,26 +60,25 @@ public class AddNewTransactionFragment
     private CashAccountsList cashAccountsList;
 
     private View background;
+    private View set_cash_account_container;
+    private View enter_count_container;
+    private View buttons_bottom_container;
     private TextView set_cash_account_text;
     private TextView enter_count_text;
     private TextView count_text;
     private TextView add;
     private TextView cancel;
 
-    private final EnterCountFragment.Listener enterCountListener = new EnterCountFragment.Listener()
+    private ValueAnimator.Animator beginAnimator;
+
+    private final EnterCountDialog.Listener enterCountListener = new EnterCountDialog.Listener()
     {
         public void confirm(boolean income, int count, int minorCount)
         {
             presenter.setCount(income, count, minorCount);
-            clear(R.id.enter_count_subscreen);
-            setSystemUiVisibilityLight(!currentTheme.isDarkTheme());
-            setStatusBarColor(currentTheme.colors().background());
         }
         public void cancel()
         {
-            clear(R.id.enter_count_subscreen);
-            setSystemUiVisibilityLight(!currentTheme.isDarkTheme());
-            setStatusBarColor(currentTheme.colors().background());
         }
     };
     private String nothing_label;
@@ -92,22 +92,42 @@ public class AddNewTransactionFragment
                 presenter.addNewTransaction();
                 break;
             case R.id.cancel:
-                behaviour.cancel();
+                tryCancel();
                 break;
             case R.id.count_text:
                 presenter.updateTransaction().subscribe(new SingleObserver.Just<Tuple<TransactionViewModel, Currency>>()
                 {
                     public void success(Tuple<TransactionViewModel, Currency> tuple)
                     {
-                        replace(R.id.enter_count_subscreen, EnterCountFragment.newInstance(enterCountListener,
-                                tuple.second().minorUnitType(),
+                        EnterCountDialog.newInstance(enterCountListener, tuple.second().minorUnitType(),
                                 tuple.first().income(),
                                 tuple.first().count(),
-                                tuple.first().minorCount()));
+                                tuple.first().minorCount()).show(getFragmentManager(), EnterCountDialog.class.getName());
                     }
                 });
                 break;
         }
+    }
+    private void tryCancel()
+    {
+        animate(false, new ValueAnimator.AnimationListener()
+        {
+            public void begin()
+            {
+            }
+            public void end()
+            {
+                behaviour.cancel();
+            }
+            public void cancel()
+            {
+            }
+        });
+    }
+    protected boolean onBackPressed()
+    {
+        tryCancel();
+        return true;
     }
     protected int getContentView()
     {
@@ -116,6 +136,9 @@ public class AddNewTransactionFragment
     protected void initViews(View v)
     {
         background = findView(R.id.background);
+        set_cash_account_container = findView(R.id.set_cash_account_container);
+        enter_count_container = findView(R.id.enter_count_container);
+        buttons_bottom_container = findView(R.id.buttons_bottom_container);
         set_cash_account_text = findView(R.id.set_cash_account_text);
         enter_count_text = findView(R.id.enter_count_text);
         count_text = findView(R.id.count_text);
@@ -136,6 +159,36 @@ public class AddNewTransactionFragment
         presenter = new AddNewTransactionPresenter(view, new AddNewTransactionModel(App.component().dataLocal().cashAccountsAccess().cashAccounts(),
                 App.component().dataLocal().currenciesAccess().currencies()));
         setTheme(App.component().themeSwitcher().theme());
+        background.setVisibility(View.INVISIBLE);
+        set_cash_account_container.setVisibility(View.INVISIBLE);
+        enter_count_container.setVisibility(View.INVISIBLE);
+        buttons_bottom_container.setVisibility(View.INVISIBLE);
+        animate(true, new ValueAnimator.AnimationListener()
+        {
+            public void begin()
+            {
+                runOnUiThread(new Runnable()
+                {
+                    public void run()
+                    {
+                        background.setAlpha(0);
+                        background.setVisibility(View.VISIBLE);
+                        set_cash_account_container.setX(mainView().getWidth());
+                        set_cash_account_container.setVisibility(View.VISIBLE);
+                        enter_count_container.setX(mainView().getWidth());
+                        enter_count_container.setVisibility(View.VISIBLE);
+                        buttons_bottom_container.setX(mainView().getWidth());
+                        buttons_bottom_container.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+            public void end()
+            {
+            }
+            public void cancel()
+            {
+            }
+        });
         presenter.update();
         presenter.setDate(System.currentTimeMillis());
     }
@@ -147,6 +200,32 @@ public class AddNewTransactionFragment
         enter_count_text.setTextColor(currentTheme.colors().foreground());
         add.setTextColor(currentTheme.colors().accent());
         cancel.setTextColor(currentTheme.colors().foreground());
+    }
+    private void animate(boolean in, ValueAnimator.AnimationListener listener)
+    {
+        if(beginAnimator != null)
+        {
+            beginAnimator.cancel();
+        }
+        beginAnimator = ValueAnimator.create(250, in ? 0 : 1, in ? 1 : 0, new ValueAnimator.Updater<Float>()
+        {
+            public void update(final Float value)
+            {
+                runOnUiThread(new Runnable()
+                {
+                    public void run()
+                    {
+                        background.setAlpha(value);
+                        int pow = 2;
+                        set_cash_account_container.setX(mainView().getWidth() - mainView().getWidth()*value);
+                        enter_count_container.setX(mainView().getWidth() - mainView().getWidth()*pow(value, pow));
+                        buttons_bottom_container.setX(mainView().getWidth() - mainView().getWidth()*value);
+                    }
+                });
+            }
+        });
+        beginAnimator.setAnimationListener(listener);
+        beginAnimator.animate();
     }
 
     private void setCounts(Currency currency, TransactionViewModel transaction)

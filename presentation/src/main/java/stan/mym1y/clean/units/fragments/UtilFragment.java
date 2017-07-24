@@ -37,6 +37,40 @@ public abstract class UtilFragment
             tag = "[" + getClass().getName().replace(getClass().getPackage().getName() + ".", "") + "]";
             density = getActivity().getResources().getDisplayMetrics().density;
             mainView = inflater.inflate(getContentView(), container, false);
+//            mainView.setOnFocusChangeListener(new View.OnFocusChangeListener()
+//            {
+//                public void onFocusChange(View v, boolean hasFocus)
+//                {
+//                    log("main view focus: " + hasFocus);
+//                    mainView.setOnKeyListener(new View.OnKeyListener()
+//                    {
+//                        public boolean onKey(View view, int keyCode, KeyEvent keyEvent)
+//                        {
+//                            if(keyCode == KeyEvent.KEYCODE_BACK && keyEvent.getAction() == KeyEvent.ACTION_UP)
+//                            {
+//                                log("key code: " + keyCode + "\nkey event: " + keyEvent);
+//                                return onBackPressed();
+//                            }
+//                            return false;
+//                        }
+//                    });
+//                }
+//            });
+            mainView.setFocusable(true);
+            mainView.setFocusableInTouchMode(true);
+            mainView.requestFocus();
+            mainView.setOnKeyListener(new View.OnKeyListener()
+            {
+                public boolean onKey(View view, int keyCode, KeyEvent keyEvent)
+                {
+                    if(keyCode == KeyEvent.KEYCODE_BACK && keyEvent.getAction() == KeyEvent.ACTION_UP)
+                    {
+//                        log("key code: " + keyCode + "\nkey event: " + keyEvent);
+                        return onBackPressed();
+                    }
+                    return false;
+                }
+            });
             new FontChangeCrawler(getActivity().getAssets(), "fonts/main.otf").replaceFonts(mainView);
             clickListener = new View.OnClickListener()
             {
@@ -144,6 +178,10 @@ public abstract class UtilFragment
     {
         inputMethodManager.hideSoftInputFromWindow(mainView.getWindowToken(), 0);
     }
+    protected boolean onBackPressed()
+    {
+        return false;
+    }
     final protected boolean hasNavigationBar()
     {
         return !ViewConfiguration.get(getActivity()).hasPermanentMenuKey() && !KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
@@ -201,6 +239,26 @@ public abstract class UtilFragment
         });
     }
 
+    final protected float pow(float v, int p)
+    {
+        if(p == 2)
+        {
+            return v*v;
+        }
+        if(p == 1)
+        {
+            return v;
+        }
+        if(p == 0)
+        {
+            return 1;
+        }
+        for(int i=0; i<p; i++)
+        {
+            v *= v;
+        }
+        return v;
+    }
     final protected int px(float dp)
     {
         if(dp < 0)

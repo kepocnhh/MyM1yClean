@@ -4,8 +4,10 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -68,6 +70,7 @@ public class AddNewCashAccountFragment
     private Theme currentTheme;
     private ValueAnimator.Animator enterTitleTextAnimator;
     private ValueAnimator.Animator titleBottomAnimator;
+    private ValueAnimator.Animator beginAnimator;
 
     protected void onClickView(int id)
     {
@@ -77,9 +80,30 @@ public class AddNewCashAccountFragment
                 presenter.addNewCashAccount();
                 break;
             case R.id.cancel:
-                behaviour.cancel();
+                tryCancel();
                 break;
         }
+    }
+    private void tryCancel()
+    {
+        animate(false, new ValueAnimator.AnimationListener()
+        {
+            public void begin()
+            {
+            }
+            public void end()
+            {
+                behaviour.cancel();
+            }
+            public void cancel()
+            {
+            }
+        });
+    }
+    protected boolean onBackPressed()
+    {
+        tryCancel();
+        return true;
     }
     protected int getContentView()
     {
@@ -107,6 +131,20 @@ public class AddNewCashAccountFragment
                 hideKeyBoard();
             }
         });
+//        title.setImeOptions(EditorInfo.IME_ACTION_DONE);
+//        title.setOnEditorActionListener(new TextView.OnEditorActionListener()
+//        {
+//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+//            {
+//                switch(actionId)
+//                {
+//                    case EditorInfo.IME_ACTION_DONE:
+//                        mainView().requestFocus();
+//                        break;
+//                }
+//                return false;
+//            }
+//        });
         title.addTextChangedListener(new TextWatcher()
         {
             public void beforeTextChanged(CharSequence s, int start, int count, int after)
@@ -124,7 +162,13 @@ public class AddNewCashAccountFragment
         {
             public void onFocusChange(View v, boolean hasFocus)
             {
+//                log("title_bottom focus: " + hasFocus);
                 title_bottom.setBackgroundColor(hasFocus ? currentTheme.colors().accent() : currentTheme.colors().foreground());
+//                if(!hasFocus)
+//                {
+//                    hideKeyBoard();
+//                    mainView().requestFocus();
+//                }
                 if(title.getText().length() == 0 && hasFocus)
                 {
                     animate(true);
@@ -136,6 +180,27 @@ public class AddNewCashAccountFragment
             }
         });
         setTheme(App.component().themeSwitcher().theme());
+        background.setVisibility(View.INVISIBLE);
+        animate(true, new ValueAnimator.AnimationListener()
+        {
+            public void begin()
+            {
+                runOnUiThread(new Runnable()
+                {
+                    public void run()
+                    {
+                        background.setAlpha(0);
+                        background.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+            public void end()
+            {
+            }
+            public void cancel()
+            {
+            }
+        });
         title_bottom.setVisibility(View.INVISIBLE);
         title.post(new Runnable()
         {
@@ -218,5 +283,31 @@ public class AddNewCashAccountFragment
             }
         });
         enterTitleTextAnimator.animate();
+    }
+    private void animate(boolean in, ValueAnimator.AnimationListener listener)
+    {
+        if(beginAnimator != null)
+        {
+            beginAnimator.cancel();
+        }
+        beginAnimator = ValueAnimator.create(250, in ? 0 : 1, in ? 1 : 0, new ValueAnimator.Updater<Float>()
+        {
+            public void update(final Float value)
+            {
+                runOnUiThread(new Runnable()
+                {
+                    public void run()
+                    {
+                        background.setAlpha(value);
+                        int pow = 2;
+//                        set_cash_account_container.setX(mainView().getWidth() - mainView().getWidth()*value);
+//                        enter_count_container.setX(mainView().getWidth() - mainView().getWidth()*pow(value, pow));
+//                        buttons_bottom_container.setX(mainView().getWidth() - mainView().getWidth()*value);
+                    }
+                });
+            }
+        });
+        beginAnimator.setAnimationListener(listener);
+        beginAnimator.animate();
     }
 }

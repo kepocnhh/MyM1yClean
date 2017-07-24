@@ -5,11 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,6 +27,7 @@ public class DrawerContainer
     private boolean edge = true;
     private float pad = 0;
     private float edgePad = 0;
+    private float movePad = 0;
     private float speedFactor = 1;
     private float iosOffset = 2;
     private float tweaking = 2;
@@ -112,7 +111,7 @@ public class DrawerContainer
                 if(scaleStyle)
                 {
                     float scalingFactor = 1 - ((drawerPosition + drawerWidth)/drawerWidth)/2;
-                    Log.e(getClass().getName(), "scalingFactor " + scalingFactor);
+//                    Log.e(getClass().getName(), "scalingFactor " + scalingFactor);
                     v.setScaleX(scalingFactor);
                     v.setScaleY(scalingFactor);
                     v.setTranslationX(mainPosition - (getWidth()*(1-scalingFactor))/2);
@@ -274,7 +273,7 @@ public class DrawerContainer
 //        }
         if(ev.getAction() != MotionEvent.ACTION_MOVE)
         {
-            Log.e(getClass().getName(), "intercept touch " + ev.getAction() + " find scroll " + findScrollHorizontally);
+//            Log.e(getClass().getName(), "intercept touch " + ev.getAction() + " find scroll " + findScrollHorizontally);
         }
 //        if(findScrollHorizontally)
 //        {
@@ -321,7 +320,7 @@ public class DrawerContainer
                     }
                     else if(Math.abs(y) < Math.abs(x)-1)
                     {
-                        Log.e(getClass().getName(), "move");
+//                        Log.e(getClass().getName(), "move");
                         onTouchEvent(ev);
                     }
                     else
@@ -386,7 +385,7 @@ public class DrawerContainer
             if(view instanceof RecyclerView)
             {
                 RecyclerView recyclerView = (RecyclerView) view;
-                Log.e(getClass().getName(), view.getId() + " LAYOUT_DIRECTION_LTR false " + recyclerView.getLayoutManager().canScrollHorizontally());
+//                Log.e(getClass().getName(), view.getId() + " LAYOUT_DIRECTION_LTR false " + recyclerView.getLayoutManager().canScrollHorizontally());
 //                return recyclerView.getLayoutManager().canScrollHorizontally();
             }
             else
@@ -400,9 +399,9 @@ public class DrawerContainer
         if(view instanceof RecyclerView)
         {
             RecyclerView recyclerView = (RecyclerView) view;
-            Log.e(getClass().getName(), "find RecyclerView " + view.getId() + " xy " +x+ " " +y+
-                    " rect " + rect.left + " " + rect.right + " " + rect.top + " " + rect.bottom +
-                    " scroll " + recyclerView.getLayoutManager().canScrollHorizontally());
+//            Log.e(getClass().getName(), "find RecyclerView " + view.getId() + " xy " +x+ " " +y+
+//                    " rect " + rect.left + " " + rect.right + " " + rect.top + " " + rect.bottom +
+//                    " scroll " + recyclerView.getLayoutManager().canScrollHorizontally());
             if(find)
             {
                 return recyclerView.getLayoutManager().canScrollHorizontally();
@@ -415,13 +414,13 @@ public class DrawerContainer
 //                RecyclerView recyclerView = (RecyclerView) view;
 //                Log.e(getClass().getName(), "find RecyclerView " + view.getClass().getName() + " xy " +x+ " " +y+ " scroll " + recyclerView.getLayoutManager().canScrollHorizontally());
 //            }
-            Log.e(getClass().getName(), "find scroll horizontally " + view + " xy " +x+ " " +y+ " rect " + rect.left + " " + rect.right + " " + rect.top + " " + rect.bottom);
+//            Log.e(getClass().getName(), "find scroll horizontally " + view + " xy " +x+ " " +y+ " rect " + rect.left + " " + rect.right + " " + rect.top + " " + rect.bottom);
         }
         else
         {
             if(view instanceof RecyclerView)
             {
-                Log.e(getClass().getName(), "miss");
+//                Log.e(getClass().getName(), "miss");
             }
         }
         return find;
@@ -431,7 +430,7 @@ public class DrawerContainer
     {
         if(ev.getAction() != MotionEvent.ACTION_MOVE)
         {
-            Log.e(getClass().getName(), "touch " + ev.getAction());
+//            Log.e(getClass().getName(), "touch " + ev.getAction());
         }
         if(ev.getPointerCount() > 1)
         {
@@ -466,7 +465,7 @@ public class DrawerContainer
                 {
                     x += (drawerWidth / tweaking)*2;
                 }
-                Log.e(getClass().getName(), "x " + x + " t " + (drawerWidth / tweaking));
+//                Log.e(getClass().getName(), "x " + x + " t " + (drawerWidth / tweaking));
                 if(x > (drawerWidth / tweaking))
                 {
                     openDrawer();
@@ -497,7 +496,19 @@ public class DrawerContainer
             startedTrackingY = ev.getY();
             return true;
         }
-        if(ev.getAction() == MotionEvent.ACTION_MOVE && startedTouch)
+        boolean canStart = true;
+        if(!moveProcess)
+        {
+            if(Math.abs(ev.getX() - startedTrackingX) > movePad)
+            {
+                startedTrackingX = ev.getX();
+            }
+            else
+            {
+                canStart = false;
+            }
+        }
+        if(ev.getAction() == MotionEvent.ACTION_MOVE && startedTouch  && canStart)
         {
             if(multitouch || findScrollHorizontally)
             {
@@ -592,8 +603,8 @@ public class DrawerContainer
                 ViewGroup.LayoutParams lp = drawerLayout.getLayoutParams();
                 drawerWidth = getMeasuredWidth() - (int)pad;
                 lp.width = drawerWidth;
-                Log.e(getClass().getName(), "drawerWidth " + drawerWidth);
-                Log.e(getClass().getName(), "drawerLayout " + drawerLayout);
+//                Log.e(getClass().getName(), "drawerWidth " + drawerWidth);
+//                Log.e(getClass().getName(), "drawerLayout " + drawerLayout);
                 drawerLayout.setLayoutParams(lp);
                 setDrawerPosition(0);
             }
@@ -605,7 +616,7 @@ public class DrawerContainer
         }
         catch(Exception e)
         {
-            Log.e(getClass().getName(), "setDrawerLayout " + e.getMessage());
+//            Log.e(getClass().getName(), "setDrawerLayout " + e.getMessage());
         }
     }
 
@@ -637,6 +648,10 @@ public class DrawerContainer
     public void setEdgePadSize(int size)
     {
         edgePad = size;
+    }
+    public void setMovePadSize(int size)
+    {
+        movePad = size;
     }
     public void setScrimColor(int color)
     {

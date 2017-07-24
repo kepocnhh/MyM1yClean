@@ -44,6 +44,7 @@ public class WorkFragment
         drawer_container.setEdge(false);
         drawer_container.setPadSize(px(56));
         drawer_container.setEdgePadSize(px(16));
+        drawer_container.setMovePadSize(px(16));
         drawer_container.setSpeedFactor(2);
         drawer_container.setTweaking(5);
         drawer_container.setScaleStyle(false);

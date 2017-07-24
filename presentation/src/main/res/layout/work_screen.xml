@@ -3,14 +3,13 @@
                                               android:id="@+id/drawer_container"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
-
-    <FrameLayout
-        android:id="@+id/main_frame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
     <FrameLayout
         android:id="@+id/menu_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"/>
+    <FrameLayout
+        android:id="@+id/main_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </stan.mym1y.clean.units.views.DrawerContainer>

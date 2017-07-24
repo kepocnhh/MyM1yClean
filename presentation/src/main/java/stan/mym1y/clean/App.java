@@ -60,7 +60,7 @@ public class App
                 jsonConverter, foldersAccess,
                 new Cases(foldersAccess.getDataBasePath(), darkTheme, lightTheme),
                 new SecurityManager(),
-                new ThemeToggle(darkTheme));
+                new ThemeToggle(lightTheme));
     }
 
     private int color(int colorId)

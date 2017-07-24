@@ -33,6 +33,7 @@ public class MenuFragment
         switch(id)
         {
             case R.id.logout:
+                log("try logout");
                 behaviour.logout();
                 break;
         }
