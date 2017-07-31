@@ -13,10 +13,26 @@ android {
         versionName global["androidVersionName"]
         archivesBaseName = "$applicationId-$versionCode"
     }
+    signingConfigs {
+        debug {
+            try {
+                storeFile file("mym1y.debug.jks")
+                storePassword DEBUG_STORE_PASSWORD
+                keyAlias DEBUG_KEY_ALIAS
+                keyPassword DEBUG_KEY_PASSWORD
+            }
+            catch (ex) {
+                throw new InvalidUserDataException("You should:\n- use mym1y.debug.jks file\n- define DEBUG_STORE_PASSWORD, DEBUG_KEY_ALIAS and DEBUG_KEY_PASSWORD in gradle.properties.")
+            }
+        }
+    }
     buildTypes {
         release {
         }
         debug {
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-debug'
+            signingConfig signingConfigs.debug
         }
     }
 }
