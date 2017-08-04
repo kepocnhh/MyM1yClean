@@ -1,9 +1,6 @@
 package stan.mym1y.clean.modules.auth.login;
 
-import android.animation.Animator;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
 import android.widget.EditText;
 
 import stan.mym1y.clean.App;
@@ -12,6 +9,7 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.auth.LoginContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.units.fragments.UtilFragment;
+import stan.mym1y.clean.utils.ValueAnimator;
 
 public class LoginFragment
         extends UtilFragment
@@ -69,15 +67,17 @@ public class LoginFragment
 
     private LoginContract.Behaviour behaviour;
 
+    private View background;
     private EditText login;
     private EditText password;
     private View waiter;
     private View login_container;
     private View password_container;
     private View signin;
+    private View auth_container;
     private View to_signup;
 
-    private final Interpolator inInterpolator = new DecelerateInterpolator();
+    private ValueAnimator.Animator animator;
 
     protected void onClickView(int id)
     {
@@ -94,33 +94,54 @@ public class LoginFragment
                     }
                 }, 300);
                 break;
+            case R.id.auth_google:
+                log("try auth with google account");
+                break;
             case R.id.to_signup:
-                animateOut(new Runnable()
+                animate(false, new ValueAnimator.AnimationListener()
                 {
-                    public void run()
+                    public void begin()
                     {
+                    }
+                    public void end()
+                    {
+                        runOnUiThread(new Runnable()
+                        {
+                            public void run()
+                            {
+                                login_container.setVisibility(View.INVISIBLE);
+                                password_container.setVisibility(View.INVISIBLE);
+                                signin.setVisibility(View.INVISIBLE);
+                                auth_container.setVisibility(View.INVISIBLE);
+                                to_signup.setVisibility(View.INVISIBLE);
+                            }
+                        });
                         behaviour.toSignup();
+                    }
+                    public void cancel()
+                    {
                     }
                 });
 //                behaviour.toSignup();
                 break;
         }
     }
-
     protected int getContentView()
     {
         return R.layout.login_screen;
     }
     protected void initViews(View v)
     {
+        background = findView(R.id.background);
         login = findView(R.id.login);
         password = findView(R.id.password);
         waiter = findView(R.id.waiter);
         login_container = findView(R.id.login_container);
         password_container = findView(R.id.password_container);
         signin = findView(R.id.signin);
+        auth_container = findView(R.id.auth_container);
         to_signup = findView(R.id.to_signup);
-        setClickListener(findView(R.id.signin), to_signup);
+        setClickListener(findView(R.id.signin), findView(R.id.auth_google), to_signup);
     }
     protected void init()
     {
@@ -129,109 +150,70 @@ public class LoginFragment
         login_container.setVisibility(View.INVISIBLE);
         password_container.setVisibility(View.INVISIBLE);
         signin.setVisibility(View.INVISIBLE);
+        auth_container.setVisibility(View.INVISIBLE);
         to_signup.setVisibility(View.INVISIBLE);
         mainView().post(new Runnable()
         {
             public void run()
             {
-                animateIn();
+                animate(true, new ValueAnimator.AnimationListener()
+                {
+                    public void begin()
+                    {
+                        runOnUiThread(new Runnable()
+                        {
+                            public void run()
+                            {
+                                background.setAlpha(0);
+                                login_container.setVisibility(View.VISIBLE);
+                                password_container.setVisibility(View.VISIBLE);
+                                signin.setVisibility(View.VISIBLE);
+                                auth_container.setVisibility(View.VISIBLE);
+                                to_signup.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+                    public void end()
+                    {
+                    }
+                    public void cancel()
+                    {
+                    }
+                });
                 mainView().requestFocus();
             }
         });
     }
-    private void animateIn()
+    private void animate(final boolean in, ValueAnimator.AnimationListener listener)
     {
-        animateIn(login_container, 0);
-        animateIn(password_container, 150);
-        animateIn(signin, 300);
-        animateIn(to_signup, 450);
+        if(animator != null)
+        {
+            animator.cancel();
+        }
+        animator = ValueAnimator.create(450, in ? 0 : 1, in ? 1 : 0, new ValueAnimator.Updater<Float>()
+        {
+            public void update(final Float value)
+            {
+                runOnUiThread(new Runnable()
+                {
+                    public void run()
+                    {
+                        background.setAlpha(value);
+                        login_container.setX(getX(value, 1));
+                        password_container.setX(getX(value, 0.9f));
+                        signin.setX(getX(value, 0.8f));
+                        auth_container.setX(getX(value, 0.7f));
+                        to_signup.setX(getX(value, 0.6f));
+                    }
+                });
+            }
+        });
+        animator.setAnimationListener(listener);
+        animator.animate();
     }
-    private void animateIn(final View v, long delay)
+    private float getX(float value, float delay)
     {
-        float x = v.getX();
-        v.setX(-v.getWidth());
-        v.setAlpha(0);
-        v.setVisibility(View.VISIBLE);
-        v.animate()
-         .setListener(new Animator.AnimatorListener()
-         {
-             public void onAnimationStart(Animator animation)
-             {
-                 v.setVisibility(View.VISIBLE);
-             }
-             public void onAnimationEnd(Animator animation)
-             {
-             }
-             public void onAnimationCancel(Animator animation)
-             {
-             }
-             public void onAnimationRepeat(Animator animation)
-             {
-             }
-         })
-         .setInterpolator(inInterpolator)
-         .setStartDelay(delay)
-         .x(x)
-         .alpha(1)
-         .setDuration(300);
-    }
-    private void animateOut(final View v, long delay, final Runnable runnable)
-    {
-        v.setAlpha(1);
-        v.animate()
-         .setListener(new Animator.AnimatorListener()
-         {
-             public void onAnimationStart(Animator animation)
-             {
-             }
-             public void onAnimationEnd(Animator animation)
-             {
-                 v.setVisibility(View.GONE);
-                 runnable.run();
-             }
-             public void onAnimationCancel(Animator animation)
-             {
-             }
-             public void onAnimationRepeat(Animator animation)
-             {
-             }
-         })
-         .setStartDelay(delay)
-         .x(-v.getWidth())
-         .alpha(0)
-         .setDuration(300);
-    }
-    private void animateOut(final View v, long delay)
-    {
-        v.setAlpha(1);
-        v.animate()
-         .setListener(new Animator.AnimatorListener()
-         {
-             public void onAnimationStart(Animator animation)
-             {
-             }
-             public void onAnimationEnd(Animator animation)
-             {
-                 v.setVisibility(View.GONE);
-             }
-             public void onAnimationCancel(Animator animation)
-             {
-             }
-             public void onAnimationRepeat(Animator animation)
-             {
-             }
-         })
-         .setStartDelay(delay)
-         .x(-v.getWidth())
-         .alpha(0)
-         .setDuration(300);
-    }
-    private void animateOut(Runnable runnable)
-    {
-        animateOut(to_signup, 0);
-        animateOut(signin, 150);
-        animateOut(password_container, 300);
-        animateOut(login_container, 400, runnable);
+        return mainView().getWidth()*(value > delay ? 1 : value/delay) - mainView().getWidth();
     }
 
     private void showWaiter()
