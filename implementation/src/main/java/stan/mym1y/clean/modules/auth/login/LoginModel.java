@@ -40,7 +40,7 @@ class LoginModel
         }
     }
     public UserPrivateData login(UserSecretData data)
-            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
     {
         return authApi.postLogin(data);
     }

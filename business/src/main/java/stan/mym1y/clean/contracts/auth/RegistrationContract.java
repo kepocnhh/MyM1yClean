@@ -10,7 +10,8 @@ public interface RegistrationContract
     interface Model
     {
         void checkData(String login, String password) throws ValidateDataException;
-        UserPrivateData registration(UserSecretData data) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError;
+        UserPrivateData registration(UserSecretData data)
+                throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError, ErrorsContract.UnknownException;
     }
     interface View
     {

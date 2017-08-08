@@ -7,6 +7,7 @@ import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.auth.LoginContract;
+import stan.mym1y.clean.cores.auth.Providers;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.units.fragments.UtilFragment;
 import stan.mym1y.clean.utils.ValueAnimator;
@@ -96,6 +97,7 @@ public class LoginFragment
                 break;
             case R.id.auth_google:
                 log("try auth with google account");
+                behaviour.toLogin(Providers.Type.GOOGLE);
                 break;
             case R.id.to_signup:
                 animate(false, new ValueAnimator.AnimationListener()
@@ -200,10 +202,10 @@ public class LoginFragment
                     {
                         background.setAlpha(value);
                         login_container.setX(getX(value, 1));
-                        password_container.setX(getX(value, 0.9f));
-                        signin.setX(getX(value, 0.8f));
-                        auth_container.setX(getX(value, 0.7f));
-                        to_signup.setX(getX(value, 0.6f));
+                        password_container.setX(getX(value, 0.85f));
+                        signin.setX(getX(value, 0.7f));
+                        auth_container.setX(getX(value, 0.55f));
+                        to_signup.setX(getX(value, 0.3f));
                     }
                 });
             }
@@ -214,6 +216,7 @@ public class LoginFragment
     private float getX(float value, float delay)
     {
         return mainView().getWidth()*(value > delay ? 1 : value/delay) - mainView().getWidth();
+//        return mainView().getWidth()*(value > delay ? 1 : value + (1-delay)) - mainView().getWidth();
     }
 
     private void showWaiter()

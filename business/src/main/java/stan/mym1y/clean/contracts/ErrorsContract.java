@@ -5,15 +5,15 @@ public interface ErrorsContract
     class MyM1yException
             extends Exception
     {
-        public MyM1yException()
+        MyM1yException()
         {
             super();
         }
-        public MyM1yException(Throwable t)
+        MyM1yException(Throwable t)
         {
             super(t);
         }
-        public MyM1yException(String message)
+        MyM1yException(String message)
         {
             super(message);
         }
@@ -33,6 +33,18 @@ public interface ErrorsContract
         public NetworkException(String link)
         {
             super("link - " + link);
+        }
+    }
+    class UnknownException
+            extends MyM1yException
+    {
+        public UnknownException(Throwable t)
+        {
+            super(t);
+        }
+        public UnknownException(String message)
+        {
+            super(message);
         }
     }
 }

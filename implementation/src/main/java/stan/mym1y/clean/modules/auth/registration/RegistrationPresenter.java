@@ -42,7 +42,7 @@ class RegistrationPresenter
                 {
                     view().error(e);
                 }
-                catch(UnknownError e)
+                catch(ErrorsContract.UnknownException e)
                 {
                     view().error();
                 }

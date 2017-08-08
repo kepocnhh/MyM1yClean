@@ -1,6 +1,7 @@
 package stan.mym1y.clean.contracts.auth;
 
 import stan.mym1y.clean.contracts.ErrorsContract;
+import stan.mym1y.clean.cores.auth.Providers;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.users.UserSecretData;
 import stan.reactive.single.SingleObservable;
@@ -10,7 +11,8 @@ public interface LoginContract
     interface Model
     {
         void checkData(String login, String password) throws ValidateDataException;
-        UserPrivateData login(UserSecretData data) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError;
+        UserPrivateData login(UserSecretData data)
+                throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError, ErrorsContract.UnknownException;
     }
     interface View
     {
@@ -28,6 +30,7 @@ public interface LoginContract
     interface Behaviour
     {
         void login(UserPrivateData data);
+        void toLogin(Providers.Type type);
         void toSignup();
     }
 

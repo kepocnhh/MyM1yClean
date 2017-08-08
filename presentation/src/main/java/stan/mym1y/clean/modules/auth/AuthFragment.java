@@ -5,9 +5,12 @@ import android.view.View;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.auth.AuthContract;
 import stan.mym1y.clean.contracts.auth.LoginContract;
+import stan.mym1y.clean.contracts.auth.LoginWithProviderContract;
 import stan.mym1y.clean.contracts.auth.RegistrationContract;
+import stan.mym1y.clean.cores.auth.Providers;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.modules.auth.login.LoginFragment;
+import stan.mym1y.clean.modules.auth.provider.LoginWithProviderFragment;
 import stan.mym1y.clean.modules.auth.registration.RegistrationFragment;
 import stan.mym1y.clean.units.fragments.UtilFragment;
 
@@ -32,6 +35,11 @@ public class AuthFragment
             log("to -> login");
             replace(R.id.auth_subscreen, LoginFragment.newInstance(loginBehaviour));
         }
+        public void toLogin(Providers.Type type)
+        {
+            log("to -> login with type: " + type.value);
+            replace(R.id.auth_subscreen, LoginWithProviderFragment.newInstance(type, loginWithProviderBehaviour));
+        }
         public void toRegistration()
         {
             log("to -> registration");
@@ -47,9 +55,27 @@ public class AuthFragment
                     + "\n\t" + "token " + data.userToken());
             behaviour.enter(data);
         }
+        public void toLogin(Providers.Type type)
+        {
+            presenter.toLogin(type);
+        }
         public void toSignup()
         {
             presenter.toRegistration();
+        }
+    };
+    private final LoginWithProviderContract.Behaviour loginWithProviderBehaviour = new LoginWithProviderContract.Behaviour()
+    {
+        public void login(UserPrivateData data)
+        {
+            log("login:"
+                    + "\n\t" + "userId " + data.userId()
+                    + "\n\t" + "token " + data.userToken());
+            behaviour.enter(data);
+        }
+        public void exit()
+        {
+            presenter.toLogin();
         }
     };
     private final RegistrationContract.Behaviour registrationBehaviour = new RegistrationContract.Behaviour()

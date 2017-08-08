@@ -40,7 +40,7 @@ class RegistrationModel
         }
     }
     public UserPrivateData registration(UserSecretData data)
-            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
     {
         return authApi.postRegistration(data);
     }

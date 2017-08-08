@@ -10,12 +10,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import stan.mym1y.clean.components.JsonConverter;
+import stan.mym1y.clean.cores.auth.Providers;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.users.UserPrivateData;
+import stan.mym1y.clean.cores.users.UserProviderData;
 import stan.mym1y.clean.cores.users.UserSecretData;
 import stan.mym1y.clean.cores.versions.Versions;
 import stan.mym1y.clean.modules.cashaccounts.CashAccountData;
@@ -24,6 +26,7 @@ import stan.mym1y.clean.modules.network.requests.CashAccountRequestData;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.transactions.TransactionData;
 import stan.mym1y.clean.modules.users.UserData;
+import stan.mym1y.clean.modules.users.UserProvider;
 import stan.mym1y.clean.modules.versions.VersionsData;
 
 public class JSON
@@ -35,6 +38,20 @@ public class JSON
         {
             return new JSONObject().put("email", data.login())
                                    .put("password", data.password())
+                                   .put("returnSecureToken", true).toString();
+        }
+        catch(JSONException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    public String get(UserProviderData data, Providers.Type type)
+    {
+        try
+        {
+            return new JSONObject().put("postBody", "id_token="+data.tokenId()+"&providerId="+type.value)
+                                   .put("requestUri", "http://localhost")
+                                   .put("returnIdpCredential", true)
                                    .put("returnSecureToken", true).toString();
         }
         catch(JSONException e)
@@ -213,6 +230,19 @@ public class JSON
             return new UserData(object.getString("user_id"),
                     object.getString("access_token"),
                     object.getString("refresh_token"));
+        }
+        catch(Throwable t)
+        {
+            throw new ParseException(t);
+        }
+    }
+    public UserProviderData getUserProviderData(String json)
+            throws ParseException
+    {
+        try
+        {
+            JSONObject object = new JSONObject(json);
+            return new UserProvider(object.getString("id_token"));
         }
         catch(Throwable t)
         {

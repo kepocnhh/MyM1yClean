@@ -1,5 +1,6 @@
 package stan.mym1y.clean.okhttp.apis;
 
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -7,7 +8,9 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import stan.mym1y.clean.contracts.ErrorsContract;
+import stan.mym1y.clean.cores.auth.Providers;
 import stan.mym1y.clean.cores.users.UserPrivateData;
+import stan.mym1y.clean.cores.users.UserProviderData;
 import stan.mym1y.clean.cores.users.UserSecretData;
 import stan.mym1y.clean.data.remote.apis.AuthApi;
 import stan.mym1y.clean.components.JsonConverter;
@@ -26,8 +29,82 @@ public class Auth
         jsonConverter = j;
     }
 
+    public UserProviderData postUserProviderData(String code)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
+    {
+        RequestBody body = new FormBody.Builder().add("client_id", CLIENT_ID)
+                                                 .add("code", code)
+                                                 .add("grant_type", "authorization_code")
+                                                 .add("client_secret", CLIENT_SECRET)
+                                                 .add("redirect_uri", REDIRECT_URI)
+                                                 .build();
+        Response response;
+        try
+        {
+            response = client.newCall(new Request.Builder()
+                    .url(Post.GET_TOKEN_PROVIDER)
+                    .post(body)
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(Post.GET_TOKEN_PROVIDER);
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
+                try
+                {
+                    String json = response.body().string();
+                    return jsonConverter.getUserProviderData(json);
+                }
+                catch(Exception e)
+                {
+                    throw new ErrorsContract.UnknownException(e);
+                }
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new ErrorsContract.UnknownException("unknown response code " + response.code());
+        }
+    }
+    public UserPrivateData postLogin(UserProviderData data, Providers.Type type)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
+    {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Post.LOGIN_WITH_PROVIDER).newBuilder();
+        urlBuilder.addQueryParameter("key", SERVER_KEY);
+        Response response;
+        try
+        {
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .post(RequestBody.create(JSON, jsonConverter.get(data, type)))
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
+                try
+                {
+                    String json = response.body().string();
+                    return jsonConverter.getUserPrivateData(json);
+                }
+                catch(Exception e)
+                {
+                    throw new ErrorsContract.UnknownException(e);
+                }
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new ErrorsContract.UnknownException("unknown response code " + response.code());
+        }
+    }
     public UserPrivateData postLogin(final UserSecretData data)
-            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
     {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(Post.LOGIN).newBuilder();
         urlBuilder.addQueryParameter("key", SERVER_KEY);
@@ -52,12 +129,12 @@ public class Auth
                 }
                 catch(Exception e)
                 {
-                    throw new UnknownError();
+                    throw new ErrorsContract.UnknownException(e);
                 }
             case Codes.UNAUTHORIZED:
                 throw new ErrorsContract.UnauthorizedException();
             default:
-                throw new UnknownError();
+                throw new ErrorsContract.UnknownException("unknown response code " + response.code());
         }
     }
     public UserPrivateData postRegistration(final UserSecretData data)
