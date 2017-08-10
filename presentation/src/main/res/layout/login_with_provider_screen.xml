@@ -13,6 +13,11 @@
             android:padding="12dp"
             android:layout_width="48dp"
             android:layout_height="match_parent"/>
+        <ProgressBar
+            android:id="@+id/waiter"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"/>
         <ImageView
             android:id="@+id/cancel"
             android:src="@mipmap/cancel"
@@ -32,5 +37,39 @@
             android:id="@+id/web"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+        <FrameLayout
+            android:id="@+id/login_in_process_container"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:text="Login in process. Please wait..."
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_size_large"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </FrameLayout>
+        <LinearLayout
+            android:id="@+id/error_container"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:text="Looks like error"
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_size_large"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/try_again"
+                android:text="try again"
+                android:textColor="@color/blue"
+                android:textSize="@dimen/text_size_large"
+                android:gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/container_size_less"/>
+        </LinearLayout>
     </FrameLayout>
 </LinearLayout>
