@@ -162,7 +162,7 @@ class MainModel
         });
     }
     private void syncData(SyncData syncData)
-            throws ErrorsContract.UnauthorizedException, ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, UnknownError
+            throws ErrorsContract.UnauthorizedException, ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnknownException
     {
         if(syncData.lastSyncTime() > settings.getSyncData().lastSyncTime())
         {

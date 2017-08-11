@@ -8,12 +8,14 @@ import stan.boxes.ORM;
 import stan.mym1y.clean.components.Settings;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.ui.Theme;
+import stan.mym1y.clean.cores.users.UserInfo;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.versions.Versions;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.ui.ColorsData;
 import stan.mym1y.clean.modules.ui.ThemeData;
 import stan.mym1y.clean.modules.users.UserData;
+import stan.mym1y.clean.modules.users.UserInfoData;
 import stan.mym1y.clean.modules.versions.VersionsData;
 
 public class Cases
@@ -22,6 +24,7 @@ public class Cases
     private final Case<Versions> versionsCase;
     private final Case<UserPrivateData> userPrivateDataCase;
     private final Case<SyncData> syncDataCase;
+    private final Case<UserInfo> userInfoCase;
     private final Case<Theme> themeCase;
 
     private final Theme darkTheme;
@@ -105,6 +108,25 @@ public class Cases
                         ((Long)map.get("color_confirm")).intValue()));
             }
         }, path + "/themeCase");
+        userInfoCase = new Case<>(new UserInfoData(null, null, null, -1), new ORM<UserInfo>()
+        {
+            public Map write(UserInfo info)
+            {
+                Map map = new HashMap();
+                map.put("name", info.name());
+                map.put("avatar", info.avatar());
+                map.put("birthDate", info.birthDate());
+                map.put("gender", info.gender() != null ? info.gender().name() : null);
+                return map;
+            }
+            public UserInfo read(Map map)
+            {
+                return new UserInfoData((String)map.get("name"),
+                        UserInfo.GenderType.valueOf((String)map.get("gender")),
+                        (String)map.get("avatar"),
+                        (Long)map.get("birthDate"));
+            }
+        }, path + "/userInfoCase");
     }
 
     public Versions getVersions()
@@ -128,6 +150,16 @@ public class Cases
     {
         userPrivateDataCase.clear();
         syncDataCase.clear();
+        userInfoCase.clear();
+    }
+
+    public UserInfo getUserInfo()
+    {
+        return userInfoCase.get();
+    }
+    public void setUserInfo(UserInfo info)
+    {
+        userInfoCase.save(info);
     }
 
     public SyncData getSyncData()

@@ -1,18 +1,20 @@
 package stan.mym1y.clean.modules.auth;
 
+import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.auth.AuthContract;
 import stan.mym1y.clean.cores.auth.Providers;
-import stan.mym1y.clean.units.mvp.RouterPresenter;
+import stan.mym1y.clean.cores.users.UserPrivateData;
+import stan.mym1y.clean.units.mvp.ModelRouterPresenter;
 
 class AuthPresenter
-        extends RouterPresenter<AuthContract.View, AuthContract.Router>
+        extends ModelRouterPresenter<AuthContract.View, AuthContract.Model, AuthContract.Router>
         implements AuthContract.Presenter
 {
     private AuthContract.Screen currentScreen;
 
-    AuthPresenter(AuthContract.View v, AuthContract.Router r)
+    AuthPresenter(AuthContract.View v, AuthContract.Model m, AuthContract.Router r)
     {
-        super(v, r);
+        super(v, m, r);
     }
 
     public void toLogin()
@@ -37,6 +39,23 @@ class AuthPresenter
         {
             currentScreen = AuthContract.Screen.REGISTRATION;
             router().toRegistration();
+        }
+    }
+    public void enter(UserPrivateData data)
+    {
+        try
+        {
+            model().checkUserInfo(data);
+            view().success(data);
+        }
+        catch(AuthContract.UserInfoNotExistException e)
+        {
+            currentScreen = AuthContract.Screen.USER_INFO;
+            router().toUserInfo();
+        }
+        catch(ErrorsContract.UnknownException e)
+        {
+            view().error();
         }
     }
 }

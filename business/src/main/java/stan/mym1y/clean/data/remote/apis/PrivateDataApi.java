@@ -6,6 +6,7 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
+import stan.mym1y.clean.cores.users.UserInfo;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.data.remote.Connection;
 
@@ -27,6 +28,10 @@ public interface PrivateDataApi
         {
             return BASE_URL + data.userId() + "/sync.json";
         }
+        static public String getUserInfoUrl(UserPrivateData data)
+        {
+            return BASE_URL + data.userId() + "/user.json";
+        }
     }
 
     interface Codes
@@ -35,9 +40,10 @@ public interface PrivateDataApi
         int SUCCESS = 200;
     }
 
-    List<CashAccountRequest> getTransactions(UserPrivateData data) throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, UnknownError;
-    SyncData getSyncData(UserPrivateData data) throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, UnknownError;
-    void putTransactions(UserPrivateData data, CashAccountRequest cashAccountRequest) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError;
-    void putTransactions(UserPrivateData data, List<CashAccountRequest> cashAccountRequests) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError;
-    void putSyncData(UserPrivateData data, SyncData syncData) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError;
+    List<CashAccountRequest> getTransactions(UserPrivateData data) throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException;
+    SyncData getSyncData(UserPrivateData data) throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException;
+    void putTransactions(UserPrivateData data, CashAccountRequest cashAccountRequest) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException;
+    void putTransactions(UserPrivateData data, List<CashAccountRequest> cashAccountRequests) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException;
+    void putSyncData(UserPrivateData data, SyncData syncData) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException;
+    UserInfo getUserInfo(UserPrivateData data) throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException;
 }

@@ -3,15 +3,12 @@ package stan.mym1y.clean.modules.start;
 import java.util.List;
 
 import stan.mym1y.clean.components.Settings;
+import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.StartContract;
 import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.versions.Versions;
 import stan.mym1y.clean.data.local.models.CurrenciesModels;
 import stan.mym1y.clean.data.remote.apis.GlobalDataApi;
-import stan.reactive.notify.NotifyObservable;
-import stan.reactive.notify.NotifyObserver;
-import stan.reactive.single.SingleObservable;
-import stan.reactive.single.SingleObserver;
 
 class StartModel
     implements StartContract.Model
@@ -27,9 +24,17 @@ class StartModel
         globalDataApi = gda;
     }
 
-    public SingleObservable<Versions> getActualVersions()
+    public Versions getActualVersions()
+            throws ErrorsContract.NetworkException, ErrorsContract.UnknownException
     {
-        return globalDataApi.getVersions();
+        try
+        {
+            return globalDataApi.getVersions();
+        }
+        catch(ErrorsContract.DataNotExistException e)
+        {
+            throw new ErrorsContract.UnknownException(e);
+        }
     }
     public Versions getCacheVersions()
     {
@@ -39,26 +44,18 @@ class StartModel
     {
         settings.setVersions(versions);
     }
-    public NotifyObservable updateCurrencies()
+    public void updateCurrencies()
+            throws ErrorsContract.UnknownException
     {
-        return new NotifyObservable()
+        try
         {
-            public void subscribe(final NotifyObserver o)
-            {
-                globalDataApi.getCurrencies().subscribe(new SingleObserver<List<Currency>>()
-                {
-                    public void success(List<Currency> cs)
-                    {
-                        currencies.clear();
-                        currencies.add(cs);
-                        o.notice();
-                    }
-                    public void error(Throwable t)
-                    {
-                        o.error(t);
-                    }
-                });
-            }
-        };
+            List<Currency> list = globalDataApi.getCurrencies();
+            currencies.clear();
+            currencies.add(list);
+        }
+        catch(ErrorsContract.NetworkException | ErrorsContract.DataNotExistException e)
+        {
+            throw new ErrorsContract.UnknownException(e);
+        }
     }
 }

@@ -7,6 +7,7 @@ import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.transactions.Transaction;
+import stan.mym1y.clean.cores.users.UserInfo;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.users.UserProviderData;
 import stan.mym1y.clean.cores.users.UserSecretData;
@@ -29,6 +30,7 @@ public interface JsonConverter
     UserProviderData getUserProviderData(String json) throws ParseException;
     SyncData getSyncData(String string) throws ParseException;
     List<CashAccountRequest> getCashAccounts(String json) throws ParseException;
+    UserInfo getUserInfo(String json) throws ParseException;
 
     class ParseException
             extends Exception

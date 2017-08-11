@@ -16,6 +16,7 @@ import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.transactions.Transaction;
+import stan.mym1y.clean.cores.users.UserInfo;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.users.UserProviderData;
 import stan.mym1y.clean.cores.users.UserSecretData;
@@ -26,6 +27,7 @@ import stan.mym1y.clean.modules.network.requests.CashAccountRequestData;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.transactions.TransactionData;
 import stan.mym1y.clean.modules.users.UserData;
+import stan.mym1y.clean.modules.users.UserInfoData;
 import stan.mym1y.clean.modules.users.UserProvider;
 import stan.mym1y.clean.modules.versions.VersionsData;
 
@@ -302,6 +304,23 @@ public class JSON
                 cashAccountRequests.add(getCashAccountRequest(object.getJSONObject(uuid), uuid));
             }
             return cashAccountRequests;
+        }
+        catch(Throwable t)
+        {
+            throw new ParseException(t);
+        }
+    }
+    public UserInfo getUserInfo(String json)
+            throws ParseException
+    {
+        try
+        {
+            JSONObject object = new JSONObject(json);
+            String gender = object.optString("gender");
+            return new UserInfoData(object.optString("name"),
+                    gender != null ? UserInfo.GenderType.valueOf(gender) : null,
+                    object.optString("avatar"),
+                    object.getLong("birthDate"));
         }
         catch(Throwable t)
         {

@@ -1,17 +1,17 @@
 package stan.mym1y.clean.contracts;
 
 import stan.mym1y.clean.cores.versions.Versions;
-import stan.reactive.notify.NotifyObservable;
-import stan.reactive.single.SingleObservable;
 
 public interface StartContract
 {
     interface Model
     {
-        SingleObservable<Versions> getActualVersions();
+        Versions getActualVersions()
+                throws ErrorsContract.NetworkException, ErrorsContract.UnknownException;
         Versions getCacheVersions();
         void update(Versions versions);
-        NotifyObservable updateCurrencies();
+        void updateCurrencies()
+                throws ErrorsContract.UnknownException;
     }
     interface View
     {

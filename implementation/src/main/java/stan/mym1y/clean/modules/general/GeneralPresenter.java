@@ -1,10 +1,10 @@
 package stan.mym1y.clean.modules.general;
 
+import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.GeneralContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.versions.Versions;
 import stan.mym1y.clean.units.mvp.ModelRouterPresenter;
-import stan.reactive.single.SingleObserver;
 
 class GeneralPresenter
     extends ModelRouterPresenter<GeneralContract.View, GeneralContract.Model, GeneralContract.Router>
@@ -27,24 +27,22 @@ class GeneralPresenter
                     router().toStart();
                     return;
                 }
-                model().getActualVersions().subscribe(new SingleObserver<Versions>()
+                try
                 {
-                    public void success(Versions versions)
-                    {
-                        if(versions.version() != cacheVersions.version())
-                        {
-                            router().toStart();
-                        }
-                        else
-                        {
-                            checkAuth();
-                        }
-                    }
-                    public void error(Throwable t)
+                    Versions actualVersions = model().getActualVersions();
+                    if(actualVersions.version() != cacheVersions.version())
                     {
                         router().toStart();
                     }
-                });
+                    else
+                    {
+                        checkAuth();
+                    }
+                }
+                catch(ErrorsContract.UnknownException e)
+                {
+                    router().toStart();
+                }
             }
         });
     }
@@ -57,14 +55,13 @@ class GeneralPresenter
                 try
                 {
                     model().getUserPrivateData();
+                    router().toWork();
                 }
                 catch(GeneralContract.UserNotAuthorizedException e)
                 {
                     log("User Not Authorized!");
                     router().toAuth();
-                    return;
                 }
-                router().toWork();
             }
         });
     }

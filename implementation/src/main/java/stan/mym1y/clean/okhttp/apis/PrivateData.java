@@ -12,6 +12,7 @@ import stan.mym1y.clean.components.JsonConverter;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
+import stan.mym1y.clean.cores.users.UserInfo;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.data.remote.apis.PrivateDataApi;
 
@@ -83,7 +84,7 @@ public class PrivateData
         }
     }
     public SyncData getSyncData(final UserPrivateData data)
-            throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, UnknownError
+            throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
     {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getSyncUrl(data)).newBuilder();
         urlBuilder.addQueryParameter("auth", data.userToken());
@@ -108,11 +109,7 @@ public class PrivateData
                 }
                 catch(Exception e)
                 {
-                    throw new UnknownError();
-                }
-                if(json == null)
-                {
-                    throw new UnknownError();
+                    throw new ErrorsContract.UnknownException(e);
                 }
                 if(json.equals("null"))
                 {
@@ -126,13 +123,13 @@ public class PrivateData
                     }
                     catch(Exception e)
                     {
-                        throw new UnknownError();
+                        throw new ErrorsContract.UnknownException(e);
                     }
                 }
             case Codes.UNAUTHORIZED:
                 throw new ErrorsContract.UnauthorizedException();
             default:
-                throw new UnknownError();
+                throw new ErrorsContract.UnknownException("unknown response code " + response.code());
         }
     }
     public void putTransactions(final UserPrivateData data, final CashAccountRequest cashAccountRequest)
@@ -214,6 +211,55 @@ public class PrivateData
                 throw new ErrorsContract.UnauthorizedException();
             default:
                 throw new UnknownError();
+        }
+    }
+    public UserInfo getUserInfo(UserPrivateData data)
+            throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
+    {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getUserInfoUrl(data)).newBuilder();
+        urlBuilder.addQueryParameter("auth", data.userToken());
+        Response response;
+        try
+        {
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
+                String json;
+                try
+                {
+                    json = response.body().string();
+                }
+                catch(Exception e)
+                {
+                    throw new ErrorsContract.UnknownException(e);
+                }
+                if(json.equals("null"))
+                {
+                    throw new ErrorsContract.DataNotExistException();
+                }
+                else
+                {
+                    try
+                    {
+                        return jsonConverter.getUserInfo(json);
+                    }
+                    catch(Exception e)
+                    {
+                        throw new ErrorsContract.UnknownException(e);
+                    }
+                }
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new ErrorsContract.UnknownException("unknown response code " + response.code());
         }
     }
 }

@@ -1,13 +1,13 @@
 package stan.mym1y.clean.modules.general;
 
 import stan.mym1y.clean.components.Settings;
+import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.GeneralContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.versions.Versions;
 import stan.mym1y.clean.data.local.models.CashAccountsModels;
 import stan.mym1y.clean.data.local.models.TransactionsModels;
 import stan.mym1y.clean.data.remote.apis.GlobalDataApi;
-import stan.reactive.single.SingleObservable;
 
 class GeneralModel
     implements GeneralContract.Model
@@ -25,15 +25,22 @@ class GeneralModel
         globalDataApi = gda;
     }
 
-    public SingleObservable<Versions> getActualVersions()
+    public Versions getActualVersions()
+            throws ErrorsContract.UnknownException
     {
-        return globalDataApi.getVersions();
+        try
+        {
+            return globalDataApi.getVersions();
+        }
+        catch(ErrorsContract.NetworkException | ErrorsContract.DataNotExistException e)
+        {
+            throw new ErrorsContract.UnknownException(e);
+        }
     }
     public Versions getCacheVersions()
     {
         return settings.getVersions();
     }
-
     public UserPrivateData getUserPrivateData()
             throws GeneralContract.UserNotAuthorizedException
     {
@@ -46,7 +53,6 @@ class GeneralModel
         }
         return data;
     }
-
     public void login(UserPrivateData data)
     {
         settings.login(data);

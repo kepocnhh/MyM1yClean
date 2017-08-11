@@ -11,8 +11,6 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.versions.Versions;
 import stan.mym1y.clean.data.remote.apis.GlobalDataApi;
-import stan.reactive.functions.Worker;
-import stan.reactive.single.SingleObservable;
 
 public class GlobalData
     implements GlobalDataApi
@@ -26,116 +24,96 @@ public class GlobalData
         jsonConverter = j;
     }
 
-    public SingleObservable<Versions> getVersions()
+    public Versions getVersions()
+            throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnknownException
     {
-        return SingleObservable.create(new Worker<Versions>()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.VERSIONS).newBuilder();
+        Response response;
+        try
         {
-            public Versions work()
-                    throws Throwable
-            {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.VERSIONS).newBuilder();
-                Response response;
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
+                String json;
                 try
                 {
-                    response = client.newCall(new Request.Builder()
-                            .url(urlBuilder.build())
-                            .build()).execute();
+                    json = response.body().string();
                 }
-                catch(Throwable t)
+                catch(Exception e)
                 {
-                    throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+                    throw new ErrorsContract.UnknownException(e);
                 }
-                switch(response.code())
+                if(json.equals("null"))
                 {
-                    case Codes.SUCCESS:
-                        String json;
-                        try
-                        {
-                            json = response.body().string();
-                        }
-                        catch(Exception e)
-                        {
-                            throw new UnknownError();
-                        }
-                        if(json == null)
-                        {
-                            throw new UnknownError();
-                        }
-                        if(json.equals("null"))
-                        {
-                            throw new ErrorsContract.DataNotExistException();
-                        }
-                        else
-                        {
-                            try
-                            {
-                                return jsonConverter.getVersions(json);
-                            }
-                            catch(Exception e)
-                            {
-                                throw new UnknownError();
-                            }
-                        }
-                    default:
-                        throw new UnknownError();
+                    throw new ErrorsContract.DataNotExistException();
                 }
-            }
-        });
+                else
+                {
+                    try
+                    {
+                        return jsonConverter.getVersions(json);
+                    }
+                    catch(Exception e)
+                    {
+                        throw new ErrorsContract.UnknownException("invalid response data: " + json);
+                    }
+                }
+            default:
+                throw new ErrorsContract.UnknownException("unknown response code " + response.code());
+        }
     }
-    public SingleObservable<List<Currency>> getCurrencies()
+    public List<Currency> getCurrencies()
+            throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnknownException
     {
-        return SingleObservable.create(new Worker<List<Currency>>()
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.CURRENCIES).newBuilder();
+        Response response;
+        try
         {
-            public List<Currency> work()
-                    throws Throwable
-            {
-                HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.CURRENCIES).newBuilder();
-                Response response;
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
+                String json;
                 try
                 {
-                    response = client.newCall(new Request.Builder()
-                            .url(urlBuilder.build())
-                            .build()).execute();
+                    json = response.body().string();
                 }
-                catch(Throwable t)
+                catch(Exception e)
                 {
-                    throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+                    throw new ErrorsContract.UnknownException(e);
                 }
-                switch(response.code())
+                if(json.equals("null"))
                 {
-                    case Codes.SUCCESS:
-                        String json;
-                        try
-                        {
-                            json = response.body().string();
-                        }
-                        catch(Exception e)
-                        {
-                            throw new UnknownError();
-                        }
-                        if(json == null)
-                        {
-                            throw new UnknownError();
-                        }
-                        if(json.equals("null"))
-                        {
-                            throw new ErrorsContract.DataNotExistException();
-                        }
-                        else
-                        {
-                            try
-                            {
-                                return jsonConverter.getCurrencies(json);
-                            }
-                            catch(Exception e)
-                            {
-                                throw new UnknownError();
-                            }
-                        }
-                    default:
-                        throw new UnknownError();
+                    throw new ErrorsContract.DataNotExistException();
                 }
-            }
-        });
+                else
+                {
+                    try
+                    {
+                        return jsonConverter.getCurrencies(json);
+                    }
+                    catch(Exception e)
+                    {
+                        throw new ErrorsContract.UnknownException("invalid response data: " + json);
+                    }
+                }
+            default:
+                throw new ErrorsContract.UnknownException("unknown response code " + response.code());
+        }
     }
 }

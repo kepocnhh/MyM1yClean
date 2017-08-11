@@ -2,13 +2,13 @@ package stan.mym1y.clean.contracts;
 
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.versions.Versions;
-import stan.reactive.single.SingleObservable;
 
 public interface GeneralContract
 {
     interface Model
     {
-        SingleObservable<Versions> getActualVersions();
+        Versions getActualVersions()
+                throws ErrorsContract.UnknownException;
         Versions getCacheVersions();
         UserPrivateData getUserPrivateData() throws UserNotAuthorizedException;
         void login(UserPrivateData data);
@@ -33,7 +33,7 @@ public interface GeneralContract
     }
 
     class UserNotAuthorizedException
-        extends Exception
+            extends Exception
     {
     }
 }
