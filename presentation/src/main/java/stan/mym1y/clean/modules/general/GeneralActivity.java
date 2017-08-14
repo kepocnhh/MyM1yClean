@@ -4,7 +4,7 @@ import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.GeneralContract;
 import stan.mym1y.clean.contracts.StartContract;
-import stan.mym1y.clean.contracts.WorkContract;
+import stan.mym1y.clean.contracts.work.WorkContract;
 import stan.mym1y.clean.contracts.auth.AuthContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.modules.auth.AuthFragment;

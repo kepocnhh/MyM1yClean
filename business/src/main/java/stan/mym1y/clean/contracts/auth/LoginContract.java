@@ -12,7 +12,7 @@ public interface LoginContract
     {
         void checkData(String login, String password) throws ValidateDataException;
         UserPrivateData login(UserSecretData data)
-                throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError, ErrorsContract.UnknownException;
+                throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException;
     }
     interface View
     {

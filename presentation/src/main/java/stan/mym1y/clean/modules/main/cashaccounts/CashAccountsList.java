@@ -8,7 +8,7 @@ import java.util.List;
 
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.ui.Theme;
-import stan.reactive.Tuple;
+import stan.mym1y.clean.data.Pair;
 
 public class CashAccountsList
 {
@@ -23,7 +23,7 @@ public class CashAccountsList
         cash_accounts.setAdapter(cashAccountsAdapter);
     }
 
-    public void swapData(List<Tuple<CashAccount, CashAccount.Extra>> data)
+    public void swapData(List<Pair<CashAccount, CashAccount.Extra>> data)
     {
         cashAccountsAdapter.swapData(data);
         cashAccountsAdapter.notifyDataSetChanged();

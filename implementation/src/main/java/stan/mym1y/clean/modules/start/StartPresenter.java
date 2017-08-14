@@ -3,6 +3,7 @@ package stan.mym1y.clean.modules.start;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.StartContract;
 import stan.mym1y.clean.cores.versions.Versions;
+import stan.mym1y.clean.data.Init;
 import stan.mym1y.clean.units.mvp.ModelPresenter;
 
 class StartPresenter
@@ -44,11 +45,11 @@ class StartPresenter
     }
     private void checkVersions(Versions actualVersions)
     {
-        Versions cacheVersions = model().getCacheVersions();
-        if(actualVersions.version() != cacheVersions.version())
+        Init<Versions> cacheVersions = model().getCacheVersions();
+        if(actualVersions.version() != cacheVersions.data().version())
         {
             log("versions need update");
-            checkVersions(actualVersions, cacheVersions);
+            checkVersions(actualVersions, cacheVersions.data());
         }
         else
         {

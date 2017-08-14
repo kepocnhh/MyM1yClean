@@ -4,52 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import stan.mym1y.clean.contracts.ErrorsContract;
-import stan.mym1y.clean.contracts.MainContract;
+import stan.mym1y.clean.contracts.work.MainContract;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.cashaccounts.CashAccountViewModel;
 import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
+import stan.mym1y.clean.data.Pair;
 import stan.mym1y.clean.units.mvp.ModelPresenter;
-import stan.reactive.Scheduler;
-import stan.reactive.Tuple;
-import stan.reactive.notify.NotifyObserver;
-import stan.reactive.single.SingleObserver;
 
 class MainPresenter
-    extends ModelPresenter<MainContract.View, MainContract.Model>
-    implements MainContract.Presenter
+        extends ModelPresenter<MainContract.View, MainContract.Model>
+        implements MainContract.Presenter
 {
-    private final NotifyObserver sendUpdatingsObserver = new NotifyObserver()
-    {
-        public void notice()
-        {
-            log("send updatings success");
-        }
-        public void error(Throwable t)
-        {
-            if(t instanceof ErrorsContract.UnauthorizedException)
-            {
-                try
-                {
-                    throw t;
-                }
-                catch(ErrorsContract.UnauthorizedException e)
-                {
-                    view().error(e);
-                }
-                catch(ErrorsContract.NetworkException e)
-                {
-                    view().error(e);
-                }
-                catch(Throwable throwable)
-                {
-                    view().error();
-                }
-            }
-        }
-    };
-
     MainPresenter(MainContract.View v, MainContract.Model m)
     {
         super(v, m);
@@ -62,69 +29,41 @@ class MainPresenter
             public void run()
             {
                 updateLocal();
-                model().updateAll().subscribe(new NotifyObserver()
+                try
                 {
-                    public void notice()
-                    {
-                        log("update all success");
-                        updateLocal();
-                    }
-                    public void error(Throwable t)
-                    {
-//                        log("error " + t.toString());
-                        try
-                        {
-                            throw t;
-                        }
-                        catch(ErrorsContract.DataNotExistException e)
-                        {
-                            log("data still not exist");
-                            model().sync();
-                            updateAll();
-                        }
-                        catch(ErrorsContract.UnauthorizedException e)
-                        {
-                            view().error(e);
-                        }
-                        catch(ErrorsContract.NetworkException e)
-                        {
-                            view().error(e);
-                        }
-                        catch(Throwable throwable)
-                        {
-                            view().error();
-                        }
-                    }
-                });
+                    model().updateAll();
+                    log("update all success");
+                    updateLocal();
+                }
+                catch(ErrorsContract.DataNotExistException e)
+                {
+                    log("data still not exist");
+                    model().sync();
+                    updateAll();
+                }
+                catch(ErrorsContract.UnauthorizedException e)
+                {
+                    view().error(e);
+                }
+                catch(ErrorsContract.NetworkException e)
+                {
+                    view().error(e);
+                }
+                catch(ErrorsContract.UnknownException e)
+                {
+                    view().error();
+                }
             }
         });
     }
 
     public void add(final CashAccountViewModel cashAccount)
     {
-        model().add(cashAccount)
-               .subscribeOn(Scheduler.NEW)
-               .observeOn(Scheduler.NEW)
-               .subscribe(new SingleObserver.Just<CashAccount>()
-               {
-                   public void success(CashAccount cashAccount)
-                   {
-                       updateCashAccount(cashAccount.id());
-                   }
-               });
+        updateCashAccount(model().add(cashAccount).id());
     }
     public void add(final TransactionViewModel transaction)
     {
-        model().add(transaction)
-               .subscribeOn(Scheduler.NEW)
-               .observeOn(Scheduler.NEW)
-               .subscribe(new SingleObserver.Just<Transaction>()
-               {
-                   public void success(Transaction transaction)
-                   {
-                       updateCashAccount(transaction.cashAccountId());
-                   }
-               });
+        updateCashAccount(model().add(transaction).cashAccountId());
     }
     public void delete(final CashAccount cashAccount)
     {
@@ -151,8 +90,8 @@ class MainPresenter
 
     private void updateLocal()
     {
-        List<Tuple<CashAccount, CashAccount.Extra>> cashAccounts = model().getAllCashAccounts();
-        List<Tuple<Transaction, Transaction.Extra>> transactions = model().getAllTransactions();
+        List<Pair<CashAccount, CashAccount.Extra>> cashAccounts = model().getAllCashAccounts();
+        List<Pair<Transaction, Transaction.Extra>> transactions = model().getAllTransactions();
         if(cashAccounts.isEmpty())
         {
             view().emptyCashAccounts();
@@ -167,11 +106,11 @@ class MainPresenter
             checkBalance(cashAccounts);
         }
     }
-    private void checkBalance(List<Tuple<CashAccount, CashAccount.Extra>> cashAccounts)
+    private void checkBalance(List<Pair<CashAccount, CashAccount.Extra>> cashAccounts)
     {
         List<Currency> currencies = new ArrayList<>();
         currencies.add(cashAccounts.get(0).second().currency());
-        for(Tuple<CashAccount, CashAccount.Extra> tuple : cashAccounts)
+        for(Pair<CashAccount, CashAccount.Extra> tuple : cashAccounts)
         {
             boolean find = false;
             for(Currency currency : currencies)
@@ -213,7 +152,23 @@ class MainPresenter
         {
             public void run()
             {
-                model().sendUpdatingsCashAccount(cashAccountId).subscribe(sendUpdatingsObserver);
+                try
+                {
+                    model().sendUpdatingsCashAccount(cashAccountId);
+                    log("send updatings success");
+                }
+                catch(ErrorsContract.UnauthorizedException e)
+                {
+                    view().error(e);
+                }
+                catch(ErrorsContract.NetworkException e)
+                {
+                    view().error(e);
+                }
+                catch(ErrorsContract.UnknownException e)
+                {
+                    view().error();
+                }
             }
         });
     }
@@ -229,7 +184,23 @@ class MainPresenter
         {
             public void run()
             {
-                model().sendAllUpdatings().subscribe(sendUpdatingsObserver);
+                try
+                {
+                    model().sendAllUpdatings();
+                    log("send updatings success");
+                }
+                catch(ErrorsContract.UnauthorizedException e)
+                {
+                    view().error(e);
+                }
+                catch(ErrorsContract.NetworkException e)
+                {
+                    view().error(e);
+                }
+                catch(ErrorsContract.UnknownException e)
+                {
+                    view().error();
+                }
             }
         });
     }

@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -156,7 +157,7 @@ public class DrawerContainer
             }
         });
     }
-    public void moveDrawer(int duration, float start, float end, ValueAnimator.AnimationListener listener)
+    public void moveDrawer(int duration, float start, float end, final ValueAnimator.AnimationListener listener)
     {
         if(drawerLayout == null)
         {
@@ -174,6 +175,38 @@ public class DrawerContainer
                         setDrawerPosition(value);
                     }
                 });
+            }
+        });
+        currentAnimator.setAnimationListener(new ValueAnimator.AnimationListener()
+        {
+            public void begin()
+            {
+                drawerLayout.post(new Runnable()
+                {
+                    public void run()
+                    {
+                        Log.e(getClass().getName(), "move drawer begin");
+                        drawerLayout.setVisibility(VISIBLE);
+                    }
+                });
+                if(listener != null)
+                {
+                    listener.begin();
+                }
+            }
+            public void end()
+            {
+                if(listener != null)
+                {
+                    listener.end();
+                }
+            }
+            public void cancel()
+            {
+                if(listener != null)
+                {
+                    listener.cancel();
+                }
             }
         });
         currentAnimator.setAnimationListener(listener);
@@ -195,6 +228,14 @@ public class DrawerContainer
             public void end()
             {
                 drawerOpened = false;
+//                drawerLayout.post(new Runnable()
+//                {
+//                    public void run()
+//                    {
+//                        Log.e(getClass().getName(), "move drawer end");
+//                        drawerLayout.setVisibility(INVISIBLE);
+//                    }
+//                });
                 if(listener != null)
                 {
                     listener.onAnimationEnd();
@@ -494,6 +535,14 @@ public class DrawerContainer
             startedTouch = true;
             startedTrackingX = ev.getX();
             startedTrackingY = ev.getY();
+            drawerLayout.post(new Runnable()
+            {
+                public void run()
+                {
+                    Log.e(getClass().getName(), "move drawer begin");
+                    drawerLayout.setVisibility(VISIBLE);
+                }
+            });
             return true;
         }
         boolean canStart = true;
@@ -732,7 +781,7 @@ public class DrawerContainer
         return (int)Math.ceil(density * dp);
     }
 
-    private interface AnimationEndListener
+    public interface AnimationEndListener
     {
         void onAnimationEnd();
     }

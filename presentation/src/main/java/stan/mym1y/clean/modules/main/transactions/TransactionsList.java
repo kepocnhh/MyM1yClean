@@ -9,7 +9,7 @@ import java.util.List;
 
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.ui.Theme;
-import stan.reactive.Tuple;
+import stan.mym1y.clean.data.Pair;
 
 public class TransactionsList
 {
@@ -28,7 +28,7 @@ public class TransactionsList
     {
         transactions.setVisibility(View.GONE);
     }
-    public void swapData(List<Tuple<Transaction, Transaction.Extra>> data)
+    public void swapData(List<Pair<Transaction, Transaction.Extra>> data)
     {
         transactions.setVisibility(View.VISIBLE);
         transactionsAdapter.swapData(data);

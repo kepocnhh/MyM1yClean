@@ -22,6 +22,7 @@ public interface JsonConverter
     String get(SyncData syncData);
     String get(CashAccountRequest cashAccountRequest);
     String getCashAccountRequests(List<CashAccountRequest> cashAccountRequests);
+    String get(UserInfo info);
 
     Versions getVersions(String json) throws ParseException;
     List<Currency> getCurrencies(String json) throws ParseException;

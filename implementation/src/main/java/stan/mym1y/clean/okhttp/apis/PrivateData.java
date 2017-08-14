@@ -31,7 +31,7 @@ public class PrivateData
     }
 
     public List<CashAccountRequest> getTransactions(final UserPrivateData data)
-            throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, UnknownError
+            throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
     {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getCashAccountsUrl(data)).newBuilder();
         urlBuilder.addQueryParameter("auth", data.userToken());
@@ -133,7 +133,7 @@ public class PrivateData
         }
     }
     public void putTransactions(final UserPrivateData data, final CashAccountRequest cashAccountRequest)
-            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
     {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getCashAccountUrl(data, cashAccountRequest.cashAccount())).newBuilder();
         urlBuilder.addQueryParameter("auth", data.userToken());
@@ -156,11 +156,11 @@ public class PrivateData
             case Codes.UNAUTHORIZED:
                 throw new ErrorsContract.UnauthorizedException();
             default:
-                throw new UnknownError();
+                throw new ErrorsContract.UnknownException("unknown response code " + response.code());
         }
     }
     public void putTransactions(final UserPrivateData data, final List<CashAccountRequest> cashAccountRequests)
-            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
     {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getCashAccountsUrl(data)).newBuilder();
         urlBuilder.addQueryParameter("auth", data.userToken());
@@ -183,11 +183,11 @@ public class PrivateData
             case Codes.UNAUTHORIZED:
                 throw new ErrorsContract.UnauthorizedException();
             default:
-                throw new UnknownError();
+                throw new ErrorsContract.UnknownException("unknown response code " + response.code());
         }
     }
     public void putSyncData(final UserPrivateData data, final SyncData syncData)
-            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, UnknownError
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
     {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getSyncUrl(data)).newBuilder();
         urlBuilder.addQueryParameter("auth", data.userToken());
@@ -210,7 +210,7 @@ public class PrivateData
             case Codes.UNAUTHORIZED:
                 throw new ErrorsContract.UnauthorizedException();
             default:
-                throw new UnknownError();
+                throw new ErrorsContract.UnknownException("unknown response code " + response.code());
         }
     }
     public UserInfo getUserInfo(UserPrivateData data)
@@ -256,6 +256,33 @@ public class PrivateData
                         throw new ErrorsContract.UnknownException(e);
                     }
                 }
+            case Codes.UNAUTHORIZED:
+                throw new ErrorsContract.UnauthorizedException();
+            default:
+                throw new ErrorsContract.UnknownException("unknown response code " + response.code());
+        }
+    }
+    public void putUserInfo(UserPrivateData data, UserInfo info)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
+    {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Get.getUserInfoUrl(data)).newBuilder();
+        urlBuilder.addQueryParameter("auth", data.userToken());
+        Response response;
+        try
+        {
+            response = client.newCall(new Request.Builder()
+                    .url(urlBuilder.build())
+                    .put(RequestBody.create(JSON, jsonConverter.get(info)))
+                    .build()).execute();
+        }
+        catch(Throwable t)
+        {
+            throw new ErrorsContract.NetworkException(urlBuilder.build().toString());
+        }
+        switch(response.code())
+        {
+            case Codes.SUCCESS:
+                break;
             case Codes.UNAUTHORIZED:
                 throw new ErrorsContract.UnauthorizedException();
             default:

@@ -4,6 +4,7 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.GeneralContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.versions.Versions;
+import stan.mym1y.clean.data.Init;
 import stan.mym1y.clean.units.mvp.ModelRouterPresenter;
 
 class GeneralPresenter
@@ -21,7 +22,7 @@ class GeneralPresenter
         {
             public void run()
             {
-                final Versions cacheVersions = model().getCacheVersions();
+                final Init<Versions> cacheVersions = model().getCacheVersions();
                 if(!cacheVersions.init())
                 {
                     router().toStart();
@@ -30,7 +31,7 @@ class GeneralPresenter
                 try
                 {
                     Versions actualVersions = model().getActualVersions();
-                    if(actualVersions.version() != cacheVersions.version())
+                    if(actualVersions.version() != cacheVersions.data().version())
                     {
                         router().toStart();
                     }

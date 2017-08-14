@@ -46,4 +46,5 @@ public interface PrivateDataApi
     void putTransactions(UserPrivateData data, List<CashAccountRequest> cashAccountRequests) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException;
     void putSyncData(UserPrivateData data, SyncData syncData) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException;
     UserInfo getUserInfo(UserPrivateData data) throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException;
+    void putUserInfo(UserPrivateData data, UserInfo info) throws ErrorsContract.NetworkException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException;
 }

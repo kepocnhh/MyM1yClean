@@ -7,7 +7,7 @@ import stan.mym1y.clean.components.JsonConverter;
 import stan.mym1y.clean.components.Security;
 import stan.mym1y.clean.components.Settings;
 import stan.mym1y.clean.contracts.ErrorsContract;
-import stan.mym1y.clean.contracts.MainContract;
+import stan.mym1y.clean.contracts.work.MainContract;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.cashaccounts.CashAccountViewModel;
 import stan.mym1y.clean.cores.currencies.Currency;
@@ -15,6 +15,7 @@ import stan.mym1y.clean.cores.network.requests.CashAccountRequest;
 import stan.mym1y.clean.cores.sync.SyncData;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
+import stan.mym1y.clean.data.Pair;
 import stan.mym1y.clean.data.local.models.CashAccountsModels;
 import stan.mym1y.clean.data.local.models.CurrenciesModels;
 import stan.mym1y.clean.data.local.models.TransactionsModels;
@@ -22,15 +23,11 @@ import stan.mym1y.clean.data.remote.apis.AuthApi;
 import stan.mym1y.clean.data.remote.apis.PrivateDataApi;
 import stan.mym1y.clean.modules.cashaccounts.CashAccountData;
 import stan.mym1y.clean.modules.cashaccounts.CashAccountExtra;
+import stan.mym1y.clean.modules.data.PairData;
 import stan.mym1y.clean.modules.network.requests.CashAccountRequestData;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.transactions.TransactionData;
 import stan.mym1y.clean.modules.transactions.TransactionExtra;
-import stan.reactive.Tuple;
-import stan.reactive.functions.Action;
-import stan.reactive.functions.Apply;
-import stan.reactive.notify.NotifyObservable;
-import stan.reactive.single.SingleObservable;
 
 class MainModel
         implements MainContract.Model
@@ -56,43 +53,22 @@ class MainModel
         privateDataApi = pda;
     }
 
-    public List<Tuple<Transaction, Transaction.Extra>> getAllTransactions()
+    public List<Pair<Transaction, Transaction.Extra>> getAllTransactions()
     {
         List<Transaction> ts = transactions.getAll();
-        List<Tuple<Transaction, Transaction.Extra>> list = new ArrayList<>(ts.size());
+        List<Pair<Transaction, Transaction.Extra>> list = new ArrayList<>(ts.size());
         for(Transaction transaction: ts)
         {
             CashAccount cashAccount = cashAccounts.get(transaction.cashAccountId());
-            list.add(new FullTransaction(transaction, new TransactionExtra(cashAccount.title(), currencies.get(cashAccount.currencyCodeNumber()))));
+            list.add(PairData.create(transaction, TransactionExtra.create(cashAccount.title(), currencies.get(cashAccount.currencyCodeNumber()))));
         }
         return list;
     }
-    private class FullTransaction
-            implements Tuple<Transaction, Transaction.Extra>
-    {
-        private final Transaction first;
-        private final Transaction.Extra second;
 
-        FullTransaction(Transaction f, Transaction.Extra s)
-        {
-            first = f;
-            second = s;
-        }
-
-        public Transaction first()
-        {
-            return first;
-        }
-        public Transaction.Extra second()
-        {
-            return second;
-        }
-    }
-
-    public List<Tuple<CashAccount, CashAccount.Extra>> getAllCashAccounts()
+    public List<Pair<CashAccount, CashAccount.Extra>> getAllCashAccounts()
     {
         List<CashAccount> cs = cashAccounts.getAll();
-        List<Tuple<CashAccount, CashAccount.Extra>> list = new ArrayList<>(cs.size());
+        List<Pair<CashAccount, CashAccount.Extra>> list = new ArrayList<>(cs.size());
         for(CashAccount cashAccount: cs)
         {
             Currency currency = currencies.get(cashAccount.currencyCodeNumber());
@@ -116,53 +92,26 @@ class MainModel
                     minorCount = t2 - count * 100;
                     break;
             }
-            list.add(new FullCashAccount(cashAccount, new CashAccountExtra(!(count < 0 || minorCount < 0), Math.abs(count), Math.abs(minorCount), currency)));
+            list.add(PairData.create(cashAccount, CashAccountExtra.create(!(count < 0 || minorCount < 0), Math.abs(count), Math.abs(minorCount), currency)));
         }
         return list;
     }
-    private class FullCashAccount
-            implements Tuple<CashAccount, CashAccount.Extra>
+
+    public void updateAll()
+            throws ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnauthorizedException, ErrorsContract.UnknownException
     {
-        private final CashAccount first;
-        private final CashAccount.Extra second;
-
-        FullCashAccount(CashAccount f, CashAccount.Extra s)
+        try
         {
-            first = f;
-            second = s;
+            syncData(privateDataApi.getSyncData(settings.getUserPrivateData()));
         }
-
-        public CashAccount first()
+        catch(ErrorsContract.UnauthorizedException unauthorizedError)
         {
-            return first;
+            settings.login(authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()));
+            syncData(privateDataApi.getSyncData(settings.getUserPrivateData()));
         }
-        public CashAccount.Extra second()
-        {
-            return second;
-        }
-    }
-
-    public NotifyObservable updateAll()
-    {
-        return NotifyObservable.create(new Action()
-        {
-            public void run()
-                    throws Throwable
-            {
-                try
-                {
-                    syncData(privateDataApi.getSyncData(settings.getUserPrivateData()));
-                }
-                catch(ErrorsContract.UnauthorizedException unauthorizedError)
-                {
-                    settings.login(authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()));
-                    syncData(privateDataApi.getSyncData(settings.getUserPrivateData()));
-                }
-            }
-        });
     }
     private void syncData(SyncData syncData)
-            throws ErrorsContract.UnauthorizedException, ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, ErrorsContract.UnknownException
+            throws ErrorsContract.UnauthorizedException, ErrorsContract.NetworkException, ErrorsContract.DataNotExistException, UnknownError, ErrorsContract.UnknownException
     {
         if(syncData.lastSyncTime() > settings.getSyncData().lastSyncTime())
         {
@@ -185,47 +134,35 @@ class MainModel
         }
     }
 
-    public NotifyObservable sendAllUpdatings()
+    public void sendAllUpdatings()
+            throws ErrorsContract.NetworkException, ErrorsContract.UnknownException, ErrorsContract.UnauthorizedException
     {
-        return NotifyObservable.create(new Action()
+        try
         {
-            public void run()
-                    throws Throwable
-            {
-                try
-                {
-                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests());
-                    privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
-                }
-                catch(ErrorsContract.UnauthorizedException unauthorizedError)
-                {
-                    settings.login(authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()));
-                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests());
-                    privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
-                }
-            }
-        });
+            privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests());
+            privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
+        }
+        catch(ErrorsContract.UnauthorizedException unauthorizedError)
+        {
+            settings.login(authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()));
+            privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequests());
+            privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
+        }
     }
-    public NotifyObservable sendUpdatingsCashAccount(final long cashAccountId)
+    public void sendUpdatingsCashAccount(final long cashAccountId)
+            throws ErrorsContract.NetworkException, ErrorsContract.UnknownException, ErrorsContract.UnauthorizedException
     {
-        return NotifyObservable.create(new Action()
+        try
         {
-            public void run()
-                    throws Throwable
-            {
-                try
-                {
-                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId)));
-                    privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
-                }
-                catch(ErrorsContract.UnauthorizedException unauthorizedError)
-                {
-                    settings.login(authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()));
-                    privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId)));
-                    privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
-                }
-            }
-        });
+            privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId)));
+            privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
+        }
+        catch(ErrorsContract.UnauthorizedException unauthorizedError)
+        {
+            settings.login(authApi.postRefreshToken(settings.getUserPrivateData().refreshToken()));
+            privateDataApi.putTransactions(settings.getUserPrivateData(), getCashAccountRequest(cashAccounts.get(cashAccountId)));
+            privateDataApi.putSyncData(settings.getUserPrivateData(), settings.getSyncData());
+        }
     }
     public CashAccount.Extra getBalance(Currency currency)
     {
@@ -252,7 +189,7 @@ class MainModel
                 minorCount = t2 - count * 100;
                 break;
         }
-        return new CashAccountExtra(!(count < 0 || minorCount < 0), Math.abs(count), Math.abs(minorCount), currency);
+        return CashAccountExtra.create(!(count < 0 || minorCount < 0), Math.abs(count), Math.abs(minorCount), currency);
     }
     private CashAccountRequest getCashAccountRequest(CashAccount cashAccount)
     {
@@ -279,36 +216,24 @@ class MainModel
         updateSyncData();
     }
 
-    public SingleObservable<CashAccount> add(final CashAccountViewModel cashAccountViewModel)
+    public CashAccount add(final CashAccountViewModel cashAccountViewModel)
     {
-        return SingleObservable.create(new Apply<CashAccount>()
-        {
-            public CashAccount apply()
-            {
-                CashAccount newCashAccount = new CashAccountData(security.newUniqueId(), security.newUUID(), cashAccountViewModel.currencyCodeNumber(), cashAccountViewModel.title());
-                cashAccounts.add(newCashAccount);
-                updateSyncData();
-                return newCashAccount;
-            }
-        });
+        CashAccount newCashAccount = new CashAccountData(security.newUniqueId(), security.newUUID(), cashAccountViewModel.currencyCodeNumber(), cashAccountViewModel.title());
+        cashAccounts.add(newCashAccount);
+        updateSyncData();
+        return newCashAccount;
     }
-    public SingleObservable<Transaction> add(final TransactionViewModel transactionViewModel)
+    public Transaction add(final TransactionViewModel transactionViewModel)
     {
-        return SingleObservable.create(new Apply<Transaction>()
-        {
-            public Transaction apply()
-            {
-                Transaction newTransaction = new TransactionData(security.newUniqueId(),
-                        transactionViewModel.cashAccountId(),
-                        transactionViewModel.date(),
-                        transactionViewModel.income(),
-                        transactionViewModel.count(),
-                        transactionViewModel.minorCount());
-                transactions.add(newTransaction);
-                updateSyncData();
-                return newTransaction;
-            }
-        });
+        Transaction newTransaction = new TransactionData(security.newUniqueId(),
+                transactionViewModel.cashAccountId(),
+                transactionViewModel.date(),
+                transactionViewModel.income(),
+                transactionViewModel.count(),
+                transactionViewModel.minorCount());
+        transactions.add(newTransaction);
+        updateSyncData();
+        return newTransaction;
     }
     public void sync()
     {

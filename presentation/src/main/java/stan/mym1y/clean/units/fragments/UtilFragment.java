@@ -231,10 +231,14 @@ public abstract class UtilFragment
         {
             public void run()
             {
-                hideKeyBoard();
-                getFragmentManager().beginTransaction()
-                                    .remove(getFragmentManager().findFragmentById(id))
-                                    .commit();
+                Fragment fragment = getFragmentManager().findFragmentById(id);
+                if(fragment != null)
+                {
+                    hideKeyBoard();
+                    getFragmentManager().beginTransaction()
+                                        .remove(fragment)
+                                        .commit();
+                }
             }
         });
     }

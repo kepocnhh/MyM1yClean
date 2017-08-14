@@ -11,6 +11,8 @@ import stan.mym1y.clean.cores.ui.Theme;
 import stan.mym1y.clean.cores.users.UserInfo;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.versions.Versions;
+import stan.mym1y.clean.data.Init;
+import stan.mym1y.clean.modules.data.InitData;
 import stan.mym1y.clean.modules.sync.SynchronizationData;
 import stan.mym1y.clean.modules.ui.ColorsData;
 import stan.mym1y.clean.modules.ui.ThemeData;
@@ -21,10 +23,10 @@ import stan.mym1y.clean.modules.versions.VersionsData;
 public class Cases
     implements Settings
 {
-    private final Case<Versions> versionsCase;
+    private final Case<Init<Versions>> versionsCase;
     private final Case<UserPrivateData> userPrivateDataCase;
     private final Case<SyncData> syncDataCase;
-    private final Case<UserInfo> userInfoCase;
+    private final Case<Init<UserInfo>> userInfoCase;
     private final Case<Theme> themeCase;
 
     private final Theme darkTheme;
@@ -63,21 +65,20 @@ public class Cases
                 return new SynchronizationData((Long)map.get("lastSyncTime"), (String)map.get("hash"));
             }
         }, path + "/syncDataCase");
-        versionsCase = new Case<>(new VersionsData(false, -1, -1), new ORM<Versions>()
+        versionsCase = new Case<>(InitData.create(VersionsData.create(-1, -1)), new ORM<Init<Versions>>()
         {
-            public Map write(Versions versions)
+            public Map write(Init<Versions> versions)
             {
                 Map map = new HashMap();
                 map.put("init", versions.init());
-                map.put("version", versions.version());
-                map.put("currencies", versions.currencies());
+                map.put("version", versions.data().version());
+                map.put("currencies", versions.data().currencies());
                 return map;
             }
-            public Versions read(Map map)
+            public Init<Versions> read(Map map)
             {
-                return new VersionsData((Boolean)map.get("init"),
-                        (Long)map.get("version"),
-                        (Long)map.get("currencies"));
+                return InitData.create((Boolean)map.get("init"), VersionsData.create((Long)map.get("version"),
+                        (Long)map.get("currencies")));
             }
         }, path + "/versionsCase");
         themeCase = new Case<>(lightTheme, new ORM<Theme>()
@@ -108,32 +109,35 @@ public class Cases
                         ((Long)map.get("color_confirm")).intValue()));
             }
         }, path + "/themeCase");
-        userInfoCase = new Case<>(new UserInfoData(null, null, null, -1), new ORM<UserInfo>()
+        userInfoCase = new Case<>(InitData.create(UserInfoData.create(null, null, null, -1)), new ORM<Init<UserInfo>>()
         {
-            public Map write(UserInfo info)
+            public Map write(Init<UserInfo> info)
             {
                 Map map = new HashMap();
-                map.put("name", info.name());
-                map.put("avatar", info.avatar());
-                map.put("birthDate", info.birthDate());
-                map.put("gender", info.gender() != null ? info.gender().name() : null);
+                map.put("init", info.init());
+                map.put("name", info.data().name());
+                map.put("avatar", info.data().avatar());
+                map.put("birthDate", info.data().birthDate());
+                map.put("gender", info.data().gender() != null ? info.data().gender().name() : null);
                 return map;
             }
-            public UserInfo read(Map map)
+            public Init<UserInfo> read(Map map)
             {
-                return new UserInfoData((String)map.get("name"),
-                        UserInfo.GenderType.valueOf((String)map.get("gender")),
-                        (String)map.get("avatar"),
-                        (Long)map.get("birthDate"));
+                String genderType = (String)map.get("gender");
+                return InitData.create((Boolean)map.get("init"),
+                        UserInfoData.create((String)map.get("name"),
+                                genderType != null ? UserInfo.GenderType.valueOf(genderType) : null,
+                                (String)map.get("avatar"),
+                                (Long)map.get("birthDate")));
             }
         }, path + "/userInfoCase");
     }
 
-    public Versions getVersions()
+    public Init<Versions> getVersions()
     {
         return versionsCase.get();
     }
-    public void setVersions(Versions versions)
+    public void setVersions(Init<Versions> versions)
     {
         versionsCase.save(versions);
     }
@@ -153,11 +157,11 @@ public class Cases
         userInfoCase.clear();
     }
 
-    public UserInfo getUserInfo()
+    public Init<UserInfo> getUserInfo()
     {
         return userInfoCase.get();
     }
-    public void setUserInfo(UserInfo info)
+    public void setUserInfo(Init<UserInfo> info)
     {
         userInfoCase.save(info);
     }

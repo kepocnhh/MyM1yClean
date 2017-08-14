@@ -148,6 +148,20 @@ public class JSON
         }
         return object.toString();
     }
+    public String get(UserInfo info)
+    {
+        try
+        {
+            return new JSONObject().put("name", info.name())
+                                   .put("gender", info.gender())
+                                   .put("avatar", info.avatar())
+                                   .put("birthDate", info.birthDate() < 0 ? null : info.birthDate()).toString();
+        }
+        catch(JSONException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
     public Versions getVersions(String json)
             throws ParseException
@@ -155,7 +169,7 @@ public class JSON
         try
         {
             JSONObject object = new JSONObject(json);
-            return new VersionsData(true, object.getLong("version"),
+            return VersionsData.create(object.getLong("version"),
                     object.getLong("currencies"));
         }
         catch(Throwable t)
@@ -316,11 +330,12 @@ public class JSON
         try
         {
             JSONObject object = new JSONObject(json);
-            String gender = object.optString("gender");
-            return new UserInfoData(object.optString("name"),
+            String gender = object.optString("gender", null);
+            long date = object.optLong("birthDate");
+            return UserInfoData.create(object.optString("name"),
                     gender != null ? UserInfo.GenderType.valueOf(gender) : null,
                     object.optString("avatar"),
-                    object.getLong("birthDate"));
+                    date < 0 ? -1 : date);
         }
         catch(Throwable t)
         {

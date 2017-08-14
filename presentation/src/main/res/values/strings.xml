@@ -26,4 +26,8 @@
     <string name="nothing_label">nothing</string>
     <string name="logout">Logout</string>
     <string name="or_enter_with">Or enter with:</string>
+    <string name="user_info_name_lbl">Name</string>
+    <string name="empty_user_info_name_error_message">Name is required!</string>
+    <string name="transactions">Transactions</string>
+    <string name="settings">Settings</string>
 </resources>

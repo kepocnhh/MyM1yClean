@@ -12,7 +12,7 @@ import java.util.List;
 import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.ErrorsContract;
-import stan.mym1y.clean.contracts.MainContract;
+import stan.mym1y.clean.contracts.work.MainContract;
 import stan.mym1y.clean.contracts.cashaccounts.AddNewCashAccountContract;
 import stan.mym1y.clean.contracts.transactions.AddNewTransactionContract;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
@@ -20,6 +20,7 @@ import stan.mym1y.clean.cores.cashaccounts.CashAccountViewModel;
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.cores.ui.Theme;
+import stan.mym1y.clean.data.Pair;
 import stan.mym1y.clean.modules.cashaccounts.AddNewCashAccountFragment;
 import stan.mym1y.clean.modules.cashaccounts.DeleteCashAccountConfirmDialog;
 import stan.mym1y.clean.modules.main.balances.BalancesList;
@@ -28,7 +29,6 @@ import stan.mym1y.clean.modules.main.transactions.TransactionsList;
 import stan.mym1y.clean.modules.transactions.AddNewTransactionFragment;
 import stan.mym1y.clean.modules.transactions.DeleteTransactionConfirmDialog;
 import stan.mym1y.clean.units.fragments.UtilFragment;
-import stan.reactive.Tuple;
 
 public class MainFragment
         extends UtilFragment
@@ -73,7 +73,7 @@ public class MainFragment
                 }
             });
         }
-        public void emptyTransactions(final List<Tuple<CashAccount, CashAccount.Extra>> cashAccounts)
+        public void emptyTransactions(final List<Pair<CashAccount, CashAccount.Extra>> cashAccounts)
         {
             runOnUiThread(new Runnable()
             {
@@ -91,7 +91,7 @@ public class MainFragment
                 }
             });
         }
-        public void update(final List<Tuple<CashAccount, CashAccount.Extra>> cashAccounts, final List<Tuple<Transaction, Transaction.Extra>> transactions)
+        public void update(final List<Pair<CashAccount, CashAccount.Extra>> cashAccounts, final List<Pair<Transaction, Transaction.Extra>> transactions)
         {
             runOnUiThread(new Runnable()
             {

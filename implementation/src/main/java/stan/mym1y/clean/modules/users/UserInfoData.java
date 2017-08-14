@@ -5,17 +5,22 @@ import stan.mym1y.clean.cores.users.UserInfo;
 public class UserInfoData
     implements UserInfo
 {
+    static public UserInfo create(String name, GenderType gender, String avatar, long birthDate)
+    {
+        return new UserInfoData(name, gender, avatar, birthDate);
+    }
+
     private final String name;
     private final GenderType gender;
     private final String avatar;
     private final long birthDate;
 
-    public UserInfoData(String name, GenderType gender, String avatar, long birthDate)
+    private UserInfoData(String n, GenderType g, String a, long b)
     {
-        this.name = name;
-        this.gender = gender;
-        this.avatar = avatar;
-        this.birthDate = birthDate;
+        name = n;
+        gender = g;
+        avatar = a;
+        birthDate = b;
     }
 
     public String name()

@@ -6,12 +6,17 @@ import stan.mym1y.clean.cores.currencies.Currency;
 public class CashAccountExtra
     implements CashAccount.Extra
 {
+    static public CashAccount.Extra create(boolean ic, int c, int mc, Currency crc)
+    {
+        return new CashAccountExtra(ic, c, mc, crc);
+    }
+
     private final boolean income;
     private final int count;
     private final int minorCount;
     private final Currency currency;
 
-    public CashAccountExtra(boolean ic, int c, int mc, Currency crc)
+    private CashAccountExtra(boolean ic, int c, int mc, Currency crc)
     {
         income = ic;
         count = c;

@@ -9,7 +9,7 @@ import java.util.List;
 
 import stan.mym1y.clean.cores.transactions.Transaction;
 import stan.mym1y.clean.cores.ui.Theme;
-import stan.reactive.Tuple;
+import stan.mym1y.clean.data.Pair;
 
 class TransactionsAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder>
@@ -17,7 +17,7 @@ class TransactionsAdapter
     private final Context context;
     private final Theme theme;
     private final TransactionsList.Listener listener;
-    private List<Tuple<Transaction, Transaction.Extra>> data;
+    private List<Pair<Transaction, Transaction.Extra>> data;
 
     TransactionsAdapter(Context c, Theme t, TransactionsList.Listener l)
     {
@@ -81,7 +81,7 @@ class TransactionsAdapter
             return ViewTypes.NORMAL;
         }
     }
-    void swapData(List<Tuple<Transaction, Transaction.Extra>> d)
+    void swapData(List<Pair<Transaction, Transaction.Extra>> d)
     {
         if(data != null)
         {

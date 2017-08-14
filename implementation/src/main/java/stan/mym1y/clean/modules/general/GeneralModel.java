@@ -5,6 +5,7 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.GeneralContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.versions.Versions;
+import stan.mym1y.clean.data.Init;
 import stan.mym1y.clean.data.local.models.CashAccountsModels;
 import stan.mym1y.clean.data.local.models.TransactionsModels;
 import stan.mym1y.clean.data.remote.apis.GlobalDataApi;
@@ -37,7 +38,7 @@ class GeneralModel
             throw new ErrorsContract.UnknownException(e);
         }
     }
-    public Versions getCacheVersions()
+    public Init<Versions> getCacheVersions()
     {
         return settings.getVersions();
     }

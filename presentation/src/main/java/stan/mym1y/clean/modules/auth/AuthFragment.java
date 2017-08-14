@@ -2,7 +2,6 @@ package stan.mym1y.clean.modules.auth;
 
 import android.view.View;
 
-import stan.mym1y.clean.App;
 import stan.mym1y.clean.R;
 import stan.mym1y.clean.contracts.auth.AuthContract;
 import stan.mym1y.clean.contracts.auth.LoginContract;
@@ -28,16 +27,6 @@ public class AuthFragment
     private AuthContract.Presenter presenter;
     private final AuthContract.View view = new AuthContract.View()
     {
-        public void error()
-        {
-            log("Unknown error!");
-            toast("Unknown error! Please try again");
-            presenter.toLogin();
-        }
-        public void success(UserPrivateData data)
-        {
-            behaviour.enter(data);
-        }
     };
     private final AuthContract.Router router = new AuthContract.Router()
     {
@@ -56,10 +45,6 @@ public class AuthFragment
             log("to -> registration");
             replace(R.id.auth_subscreen, RegistrationFragment.newInstance(registrationBehaviour));
         }
-        public void toUserInfo()
-        {
-            log("to -> user info");
-        }
     };
     private final LoginContract.Behaviour loginBehaviour = new LoginContract.Behaviour()
     {
@@ -68,7 +53,7 @@ public class AuthFragment
             log("login:"
                     + "\n\t" + "userId " + data.userId()
                     + "\n\t" + "token " + data.userToken());
-            presenter.enter(data);
+            behaviour.enter(data);
         }
         public void toLogin(Providers.Type type)
         {
@@ -122,7 +107,7 @@ public class AuthFragment
         setStatusBarColor(getActivity().getResources().getColor(R.color.white));
         setSystemUiVisibilityLight(true);
         setNavigationBarColor(getActivity().getResources().getColor(R.color.black));
-        presenter = new AuthPresenter(view, new AuthModel(App.component().settings(), App.component().dataRemote().privateDataApi()), router);
+        presenter = new AuthPresenter(view, router);
         presenter.toLogin();
     }
 }

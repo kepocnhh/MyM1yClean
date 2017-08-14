@@ -7,8 +7,10 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.contracts.StartContract;
 import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.versions.Versions;
+import stan.mym1y.clean.data.Init;
 import stan.mym1y.clean.data.local.models.CurrenciesModels;
 import stan.mym1y.clean.data.remote.apis.GlobalDataApi;
+import stan.mym1y.clean.modules.data.InitData;
 
 class StartModel
     implements StartContract.Model
@@ -36,13 +38,13 @@ class StartModel
             throw new ErrorsContract.UnknownException(e);
         }
     }
-    public Versions getCacheVersions()
+    public Init<Versions> getCacheVersions()
     {
         return settings.getVersions();
     }
     public void update(Versions versions)
     {
-        settings.setVersions(versions);
+        settings.setVersions(InitData.create(true, versions));
     }
     public void updateCurrencies()
             throws ErrorsContract.UnknownException

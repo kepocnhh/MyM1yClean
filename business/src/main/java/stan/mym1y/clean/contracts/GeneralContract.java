@@ -2,6 +2,7 @@ package stan.mym1y.clean.contracts;
 
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.versions.Versions;
+import stan.mym1y.clean.data.Init;
 
 public interface GeneralContract
 {
@@ -9,7 +10,7 @@ public interface GeneralContract
     {
         Versions getActualVersions()
                 throws ErrorsContract.UnknownException;
-        Versions getCacheVersions();
+        Init<Versions> getCacheVersions();
         UserPrivateData getUserPrivateData() throws UserNotAuthorizedException;
         void login(UserPrivateData data);
         void logout();

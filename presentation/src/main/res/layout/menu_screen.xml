@@ -1,12 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/background"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
     <LinearLayout
         android:orientation="vertical"
-        android:layout_gravity="bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/user_info"
+            android:gravity="center_vertical"
+            android:paddingLeft="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/container_size_largest">
+            <ImageView
+                android:id="@+id/avatar"
+                android:src="@mipmap/user"
+                android:layout_width="48dp"
+                android:layout_height="48dp"/>
+            <LinearLayout
+                android:orientation="vertical"
+                android:paddingLeft="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/name"
+                    android:textSize="@dimen/text_size_large"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+        <View
+            android:id="@+id/user_info_divider"
+            android:background="@color/black"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
+        <LinearLayout
+            android:id="@+id/transactions"
+            android:gravity="center_vertical"
+            android:paddingLeft="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/container_size_medium">
+            <TextView
+                android:id="@+id/transactions_text"
+                android:text="@string/transactions"
+                android:textSize="@dimen/text_size_big"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/settings"
+            android:gravity="center_vertical"
+            android:paddingLeft="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/container_size_medium">
+            <TextView
+                android:id="@+id/settings_text"
+                android:text="@string/settings"
+                android:textSize="@dimen/text_size_big"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:layout_weight="1"
+            android:layout_width="0px"
+            android:layout_height="0dp"/>
         <View
             android:id="@+id/logout_divider"
             android:background="@color/black"
@@ -17,15 +77,15 @@
         <LinearLayout
             android:id="@+id/logout"
             android:gravity="center_vertical"
-            android:paddingLeft="12dp"
+            android:paddingLeft="24dp"
             android:layout_width="match_parent"
             android:layout_height="@dimen/container_size_large">
             <ImageView
                 android:id="@+id/logout_icon"
                 android:src="@mipmap/user_remove"
-                android:padding="12dp"
-                android:layout_width="48dp"
-                android:layout_height="48dp"/>
+                android:layout_marginRight="12dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"/>
             <TextView
                 android:id="@+id/logout_text"
                 android:text="@string/logout"

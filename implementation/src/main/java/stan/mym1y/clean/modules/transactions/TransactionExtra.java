@@ -6,10 +6,15 @@ import stan.mym1y.clean.cores.transactions.Transaction;
 public class TransactionExtra
     implements Transaction.Extra
 {
+    static public Transaction.Extra create(String cat, Currency crc)
+    {
+        return new TransactionExtra(cat, crc);
+    }
+
     private final String cashAccountTitle;
     private final Currency currency;
 
-    public TransactionExtra(String cat, Currency crc)
+    private TransactionExtra(String cat, Currency crc)
     {
         cashAccountTitle = cat;
         currency = crc;

@@ -9,7 +9,7 @@ import java.util.List;
 
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.ui.Theme;
-import stan.reactive.Tuple;
+import stan.mym1y.clean.data.Pair;
 
 class CashAccountsAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder>
@@ -17,7 +17,7 @@ class CashAccountsAdapter
     private final Context context;
     private final Theme theme;
     private final CashAccountsList.Listener listener;
-    private List<Tuple<CashAccount, CashAccount.Extra>> data;
+    private List<Pair<CashAccount, CashAccount.Extra>> data;
 
     CashAccountsAdapter(Context c, Theme t, CashAccountsList.Listener l)
     {
@@ -98,7 +98,7 @@ class CashAccountsAdapter
             return ViewTypes.NORMAL;
         }
     }
-    void swapData(List<Tuple<CashAccount, CashAccount.Extra>> d)
+    void swapData(List<Pair<CashAccount, CashAccount.Extra>> d)
     {
         if(data != null)
         {

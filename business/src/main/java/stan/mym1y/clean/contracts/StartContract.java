@@ -1,6 +1,7 @@
 package stan.mym1y.clean.contracts;
 
 import stan.mym1y.clean.cores.versions.Versions;
+import stan.mym1y.clean.data.Init;
 
 public interface StartContract
 {
@@ -8,7 +9,7 @@ public interface StartContract
     {
         Versions getActualVersions()
                 throws ErrorsContract.NetworkException, ErrorsContract.UnknownException;
-        Versions getCacheVersions();
+        Init<Versions> getCacheVersions();
         void update(Versions versions);
         void updateCurrencies()
                 throws ErrorsContract.UnknownException;
