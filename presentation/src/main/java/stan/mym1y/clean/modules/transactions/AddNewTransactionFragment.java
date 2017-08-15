@@ -13,11 +13,10 @@ import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
 import stan.mym1y.clean.cores.ui.Theme;
+import stan.mym1y.clean.data.Pair;
 import stan.mym1y.clean.modules.transactions.cashaccounts.CashAccountsList;
 import stan.mym1y.clean.units.fragments.UtilFragment;
 import stan.mym1y.clean.utils.ValueAnimator;
-import stan.reactive.Tuple;
-import stan.reactive.single.SingleObserver;
 
 public class AddNewTransactionFragment
         extends UtilFragment
@@ -95,16 +94,11 @@ public class AddNewTransactionFragment
                 tryCancel();
                 break;
             case R.id.count_text:
-                presenter.updateTransaction().subscribe(new SingleObserver.Just<Tuple<TransactionViewModel, Currency>>()
-                {
-                    public void success(Tuple<TransactionViewModel, Currency> tuple)
-                    {
-                        EnterCountDialog.newInstance(enterCountListener, tuple.second().minorUnitType(),
-                                tuple.first().income(),
-                                tuple.first().count(),
-                                tuple.first().minorCount()).show(getFragmentManager(), EnterCountDialog.class.getName());
-                    }
-                });
+                Pair<TransactionViewModel, Currency> pair = presenter.updateTransaction();
+                EnterCountDialog.newInstance(enterCountListener, pair.second().minorUnitType(),
+                        pair.first().income(),
+                        pair.first().count(),
+                        pair.first().minorCount()).show(getFragmentManager(), EnterCountDialog.class.getName());
                 break;
         }
     }

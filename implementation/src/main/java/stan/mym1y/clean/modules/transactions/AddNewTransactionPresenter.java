@@ -4,11 +4,9 @@ import stan.mym1y.clean.contracts.transactions.AddNewTransactionContract;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
+import stan.mym1y.clean.data.Pair;
+import stan.mym1y.clean.modules.data.PairData;
 import stan.mym1y.clean.units.mvp.ModelPresenter;
-import stan.reactive.Scheduler;
-import stan.reactive.Tuple;
-import stan.reactive.functions.Apply;
-import stan.reactive.single.SingleObservable;
 
 class AddNewTransactionPresenter
     extends ModelPresenter<AddNewTransactionContract.View, AddNewTransactionContract.Model>
@@ -48,27 +46,9 @@ class AddNewTransactionPresenter
     {
         model().setDate(date);
     }
-    public SingleObservable<Tuple<TransactionViewModel, Currency>> updateTransaction()
+    public Pair<TransactionViewModel, Currency> updateTransaction()
     {
-        return SingleObservable.create(new Apply<Tuple<TransactionViewModel, Currency>>()
-        {
-            final TransactionViewModel transactionViewModel = model().getNewTransaction();
-            final Currency currency = model().getCurrency();
-            public Tuple<TransactionViewModel, Currency> apply()
-            {
-                return new Tuple<TransactionViewModel, Currency>()
-                {
-                    public TransactionViewModel first()
-                    {
-                        return transactionViewModel;
-                    }
-                    public Currency second()
-                    {
-                        return currency;
-                    }
-                };
-            }
-        }).subscribeOn(Scheduler.NEW).observeOn(viewScheduler);
+        return PairData.create(model().getNewTransaction(), model().getCurrency());
     }
     public void addNewTransaction()
     {

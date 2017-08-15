@@ -4,9 +4,8 @@
 !/implementation
 !/presentation
 !/media
-!/reactive
 !build.gradle
-!dependencies.gradle
+!android.gradle
 !settings.gradle
 !README.md
 !.gitignore

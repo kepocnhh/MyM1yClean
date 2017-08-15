@@ -8,9 +8,9 @@ android {
     defaultConfig {
         minSdkVersion global["androidMinSdkVersion"]
         targetSdkVersion global["androidTargetSdkVersion"]
-        applicationId global["androidApplicationId"]
-        versionCode global["androidVersionCode"]
-        versionName global["androidVersionName"]
+        applicationId global["applicationId"]
+        versionCode global["versionCode"]
+        versionName global["versionName"]
         archivesBaseName = "$applicationId-$versionCode"
     }
     signingConfigs {

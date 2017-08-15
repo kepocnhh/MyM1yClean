@@ -1,4 +1,4 @@
-apply from: 'dependencies.gradle'
+apply from: 'android.gradle'
 
 buildscript {
     repositories {
@@ -10,9 +10,12 @@ buildscript {
 }
 
 allprojects {
-  ext {
-    androidApplicationId = 'stan.mym1y.clean'
-    androidVersionCode = 1708142211
-    androidVersionName = "0.04.27userinfo"
-  }
+    repositories {
+        jcenter()
+    }
+    ext {
+        applicationId = 'stan.mym1y.clean'
+        versionCode = 1708151859
+        versionName = "0.04.27userinfo"
+    }
 }

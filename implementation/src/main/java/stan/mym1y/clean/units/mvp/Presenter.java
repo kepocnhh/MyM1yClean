@@ -1,31 +1,19 @@
 package stan.mym1y.clean.units.mvp;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
-import stan.reactive.Scheduler;
-
-public abstract class Presenter<VIEW>
+public abstract class Presenter<V>
 {
-    static private final Handler viewHandler = new Handler(Looper.getMainLooper());
-    static protected final Scheduler viewScheduler = new Scheduler()
-    {
-        public void run(Runnable runnable)
-        {
-            viewHandler.post(runnable);
-        }
-    };
     private final String tag;
-    private final VIEW view;
+    private final V view;
 
-    public Presenter(VIEW v)
+    public Presenter(V v)
     {
         view = v;
-        tag = "["+getClass().getName().replace(getClass().getPackage().getName()+".", "")+"]";
+        tag = "["+getClass().getName().replace(getClass().getPackage().getName()+".", "").replaceAll("\\$", "_")+"]";
     }
 
-    final protected VIEW view()
+    final protected V view()
     {
         return view;
     }
@@ -34,8 +22,10 @@ public abstract class Presenter<VIEW>
     {
         new Thread(runnable).start();
     }
-    final protected void together(Runnable... runnables)
+    final protected void together(Runnable runnableFirst, Runnable runnableSecond, Runnable... runnables)
     {
+        new Thread(runnableFirst).start();
+        new Thread(runnableSecond).start();
         for(Runnable runnable : runnables)
         {
             new Thread(runnable).start();

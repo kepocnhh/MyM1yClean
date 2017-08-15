@@ -3,7 +3,6 @@ package stan.mym1y.clean.contracts.auth;
 import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.users.UserSecretData;
-import stan.reactive.single.SingleObservable;
 
 public interface RegistrationContract
 {

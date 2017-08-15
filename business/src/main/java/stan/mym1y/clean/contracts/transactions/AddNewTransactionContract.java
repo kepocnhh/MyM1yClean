@@ -5,8 +5,7 @@ import java.util.List;
 import stan.mym1y.clean.cores.cashaccounts.CashAccount;
 import stan.mym1y.clean.cores.currencies.Currency;
 import stan.mym1y.clean.cores.transactions.TransactionViewModel;
-import stan.reactive.Tuple;
-import stan.reactive.single.SingleObservable;
+import stan.mym1y.clean.data.Pair;
 
 public interface AddNewTransactionContract
 {
@@ -30,7 +29,7 @@ public interface AddNewTransactionContract
     interface Presenter
     {
         void update();
-        SingleObservable<Tuple<TransactionViewModel, Currency>> updateTransaction();
+        Pair<TransactionViewModel, Currency> updateTransaction();
         void setCashAccount(CashAccount cashAccount);
         void setCount(boolean income, int count, int minorCount);
         void setDate(long date);

@@ -55,7 +55,8 @@ class GeneralPresenter
             {
                 try
                 {
-                    model().getUserPrivateData();
+                    UserPrivateData data = model().getUserPrivateData();
+                    log("private:" + "\n\tuser: " + data.userId() + "\n\ttoken: " + data.userToken());
                     router().toWork();
                 }
                 catch(GeneralContract.UserNotAuthorizedException e)

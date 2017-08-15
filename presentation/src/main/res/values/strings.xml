@@ -30,4 +30,6 @@
     <string name="empty_user_info_name_error_message">Name is required!</string>
     <string name="transactions">Transactions</string>
     <string name="settings">Settings</string>
+    <string name="settings_user_info_label_text">User info</string>
+    <string name="settings_change_avatar_text">change avatar</string>
 </resources>

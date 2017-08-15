@@ -5,12 +5,6 @@ android {
 
     compileSdkVersion global["androidCompileSdkVersion"]
     buildToolsVersion global["androidBuildToolsVersion"]
-    defaultConfig {
-        minSdkVersion global["androidMinSdkVersion"]
-        targetSdkVersion global["androidTargetSdkVersion"]
-        versionCode global["androidVersionCode"]
-        versionName global["androidVersionName"]
-    }
 }
 
 dependencies {

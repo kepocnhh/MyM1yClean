@@ -4,7 +4,6 @@ import stan.mym1y.clean.contracts.ErrorsContract;
 import stan.mym1y.clean.cores.auth.Providers;
 import stan.mym1y.clean.cores.users.UserPrivateData;
 import stan.mym1y.clean.cores.users.UserSecretData;
-import stan.reactive.single.SingleObservable;
 
 public interface LoginContract
 {
